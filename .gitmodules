@@ -16,3 +16,6 @@
 [submodule "gmd2pp/cJSON"]
 	path = gmd2pp/cJSON
 	url = https://github.com/DaveGamble/cJSON.git
+[submodule "gmd2pp/pugixml_patch"]
+	path = gmd2pp/pugixml_patch
+	url = https://github.com/SergeyMC9730/pugixml.git

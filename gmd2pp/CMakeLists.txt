@@ -102,7 +102,7 @@ install(TARGETS ext_ziplib EXPORT levelapi_workarounds)
 add_subdirectory(level-converter)
 
 add_library(gmdtools gmdtools.cpp)
-link_directories(gmdtools curl)
+link_libraries(gmdtools curl)
 
 install(TARGETS gmdtools EXPORT levelapi_workarounds)
 install(TARGETS gjleveldata EXPORT levelapi_workarounds)
@@ -115,8 +115,9 @@ install(TARGETS cjson EXPORT levelapi_workarounds)
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libs" FORCE)
 set(ENABLE_TARGET_EXPORT OFF CACHE BOOL "Enable target exporting" FORCE)
-add_subdirectory(libxml2)
+add_subdirectory(pugixml_patch)
 
-add_library(gmd2 impl.cpp)
-target_link_libraries(gmd2 ext_ziplib gjleveldata gmdtools cjson xml2)
+install(TARGETS pugixml-shared EXPORT levelapi_workarounds)
 
+add_library(gmd2 impl.cpp hex.cpp level-converter/base64.cpp)
+target_link_libraries(gmd2 ext_ziplib gjleveldata gmdtools cjson pugixml-shared)

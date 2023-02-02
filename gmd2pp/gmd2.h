@@ -15,7 +15,7 @@ public:
     GJGameLevel *getLevel();
     
     std::string getFileName();
-    void setFileName(std::string);
+    void setFileName(std::string str);
 
     int getSongID();
     void setSongID(int sid);

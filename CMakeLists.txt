@@ -54,4 +54,8 @@ add_executable(levelapi_server
     main.cpp
     ${levelapi_server_requests}
 )
+# add_executable(test_gmd2_1
+#     test_gmd2_1.cpp
+# )
+# link_libraries(test_gmd2_1 gmd2)
 target_link_libraries(levelapi_server httpserver sqlpp11 gmd2)
