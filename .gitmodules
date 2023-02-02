@@ -1,0 +1,9 @@
+[submodule "libhttpserver"]
+	path = libhttpserver
+	url = https://github.com/etr/libhttpserver.git
+[submodule "sqlpp11"]
+	path = sqlpp11
+	url = https://github.com/rbock/sqlpp11.git
+[submodule "gmd2pp/ziplib"]
+	path = gmd2pp/ziplib
+	url = https://bitbucket.org/wbenny/ziplib.git
