@@ -7,6 +7,8 @@ project(levelapi_server VERSION 1.0.0)
 #     libhttpserver/src/digest_auth_fail_response.cpp
 # )
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 file(GLOB httpserver_src
     "libhttpserver/src/*.hpp"
     "libhttpserver/src/*.h"
@@ -34,6 +36,8 @@ add_compile_definitions(_HTTPSERVER_HPP_INSIDE_)
 add_library(httpserver ${httpserver_src})
 link_libraries(httpserver microhttpd)
 
+install(TARGETS httpserver EXPORT levelapi_workarounds)
+
 set(BUILD_MYSQL_CONNECTOR ON)
 set(BUILD_MARIADB_CONNECTOR ON)
 set(BUILD_SQLITE3_CONNECTOR ON)
@@ -42,8 +46,12 @@ add_subdirectory(sqlpp11)
 
 add_subdirectory(gmd2pp)
 
+install(TARGETS gmd2 EXPORT levelapi_workarounds)
+
+install(EXPORT levelapi_workarounds DESTINATION "./")
+
 add_executable(levelapi_server 
     main.cpp
     ${levelapi_server_requests}
 )
-target_link_libraries(levelapi_server httpserver sqlpp11)
+target_link_libraries(levelapi_server httpserver sqlpp11 gmd2)

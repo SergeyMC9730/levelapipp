@@ -90,6 +90,33 @@ include_directories(
 add_library(ext_ziplib ${ziplib_files})
 link_libraries(ext_ziplib ext_bzip2 ext_lzma ext_zlib)
 
+ #ext_bzip2 ext_lzma ext_zlib
+
+# install(TARGETS ext_bzip2 ext_lzma ext_zlib ext_ziplib )
+
+install(TARGETS ext_bzip2 EXPORT levelapi_workarounds)
+install(TARGETS ext_lzma EXPORT levelapi_workarounds)
+install(TARGETS ext_zlib EXPORT levelapi_workarounds)
+install(TARGETS ext_ziplib EXPORT levelapi_workarounds)
+
+add_subdirectory(level-converter)
+
+add_library(gmdtools gmdtools.cpp)
+link_directories(gmdtools curl)
+
+install(TARGETS gmdtools EXPORT levelapi_workarounds)
+install(TARGETS gjleveldata EXPORT levelapi_workarounds)
+
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libs" FORCE)
+set(ENABLE_TARGET_EXPORT OFF CACHE BOOL "Enable target exporting" FORCE)
+add_subdirectory(cJSON)
+
+install(TARGETS cjson EXPORT levelapi_workarounds)
+
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libs" FORCE)
+set(ENABLE_TARGET_EXPORT OFF CACHE BOOL "Enable target exporting" FORCE)
+add_subdirectory(libxml2)
+
 add_library(gmd2 impl.cpp)
-target_link_libraries(gmd2 ext_ziplib)
+target_link_libraries(gmd2 ext_ziplib gjleveldata gmdtools cjson xml2)
 
