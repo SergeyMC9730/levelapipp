@@ -154,3 +154,7 @@ void GMD2::generate() {
 
     ZipFile::SaveAndClose(arc, this->getFileName());
 }
+
+void GMD2::setLevel(GJGameLevel *lvl) {
+    this->m_pLevel = lvl;
+}

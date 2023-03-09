@@ -13,6 +13,7 @@ protected:
     bool m_bDebug;
 public:
     GJGameLevel *getLevel();
+    void setLevel(GJGameLevel *lvl);
     
     std::string getFileName();
     void setFileName(std::string str);

@@ -12,7 +12,7 @@
 using namespace LevelAPI;
 
 int main(int, char**) {
-    std::cout << "LevelAPI " << LEVELAPI_VERSION << std::endl;
+    std::cout << "LevelAPI " << LEVELAPI_VERSION << "\n\n";
 
     DatabaseController::setup();
     DatabaseController::HttpController::parse();
@@ -29,17 +29,7 @@ int main(int, char**) {
     ws.register_resource(hwr.request_url, &hwr);
     std::cout << "[LevelAPI] Running on port " << DatabaseController::HttpController::getPort() << std::endl;
 
-    GMD2 *gm = new GMD2();
-
-    gm->setFileName("Level_2482.gmd2");
-    gm->setDebug(true);
-    gm->parse();
-
-    auto db = DatabaseController::Database();
-    db.m_vNodes.push_back(DatabaseController::Node(DatabaseController::NodeDatabase("123", 21, false), "AAA", "AAA/"));
-    db.m_vNodes.push_back(DatabaseController::Node(DatabaseController::NodeDatabase("123", 21, false), "BBB", "BBB/"));
-
-    DatabaseController::Database aaa;
+    DatabaseController::database->save();
 
     ws.start(true);
 

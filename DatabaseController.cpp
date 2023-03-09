@@ -9,7 +9,11 @@
 
 using namespace std;
 
+LevelAPI::DatabaseController::Database *LevelAPI::DatabaseController::database;
+
 void LevelAPI::DatabaseController::setup() {
+    #define db LevelAPI::DatabaseController::database
+
     std::vector<std::string> fpaths = {
         "database", 
         "database/configuration", 
@@ -31,6 +35,8 @@ void LevelAPI::DatabaseController::setup() {
     j3.open ("database/configuration/http.json");
     j3 << j2;
     j3.close();
+
+    db = new Database("database");    
 
     return;
 }
