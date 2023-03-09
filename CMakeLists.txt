@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(levelapi_server VERSION 1.0.0)
 
+set(CXX_STANDARD_REQUIRED 17)
+
 # add_library(httpserver
 #     libhttpserver/src/basic_auth_fail_response.cpp
 #     libhttpserver/src/deferred_response.cpp
@@ -31,18 +33,15 @@ include_directories(httpserver PRIVATE
     libhttpserver/src/httpserver
     libhttpserver/src/httpserver/details
 )
+# include_directories(levelapi_server PRIVATE
+
+# )
 
 add_compile_definitions(_HTTPSERVER_HPP_INSIDE_)
 add_library(httpserver ${httpserver_src})
 link_libraries(httpserver microhttpd)
 
 install(TARGETS httpserver EXPORT levelapi_workarounds)
-
-set(BUILD_MYSQL_CONNECTOR ON)
-set(BUILD_MARIADB_CONNECTOR ON)
-set(BUILD_SQLITE3_CONNECTOR ON)
-# set(BUILD_POSTGRESQL_CONNECTOR ON)
-add_subdirectory(sqlpp11)
 
 add_subdirectory(gmd2pp)
 
@@ -52,10 +51,10 @@ install(EXPORT levelapi_workarounds DESTINATION "./")
 
 add_executable(levelapi_server 
     main.cpp
+    Node.cpp NodeCommandQueue.cpp NodeDatabase.cpp NodeQueue.cpp
+    Database.cpp DatabaseController.cpp
+    HttpController.cpp
     ${levelapi_server_requests}
 )
-# add_executable(test_gmd2_1
-#     test_gmd2_1.cpp
-# )
-# link_libraries(test_gmd2_1 gmd2)
-target_link_libraries(levelapi_server httpserver sqlpp11 gmd2)
+
+target_link_libraries(levelapi_server httpserver gmd2)
