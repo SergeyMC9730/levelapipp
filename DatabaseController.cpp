@@ -3,6 +3,10 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <vector>
+#include <fstream>
+
+#include "json/single_include/nlohmann/json.hpp"
+
 using namespace std;
 
 void LevelAPI::DatabaseController::setup() {
@@ -14,7 +18,19 @@ void LevelAPI::DatabaseController::setup() {
 
     int i = 0;
     while(i < fpaths.size()) {
-        mkdir(fpaths[i].c_str(), 777);
+        mkdir(fpaths[i].c_str(), 0777);
         i++;
     }
+
+    nlohmann::json j;
+    j["port"] = 8000;
+
+    std::string j2 = j.dump();
+
+    ofstream j3;
+    j3.open ("database/configuration/http.json");
+    j3 << j2;
+    j3.close();
+
+    return;
 }

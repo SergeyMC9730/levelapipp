@@ -46,6 +46,8 @@ namespace LevelAPI {
             std::string m_sEndpoint;
             uint8_t m_nFeatureSet;
             bool m_bReadOnly;
+
+            int m_nLevels;
         };
         class Node {
         private:

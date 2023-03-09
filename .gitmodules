@@ -19,3 +19,6 @@
 [submodule "gmd2pp/pugixml_patch"]
 	path = gmd2pp/pugixml_patch
 	url = https://github.com/SergeyMC9730/pugixml.git
+[submodule "json"]
+	path = json
+	url = https://github.com/nlohmann/json.git

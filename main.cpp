@@ -1,24 +1,24 @@
 #include <iostream>
 
 #include <httpserver.hpp>
+#include <iterator>
 #include "requests/v1.helloworld.h"
 
 #include "gmd2pp/gmd2.h"
 
 #include "lapi_database.h"
-
-uint16_t port = 8000;
+#include "lapi_version.h"
 
 using namespace LevelAPI;
 
 int main(int, char**) {
-    std::cout << "Hello, world!\n";
+    std::cout << "LevelAPI " << LEVELAPI_VERSION << std::endl;
 
     DatabaseController::setup();
     DatabaseController::HttpController::parse();
 
     webserver ws = create_webserver()
-        .port(port)
+        .port(DatabaseController::HttpController::getPort())
         .max_threads(64)
         .memory_limit(256 * 1024)
         .debug()
@@ -27,7 +27,7 @@ int main(int, char**) {
     LevelAPI::v1::HelloWorldRequest hwr;
 
     ws.register_resource(hwr.request_url, &hwr);
-    std::cout << "[LevelAPI] Running on port " << port << std::endl;
+    std::cout << "[LevelAPI] Running on port " << DatabaseController::HttpController::getPort() << std::endl;
 
     GMD2 *gm = new GMD2();
 

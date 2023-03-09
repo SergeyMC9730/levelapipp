@@ -1,6 +1,6 @@
 #include "lapi_database.h"
 
-
+#include "json/single_include/nlohmann/json.hpp"
 
 using namespace LevelAPI::DatabaseController;
 
@@ -8,11 +8,13 @@ using namespace LevelAPI::DatabaseController;
 #include <fstream>
 #include <sstream>
 
+nlohmann::json HttpController_json;
+
 void HttpController::parse() {
-    std::ifstream t("database/configuration/http.json");
-    std::stringstream buffer;
-    buffer << t.rdbuf();
+    std::ifstream h("database/configuration/http.json");
+    HttpController_json = nlohmann::json::parse(h);
+    
 }
 int HttpController::getPort() {
-    return 8000;
+    return HttpController_json["port"];
 }
