@@ -9,10 +9,12 @@
 #include "lapi_database.h"
 #include "lapi_version.h"
 
+#include "termcolor/include/termcolor/termcolor.hpp"
+
 using namespace LevelAPI;
 
 int main(int, char**) {
-    std::cout << "LevelAPI " << LEVELAPI_VERSION << "\n\n";
+    std::cout << termcolor::bright_cyan << "LevelAPI " << LEVELAPI_VERSION << "\n\n" << termcolor::reset;
 
     DatabaseController::setup();
     DatabaseController::HttpController::parse();
@@ -22,8 +24,8 @@ int main(int, char**) {
         .max_threads(64)
         .memory_limit(256 * 1024)
         .debug()
-        .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK);
-
+        // .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK)
+    ;
     LevelAPI::v1::HelloWorldRequest hwr;
 
     ws.register_resource(hwr.request_url, &hwr);
