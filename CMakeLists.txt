@@ -54,6 +54,9 @@ add_executable(levelapi_server
     Node.cpp NodeCommandQueue.cpp NodeDatabase.cpp NodeQueue.cpp
     Database.cpp DatabaseController.cpp
     HttpController.cpp
+    Level.cpp LevelRange.cpp LevelRelease.cpp
+    CURLConnection.cpp CURLConnectionSettings.cpp
+    test_curl_connection.cpp
     ${levelapi_server_requests}
 )
 

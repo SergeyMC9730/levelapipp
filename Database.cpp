@@ -125,3 +125,12 @@ void Database::save() {
 void Database::setupJSON() {
     databaseJson = nlohmann::json();
 }
+
+Node *Database::getNode(std::string internalName) {
+    int i = 0;
+    while(i < m_vNodes.size()) {
+        if(!m_vNodes[i].m_sInternalName.compare(internalName)) return m_vNodes[i].getSelf();
+        i++;
+    }
+    return nullptr;
+}

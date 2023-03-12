@@ -1,9 +1,12 @@
 #pragma once
 
+#include "gmd2pp/level-converter/GJGameLevel.h"
 #include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
+
+#include "gmd2pp/level-converter/GJGameLevel.h"
 
 #include "json/single_include/nlohmann/json.hpp"
 
@@ -15,6 +18,24 @@ namespace LevelAPI {
             void parse();
             int getPort();
         }
+        class LevelRelease {
+        public:
+            int m_nGameVersion;
+            std::string m_fActualVersion;
+
+            static std::string determineFromID(int id);
+        };
+        class Level : public GJGameLevel {
+        public:
+            nlohmann::json levelJson;
+            LevelRelease m_uRelease;
+            std::string m_sLevelPath;
+
+            void setupJSON();
+            Level();
+            void restore();
+            void save();
+        };
         class NodeCommandQueue {
         public:
             nlohmann::json commandJson;
@@ -83,6 +104,12 @@ namespace LevelAPI {
             void recover();
 
             void setupJSON();
+
+            void createLevelFolder();
+
+            Level getLevel(int id);
+
+            Node *getSelf();
         };
         class Database {
         public:
@@ -99,11 +126,13 @@ namespace LevelAPI {
             void recalculate();
 
             void save();
-            
+
             int m_nNodeSize;
             std::vector<Node> m_vNodes;
 
             void setupJSON();
+
+            Node *getNode(std::string internalName);
         };
         extern Database *database;
         void setup();

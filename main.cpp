@@ -11,6 +11,8 @@
 
 #include "termcolor/include/termcolor/termcolor.hpp"
 
+#include "tests.h"
+
 using namespace LevelAPI;
 
 int main(int, char**) {
@@ -18,6 +20,10 @@ int main(int, char**) {
 
     DatabaseController::setup();
     DatabaseController::HttpController::parse();
+
+    std::cout << termcolor::reset;
+
+    LevelAPI::Tests::testCurl();
 
     webserver ws = create_webserver()
         .port(DatabaseController::HttpController::getPort())

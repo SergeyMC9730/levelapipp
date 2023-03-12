@@ -76,6 +76,7 @@ void GMD2::parse() {
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load_buffer(leveldata, ldata_buffer.size());
 
+    // painfully made by dogotrigger
     auto xml_levelname = doc.child("d").child("s").first_child().value();
     auto xml_leveldesc = doc.child("d").child("s").next_sibling().next_sibling().first_child().value();
     auto xml_leveldata = doc.child("d").child("s").next_sibling().next_sibling().next_sibling().next_sibling().first_child().value();
