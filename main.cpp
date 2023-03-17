@@ -32,9 +32,8 @@ int main(int, char**) {
         .debug()
         // .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK)
     ;
-    LevelAPI::v1::HelloWorldRequest hwr;
 
-    ws.register_resource(hwr.request_url, &hwr);
+    ws.register_resource("/api/v1/hello", static_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
     std::cout << "[LevelAPI] Running on port " << DatabaseController::HttpController::getPort() << std::endl;
 
     DatabaseController::database->save();

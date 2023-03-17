@@ -114,3 +114,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method, FIL
 void CURLConnection::setDebug(bool d) {
     m_bDebug = d;
 }
+
+void CURLConnection::destroy() {
+    curl_easy_cleanup(m_pCurl);
+}

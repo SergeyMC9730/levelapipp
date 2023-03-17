@@ -18,6 +18,8 @@ void Level::setupJSON() {
 void Level::save() {
     #define fill(str, val) levelJson[str] = val;
 
+    m_uRelease.m_fActualVersion = m_uRelease.determineFromID(m_nLevelID);
+
     fill("levelID", m_nLevelID)
     fill("version", m_nVersion)
     fill("playerID", m_nPlayerID)

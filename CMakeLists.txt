@@ -26,6 +26,10 @@ file(GLOB levelapi_server_requests
     "requests/*.cpp"
     "requests/*.h"
 )
+file(GLOB levelapi_base
+    "*.cpp"
+    "*.h"
+)
 
 include_directories(httpserver PRIVATE
     libhttpserver/src
@@ -45,18 +49,13 @@ install(TARGETS httpserver EXPORT levelapi_workarounds)
 
 add_subdirectory(gmd2pp)
 
+
 install(TARGETS gmd2 EXPORT levelapi_workarounds)
 
 install(EXPORT levelapi_workarounds DESTINATION "./")
 
 add_executable(levelapi_server 
-    main.cpp
-    Node.cpp NodeCommandQueue.cpp NodeDatabase.cpp NodeQueue.cpp
-    Database.cpp DatabaseController.cpp
-    HttpController.cpp
-    Level.cpp LevelRange.cpp LevelRelease.cpp
-    CURLConnection.cpp CURLConnectionSettings.cpp
-    test_curl_connection.cpp
+    ${levelapi_base}
     ${levelapi_server_requests}
 )
 

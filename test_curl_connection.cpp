@@ -22,11 +22,13 @@ void Tests::testCurlThread() {
     Backend::CURLResult *res = con.access_page("https://www.google.com");
 
     printf("[LevelAPI TEST 0] %d %d\n", res->result, res->http_status);
+    if(res->http_status == 200 && res->result == 0) {
+        std::cout << termcolor::green << "[LevelAPI] cURL connection test complete\n" << termcolor::reset;
+    } else {
+        std::cout << termcolor::red << "[LevelAPI] cURL connection test FAILED\n" << termcolor::reset;
+    }
 
     delete res;
-
-    std::cout << termcolor::green << "[LevelAPI] cURL connection test complete\n" << termcolor::reset;
-    //printf("%s\n", res->data);
 
     return;
 }
