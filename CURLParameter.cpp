@@ -2,13 +2,13 @@
 #include <string>
 
 CURLParameter::CURLParameter() {
-    CURLParameter("", "");
+    key = "";
+    value = "";
 }
 CURLParameter::CURLParameter(const char * k, const char * v) {
     key = k;
     value = v;
 }
 CURLParameter::~CURLParameter() {
-    printf("~curlparameter\n");
     return;
 }

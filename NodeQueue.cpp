@@ -43,12 +43,17 @@ NodeQueue::NodeQueue(bool executeQueue, int runtimeState) {
 
     setupJSON();
 
-    queueJson["commandQueue"] = nlohmann::json::array();
-    queueJson["executeQueue"] = executeQueue;
-    queueJson["runtimeState"] = runtimeState;
+    save();
 }
 NodeQueue::NodeQueue() {
-    NodeQueue(false, 0);
+    m_vCommandQueue = new std::vector<NodeCommandQueue *>();
+    m_bExecuteQueue = false;
+    m_nRuntimeState = 0;
+
+    setupJSON();
+
+    save();
+    // NodeQueue(false, 0);
 }
 
 void NodeQueue::save() {
@@ -82,7 +87,6 @@ void NodeQueue::setupJSON() {
 }
 
 NodeQueue::~NodeQueue() {
-    printf("~nodequeue\n");
     int i = 0;
     while(i < m_vCommandQueue->size()) {
         delete m_vCommandQueue->at(i);

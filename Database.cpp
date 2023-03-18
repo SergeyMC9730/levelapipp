@@ -136,7 +136,6 @@ Node *Database::getNode(std::string internalName) {
 }
 
 Database::~Database() {
-    printf("~database\n");
     int i = 0;
     while(i < m_vNodes->size()) {
         delete m_vNodes->at(i);

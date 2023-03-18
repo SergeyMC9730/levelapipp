@@ -11,15 +11,6 @@ using namespace LevelAPI::Backend;
 CURLConnection::CURLConnection() {
     m_pCurl = curl_easy_init();
 }
-CURLConnection::~CURLConnection() {
-    printf("~curlconnection\n");
-    int i = 0;
-    while(i < m_mUserData.size()) {
-        delete m_mUserData[i];
-        i++;
-    }
-    return;
-}
 
 size_t CURLConnection::write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
     auto settings = static_cast<CURLConnectionSettings *>(stream);

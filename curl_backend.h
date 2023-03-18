@@ -50,7 +50,6 @@ namespace LevelAPI {
             void destroy();
         
             CURLConnection();
-            ~CURLConnection();
         };
     }
 }

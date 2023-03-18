@@ -15,6 +15,5 @@ std::string LevelRelease::determineFromID(int id) {
 }
 
 LevelRelease::~LevelRelease() {
-    printf("~levelrelease\n");
     delete m_fActualVersion;
 }

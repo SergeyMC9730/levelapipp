@@ -13,10 +13,7 @@ Node::Node(NodeDatabase *database, std::string *internalName, std::string *level
 
     setupJSON();
 
-    nodeJson["database"] = database->ndJson;
-    nodeJson["internalName"] = *internalName;
-    nodeJson["levelDataPath"] = *levelDataPath;
-    nodeJson["queue"] = m_uQueue->queueJson;
+    save();
 }
 Node::Node(NodeDatabase *database, std::string *internalName, std::string *levelDataPath) {
     m_uDatabase = database;
@@ -26,10 +23,7 @@ Node::Node(NodeDatabase *database, std::string *internalName, std::string *level
 
     setupJSON();
 
-    nodeJson["database"] = m_uDatabase->ndJson;
-    nodeJson["internalName"] = *internalName;
-    nodeJson["levelDataPath"] = *levelDataPath;
-    nodeJson["queue"] = m_uQueue->queueJson;
+    save();
 }
 Node::Node() {
     m_uDatabase = new NodeDatabase();
@@ -39,10 +33,7 @@ Node::Node() {
 
     setupJSON();
 
-    nodeJson["database"] = m_uDatabase->ndJson;
-    nodeJson["internalName"] = *m_sInternalName;
-    nodeJson["levelDataPath"] = *m_sLevelDataPath;
-    nodeJson["queue"] = m_uQueue->queueJson;
+    save();
 }
 
 void Node::save() {
@@ -105,7 +96,6 @@ Node *Node::getSelf() {
 }
 
 Node::~Node() {
-    printf("~node\n");
     delete m_uDatabase;
     delete m_sInternalName;
     delete m_sLevelDataPath;

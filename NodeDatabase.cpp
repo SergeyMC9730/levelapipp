@@ -7,12 +7,17 @@ NodeDatabase::NodeDatabase(std::string *endpoint, uint8_t featureSet, bool readO
     m_nFeatureSet = featureSet;
     m_bReadOnly = readOnly;
 
-    ndJson["endpoint"] = *endpoint;
-    ndJson["featureSet"] = featureSet;
-    ndJson["readOnly"] = readOnly;
+    setupJSON();
+
+    save();
 }
 NodeDatabase::NodeDatabase() {
-    NodeDatabase(new std::string(""), 21, true);
+    m_sEndpoint = new std::string("");
+    m_nFeatureSet = 21;
+    m_bReadOnly = true;
+
+    setupJSON();
+    save();
 }
 
 void NodeDatabase::save() {
@@ -32,6 +37,5 @@ void NodeDatabase::setupJSON() {
 }
 
 NodeDatabase::~NodeDatabase() {
-    printf("~nodedatabase\n");
     delete m_sEndpoint;
 }

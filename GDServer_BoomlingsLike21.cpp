@@ -15,10 +15,6 @@ using namespace LevelAPI::Backend;
 GDServer_BoomlingsLike21::GDServer_BoomlingsLike21(std::string *endpoint) : GDServer() {
     m_sEndpointURL = endpoint;
 }
-GDServer_BoomlingsLike21::~GDServer_BoomlingsLike21() {
-    printf("~gdserver_boomlingslike21\n");
-    GDServer::~GDServer();
-}
 GJGameLevel *GDServer_BoomlingsLike21::getLevelMetaByID(int id) {
     return nullptr;
 }
@@ -36,9 +32,11 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
 
     // parse players
     std::string plList = vec2[1];
+    std::string lvlList = vec2[0];
     std::map<int, Account20> playerMap;
 
     std::vector<std::string> vec4array = splitString(plList.c_str(), '|');
+    std::vector<std::string> vec5levels = splitString(lvlList.c_str(), '|');
     int i = 0;
     
     while(i < vec4array.size()) {
@@ -56,8 +54,8 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     vec4array.clear();
     vec4array = splitString(vec2[1].c_str(), '|');
     i = 0;
-    while(i < vec4array.size()) {
-        LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec4array[i].c_str());
+    while(i < vec5levels.size()) {
+        LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str());
         Account20 ac20 = playerMap[lvl->m_nPlayerID];
         lvl->m_nAccountID = ac20.accountID;
         lvl->m_sUsername = new std::string(ac20.username);
@@ -66,6 +64,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     }
 
     vec4array.clear();
+    vec5levels.clear();
     return vec1;
     
 };

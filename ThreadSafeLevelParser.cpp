@@ -17,17 +17,17 @@ using namespace LevelAPI::Backend;
     }
 #define PARSE_KEY_PKINT(keyN, member) \
     case keyN: {\
-        member = std::stoi(info[i]); \
+        if(info[i].compare("")) member = std::stoi(info[i]); \
         break; \
     }
 #define PARSE_KEY_PKBOOL(keyN, member) \
     case keyN: {\
-        member = (bool)(std::stoi(info[i])); \
+        if(info[i].compare("")) member = (bool)(std::stoi(info[i])); \
         break; \
     }
 #define PARSE_KEY_PKBASE64(keyN, member) \
     case keyN: {\
-        member = new std::string((char *)base64_decode(info[i]).data()); \
+        if(info[i].compare("")) member = new std::string((char *)base64_decode(info[i]).data()); \
         break; \
     }
 #define PARSE_KEY(keyN, member, vType) PARSE_KEY_##vType(keyN, member)

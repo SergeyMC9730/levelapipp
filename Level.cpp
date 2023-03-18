@@ -111,8 +111,7 @@ void Level::restore() {
 }
 
 Level::~Level() {
-    printf("~level\n");
     delete m_uRelease;
-    delete m_sLevelPath;
-    delete m_sUsername;
+    // delete m_sLevelPath;
+    // delete m_sUsername;
 }

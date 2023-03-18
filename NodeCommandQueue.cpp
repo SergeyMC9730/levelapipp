@@ -9,8 +9,7 @@ NodeCommandQueue::NodeCommandQueue(int command, std::string *text) {
 
     setupJSON();
 
-    commandJson["type"] = command;
-    commandJson["data"] = *text;
+    save();
 }
 
 NodeCommandQueue::NodeCommandQueue() {
@@ -32,6 +31,5 @@ void NodeCommandQueue::setupJSON() {
 }
 
 NodeCommandQueue::~NodeCommandQueue() {
-    printf("~nodecommandqueue\n");
     delete m_sText;
 }
