@@ -12,12 +12,12 @@ using namespace LevelAPI::DatabaseController;
 
 bool Database::exists(){ 
     struct stat buffer;
-    std::string p = databasePath + "/info.json";
+    std::string p = *databasePath + "/info.json";
     return (stat (p.c_str(), &buffer) == 0); 
 }
 
-Database::Database(std::vector<Node> nodes) {
-    m_nNodeSize = nodes.size();
+Database::Database(std::vector<Node *> *nodes) {
+    m_nNodeSize = nodes->size();
     m_vNodes = nodes;
 
     setupJSON();
@@ -27,10 +27,10 @@ Database::Database(std::vector<Node> nodes) {
 
     save();
 }
-Database::Database(Node node) {
-    m_vNodes = std::vector<Node>();
-    m_vNodes.push_back(node);
-    m_nNodeSize = m_vNodes.size();
+Database::Database(Node *node) {
+    m_vNodes = new std::vector<Node *>();
+    m_vNodes->push_back(node);
+    m_nNodeSize = m_vNodes->size();
 
     setupJSON();
 
@@ -39,13 +39,13 @@ Database::Database(Node node) {
 
     save();
 }
-Database::Database(std::string path) {
+Database::Database(std::string *path) {
     databasePath = path;
 
-    std::string p1 = path + "/info.json";
+    std::string p1 = *path + "/info.json";
 
-    m_vNodes = std::vector<Node>();
-    m_nNodeSize = m_vNodes.size();
+    m_vNodes = new std::vector<Node *>();
+    m_nNodeSize = m_vNodes->size();
 
     if(!exists()) {
         setupJSON();
@@ -64,9 +64,9 @@ Database::Database(std::string path) {
     m_nNodeSize = databaseJson["nodeSize"].get<int>();
     int ii = 0;
     while(ii < databaseJson["nodes"].size()) {
-        m_vNodes.push_back(Node());
-        m_vNodes[ii].nodeJson = databaseJson["nodes"].at(ii);
-        m_vNodes[ii].recover();
+        m_vNodes->push_back(new Node());
+        m_vNodes->at(ii)->nodeJson = databaseJson["nodes"].at(ii);
+        m_vNodes->at(ii)->recover();
         ii++;
     }
 
@@ -75,8 +75,8 @@ Database::Database(std::string path) {
     return;
 }
 Database::Database() {
-    m_vNodes = std::vector<Node>();
-    m_nNodeSize = m_vNodes.size();
+    m_vNodes = new std::vector<Node *>();
+    m_nNodeSize = m_vNodes->size();
 
     setupJSON();
 
@@ -87,7 +87,7 @@ Database::Database() {
 }
 
 void Database::recalculate() {
-    m_nNodeSize = m_vNodes.size();
+    m_nNodeSize = m_vNodes->size();
 }
 
 void Database::save() {
@@ -99,14 +99,14 @@ void Database::save() {
     databaseJson["nodeSize"] = m_nNodeSize;
 
     int i = 0;
-    while(i < m_vNodes.size()) {
-        m_vNodes[i].save();
+    while(i < m_vNodes->size()) {
+        m_vNodes->at(i)->save();
 
-        databaseJson["nodes"].push_back(m_vNodes[i].nodeJson);
+        databaseJson["nodes"].push_back(m_vNodes->at(i)->nodeJson);
         i++;
     }
 
-    std::string p1 = databasePath + "/info.json";
+    std::string p1 = *databasePath + "/info.json";
 
     std::ofstream file(p1);
     file << databaseJson.dump(4);
@@ -128,9 +128,20 @@ void Database::setupJSON() {
 
 Node *Database::getNode(std::string internalName) {
     int i = 0;
-    while(i < m_vNodes.size()) {
-        if(!m_vNodes[i].m_sInternalName.compare(internalName)) return m_vNodes[i].getSelf();
+    while(i < m_vNodes->size()) {
+        if(!m_vNodes->at(i)->m_sInternalName->compare(internalName)) return m_vNodes->at(i);
         i++;
     }
     return nullptr;
+}
+
+Database::~Database() {
+    printf("~database\n");
+    int i = 0;
+    while(i < m_vNodes->size()) {
+        delete m_vNodes->at(i);
+        i++;
+    }
+    delete m_vNodes;
+    delete databasePath;
 }

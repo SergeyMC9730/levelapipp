@@ -83,9 +83,9 @@ void GMD2::parse() {
     auto xml_iscustoms = doc.child("d").child("s").next_sibling().next_sibling().next_sibling().next_sibling().next_sibling().first_child().value();
     auto xml_songid = doc.child("d").child("s").next_sibling().next_sibling().next_sibling().next_sibling().next_sibling().first_child().parent().next_sibling().first_child().value();
 
-    this->m_pLevel->m_sLevelString = std::string(xml_leveldata);
-    this->m_pLevel->m_sDescription = convertHexToStr(std::string(xml_leveldesc));
-    this->m_pLevel->m_sLevelName = std::string(xml_levelname);
+    this->m_pLevel->m_sLevelString = new std::string(xml_leveldata);
+    this->m_pLevel->m_sDescription = new std::string(convertHexToStr(std::string(xml_leveldesc)));
+    this->m_pLevel->m_sLevelName = new std::string(xml_levelname);
     if(!strcmp(xml_iscustoms, "k45")) {
         this->m_pLevel->m_nMusicID = std::stoi(std::string(xml_songid)) - 1;
     } else {
@@ -93,7 +93,7 @@ void GMD2::parse() {
     }
 
     if(this->m_bDebug) {
-        printf("[GMD2Impl] Parsed level \"%s\"\n", this->m_pLevel->m_sLevelName.data());
+        printf("[GMD2Impl] Parsed level \"%s\"\n", this->m_pLevel->m_sLevelName->data());
     }
 
     return;
@@ -104,21 +104,21 @@ void GMD2::generate() {
     std::string ldata = "";
 
     ldata += "<d><k>kCEK</k>";
-        if(this->m_bDebug) printf("[GMD2Impl] Level Name: %s\n", this->m_pLevel->m_sLevelName.data());
+        if(this->m_bDebug) printf("[GMD2Impl] Level Name: %s\n", this->m_pLevel->m_sLevelName->data());
         ldata += "<i>4</i><k>k2</k>";
             ldata += "<s>";
-            ldata += this->m_pLevel->m_sLevelName;
+            ldata += this->m_pLevel->m_sLevelName->c_str();
             ldata += "</s>";
         
-        if(this->m_bDebug) printf("[GMD2Impl] Level Description: %s\n", this->m_pLevel->m_sDescription.data());
+        if(this->m_bDebug) printf("[GMD2Impl] Level Description: %s\n", this->m_pLevel->m_sDescription->data());
         ldata += "<k>k3</k>";
             ldata += "<s>";
-                ldata += base64_encode((BYTE *)this->m_pLevel->m_sDescription.data(), this->m_pLevel->m_sDescription.size());
+                ldata += base64_encode((BYTE *)this->m_pLevel->m_sDescription->data(), this->m_pLevel->m_sDescription->size());
             ldata += "</s>";
 
         ldata += "<k>k4</k>";
             ldata += "<s>";
-                ldata += this->m_pLevel->m_sLevelString;
+                ldata += this->m_pLevel->m_sLevelString->c_str();
             ldata += "</s>";
 
         std::string knum = (this->m_pLevel->m_nSongID == 0) ? "k45" : "k8";

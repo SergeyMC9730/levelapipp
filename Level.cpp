@@ -6,7 +6,8 @@
 using namespace LevelAPI::DatabaseController;
 
 Level::Level() {
-    m_uRelease.m_fActualVersion = m_uRelease.determineFromID(m_nLevelID);
+    m_uRelease = new LevelRelease();
+    m_uRelease->m_fActualVersion = new std::string(m_uRelease->determineFromID(m_nLevelID));
 
     setupJSON();
 }
@@ -17,12 +18,14 @@ void Level::setupJSON() {
 
 void Level::save() {
     #define fill(str, val) levelJson[str] = val;
+    #define fill_str(str, val) fill(str, val->c_str());
 
-    m_uRelease.m_fActualVersion = m_uRelease.determineFromID(m_nLevelID);
+    m_uRelease->m_fActualVersion = new std::string(m_uRelease->determineFromID(m_nLevelID));
 
     fill("levelID", m_nLevelID)
     fill("version", m_nVersion)
     fill("playerID", m_nPlayerID)
+    fill("accountID", m_nAccountID)
     fill("downloads", m_nDownloads)
     fill("musicID", m_nMusicID)
     fill("likes", m_nLikes)
@@ -30,7 +33,6 @@ void Level::save() {
     fill("difficulty_denominator", m_nDifficultyDenominator)
     fill("difficulty_numerator", m_nDifficultyNumerator)
     fill("fakeGameVersion", m_nGameVersion)
-    fill("actualGameVersion", m_uRelease.m_fActualVersion)
     fill("dislikes", m_nDislikes)
     fill("stars", m_nStars)
     fill("featureScore", m_nFeatureScore)
@@ -50,10 +52,12 @@ void Level::save() {
     fill("ldmAvailable", m_bLDM)
     fill("is2P", m_b2P)
 
-    fill("levelName", m_sLevelName)
-    fill("levelDescription", m_sDescription)
-    fill("uploadDate", m_sUploadDate)
-    fill("updateDate", m_sUpdateDate)
+    fill_str("levelName", m_sLevelName)
+    fill_str("levelDescription", m_sDescription)
+    fill_str("uploadDate", m_sUploadDate)
+    fill_str("updateDate", m_sUpdateDate)
+    fill_str("username", m_sUsername);
+    fill_str("actualGameVersion", m_uRelease->m_fActualVersion)
 
     return;
 }
@@ -71,7 +75,6 @@ void Level::restore() {
     RS(int, "difficulty_denominator", m_nDifficultyDenominator)
     RS(int, "difficulty_numerator", m_nDifficultyNumerator)
     RS(int, "fakeGameVersion", m_nGameVersion)
-    RS(int, "actualGameVersion", m_uRelease.m_fActualVersion)
     RS(int, "dislikes", m_nDislikes)
     RS(int, "stars", m_nStars)
     RS(int, "featureScore", m_nFeatureScore)
@@ -83,6 +86,7 @@ void Level::restore() {
     RS(int, "demonDifficulty", m_nDemonDifficulty)
     RS(int, "editorTime", m_nEditorTime)
     RS(int, "editorTimeTotal", m_nEditorTimeTotal)
+    RS(int, "accountID", m_nAccountID)
 
     RS(bool, "songID", m_nSongID)
     RS(bool, "isAuto", m_bAuto)
@@ -91,15 +95,24 @@ void Level::restore() {
     RS(bool, "ldmAvailable", m_bLDM)
     RS(bool, "is2P", m_b2P)
 
-    RS(std::string, "levelName", m_sLevelName)
-    RS(std::string, "levelDescription", m_sDescription)
-    RS(std::string, "uploadDate", m_sUploadDate)
-    RS(std::string, "updateDate", m_sUpdateDate)
+    RS(std::string, "levelName", *m_sLevelName)
+    RS(std::string, "levelDescription", *m_sDescription)
+    RS(std::string, "uploadDate", *m_sUploadDate)
+    RS(std::string, "updateDate", *m_sUpdateDate)
+    RS(std::string, "username", *m_sUsername)
+    RS(std::string, "actualGameVersion", *m_uRelease->m_fActualVersion)
 
-    std::string g = m_sLevelPath + "/meta.json";
+    std::string g = *m_sLevelPath + "/meta.json";
 
     std::ofstream file(g);
     file << levelJson.dump(4);
 
     return;
+}
+
+Level::~Level() {
+    printf("~level\n");
+    delete m_uRelease;
+    delete m_sLevelPath;
+    delete m_sUsername;
 }

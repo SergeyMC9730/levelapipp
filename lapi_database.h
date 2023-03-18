@@ -20,47 +20,55 @@ namespace LevelAPI {
         }
         class LevelRelease {
         public:
+            ~LevelRelease();
+
             int m_nGameVersion;
-            std::string m_fActualVersion;
+            std::string *m_fActualVersion;
 
             static std::string determineFromID(int id);
         };
         class Level : public GJGameLevel {
         public:
             nlohmann::json levelJson;
-            LevelRelease m_uRelease;
-            std::string m_sLevelPath;
+            LevelRelease *m_uRelease;
+            std::string *m_sLevelPath;
+            int m_nAccountID;
+            std::string *m_sUsername;
 
             void setupJSON();
             Level();
             void restore();
             void save();
+
+            ~Level();
         };
         class NodeCommandQueue {
         public:
             nlohmann::json commandJson;
         public:
-            NodeCommandQueue(int command, std::string text);
+            NodeCommandQueue(int command, std::string *text);
             NodeCommandQueue();
 
             uint8_t m_nCommand;
-            std::string m_sText;
+            std::string *m_sText;
 
             void save();
             void recover();
 
             void setupJSON();
+
+            ~NodeCommandQueue();
         };
         class NodeQueue {
         public:
             nlohmann::json queueJson;
         public:
-            NodeQueue(NodeCommandQueue q, bool executeQueue, int runtimeState);
-            NodeQueue(std::vector<NodeCommandQueue> vec, bool executeQueue, int runtimeState);
+            NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState);
+            NodeQueue(std::vector<NodeCommandQueue *> *vec, bool executeQueue, int runtimeState);
             NodeQueue(bool executeQueue, int runtimeState);
             NodeQueue();
 
-            std::vector<NodeCommandQueue> m_vCommandQueue;
+            std::vector<NodeCommandQueue *> *m_vCommandQueue;
             bool m_bExecuteQueue;
             int m_nRuntimeState;
 
@@ -68,15 +76,17 @@ namespace LevelAPI {
             void recover();
 
             void setupJSON();
+
+            ~NodeQueue();
         };
         class NodeDatabase {
         public:
             nlohmann::json ndJson;
         public:
             NodeDatabase();
-            NodeDatabase(std::string endpoint, uint8_t featureSet, bool readOnly);
+            NodeDatabase(std::string *endpoint, uint8_t featureSet, bool readOnly);
 
-            std::string m_sEndpoint;
+            std::string *m_sEndpoint;
             uint8_t m_nFeatureSet;
             bool m_bReadOnly;
 
@@ -86,19 +96,21 @@ namespace LevelAPI {
             void recover();
 
             void setupJSON();
+
+            ~NodeDatabase();
         };
         class Node {
         public:
             nlohmann::json nodeJson;
         public:
-            Node(NodeDatabase database, std::string internalName, std::string levelDataPath, NodeQueue queue);
-            Node(NodeDatabase database, std::string internalName, std::string levelDataPath);
+            Node(NodeDatabase *database, std::string *internalName, std::string *levelDataPath, NodeQueue *queue);
+            Node(NodeDatabase *database, std::string *internalName, std::string *levelDataPath);
             Node();
 
-            NodeDatabase m_uDatabase;
-            std::string m_sInternalName;
-            std::string m_sLevelDataPath;
-            NodeQueue m_uQueue;
+            NodeDatabase *m_uDatabase;
+            std::string *m_sInternalName;
+            std::string *m_sLevelDataPath;
+            NodeQueue *m_uQueue;
             
             void save();
             void recover();
@@ -107,20 +119,22 @@ namespace LevelAPI {
 
             void createLevelFolder();
 
-            Level getLevel(int id);
+            Level *getLevel(int id);
 
             Node *getSelf();
+
+            ~Node();
         };
         class Database {
         public:
             nlohmann::json databaseJson;
-            std::string databasePath;
+            std::string *databasePath;
         public:
             bool exists();
 
-            Database(std::vector<Node> nodes);
-            Database(Node node);
-            Database(std::string path);
+            Database(std::vector<Node *> *nodes);
+            Database(Node *node);
+            Database(std::string *path);
             Database();
 
             void recalculate();
@@ -128,11 +142,13 @@ namespace LevelAPI {
             void save();
 
             int m_nNodeSize;
-            std::vector<Node> m_vNodes;
+            std::vector<Node *> *m_vNodes;
 
             void setupJSON();
 
             Node *getNode(std::string internalName);
+
+            ~Database();
         };
         extern Database *database;
         void setup();

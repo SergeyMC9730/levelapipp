@@ -1,3 +1,4 @@
+#include "CURLParameter.h"
 #include "curl_backend.h"
 #include "tests.h"
 
@@ -21,14 +22,32 @@ void Tests::testCurlThread() {
     con.setDebug(false);
     Backend::CURLResult *res = con.access_page("https://www.google.com");
 
-    printf("[LevelAPI TEST 0] %d %d\n", res->result, res->http_status);
+    printf("[LevelAPI TEST 0] Google returned %d %d\n", res->result, res->http_status);
     if(res->http_status == 200 && res->result == 0) {
         std::cout << termcolor::green << "[LevelAPI] cURL connection test complete\n" << termcolor::reset;
     } else {
-        std::cout << termcolor::red << "[LevelAPI] cURL connection test FAILED\n" << termcolor::reset;
+        std::cout << termcolor::red << "[LevelAPI] cURL connection test FAILED\n[LevelAPI] Don't expect connection backend to work!\n" << termcolor::reset;
     }
 
+    con.setData({
+        new CURLParameter("secret", "Wmfd2893gb7"),
+        new CURLParameter("type", "4")
+    });
+
+    free((void *)res->data);
     delete res;
+
+    // res = con.access_page("https://www.boomlings.com/database/getGJLevels21.php", "POST");
+
+    // printf("[LevelAPI TEST 0] Boomlings offical returned %d %d\n", res->result, res->http_status);
+    // if(res->http_status == 200 && res->result == 0) {
+    //     std::cout << termcolor::green << "[LevelAPI] cURL connection test complete" << std::endl << termcolor::reset;
+    // } else {
+    //     std::cout << termcolor::red << "[LevelAPI] cURL connection test FAILED\n[LevelAPI] Don't expect connection backend to work!\n" << termcolor::reset;
+    // }
+
+    // free((void *)res->data);
+    // delete res;
 
     return;
 }

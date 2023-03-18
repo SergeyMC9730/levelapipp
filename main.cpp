@@ -2,6 +2,7 @@
 
 #include <httpserver.hpp>
 #include <iterator>
+#include "GDServer.h"
 #include "requests/v1.helloworld.h"
 
 #include "gmd2pp/gmd2.h"
@@ -11,12 +12,15 @@
 
 #include "termcolor/include/termcolor/termcolor.hpp"
 
+#include "GDServer_BoomlingsLike21.h"
+
 #include "tests.h"
 
 using namespace LevelAPI;
 
 int main(int, char**) {
-    std::cout << termcolor::bright_cyan << "LevelAPI " << LEVELAPI_VERSION << "\n\n" << termcolor::reset;
+    std::cout << termcolor::bright_cyan << "LevelAPI " << LEVELAPI_VERSION << "\n" << termcolor::reset;
+    std::cout << termcolor::bright_cyan << "LevelAPI is in alpha state so please report any bugs to my GitHub repository!" << "\n\n" << termcolor::reset;
 
     DatabaseController::setup();
     DatabaseController::HttpController::parse();
@@ -24,6 +28,7 @@ int main(int, char**) {
     std::cout << termcolor::reset;
 
     LevelAPI::Tests::testCurl();
+    LevelAPI::Tests::testGDParsers();
 
     webserver ws = create_webserver()
         .port(DatabaseController::HttpController::getPort())
@@ -37,6 +42,9 @@ int main(int, char**) {
     std::cout << "[LevelAPI] Running on port " << DatabaseController::HttpController::getPort() << std::endl;
 
     DatabaseController::database->save();
+
+    // auto servertest = new Backend::GDServer_BoomlingsLike21(new std::string("123"));
+    // servertest->getLevelsBySearch(GDSEARCH_RECENT);
 
     ws.start(true);
 

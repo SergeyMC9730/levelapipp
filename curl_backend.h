@@ -1,6 +1,9 @@
 #pragma once
 
 #include <curl/curl.h>
+#include <string>
+#include "CURLParameter.h"
+#include <vector>
 
 namespace LevelAPI {
     namespace Backend {
@@ -32,8 +35,10 @@ namespace LevelAPI {
         protected:
             CURL *m_pCurl;
             bool m_bDebug;
+            std::vector<CURLParameter*> m_mUserData;
         public:
             void setDebug(bool d);
+            void setData(std::vector<CURLParameter*> parameters);
 
             virtual CURLResult *access_page(const char *url);
             virtual CURLResult *access_page(const char *url, FILE *file);

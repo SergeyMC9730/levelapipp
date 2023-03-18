@@ -36,7 +36,7 @@ void LevelAPI::DatabaseController::setup() {
     j3 << j2;
     j3.close();
 
-    db = new Database("database");    
+    db = new Database(new std::string("database"));    
 
     return;
 }
