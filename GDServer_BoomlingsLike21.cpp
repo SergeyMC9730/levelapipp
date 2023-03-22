@@ -66,5 +66,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     vec4array.clear();
     vec5levels.clear();
     return vec1;
-    
 };
+LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
+    
+}
