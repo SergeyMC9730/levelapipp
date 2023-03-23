@@ -13,3 +13,4 @@ CURLConnectionSettings::CURLConnectionSettings(void *memory_pointer, int maxSize
     m_pData = memory_pointer;
     m_nSize = 0;
 }
+CURLConnectionSettings::~CURLConnectionSettings() {}

@@ -155,9 +155,29 @@ void CURLConnection::setDebug(bool d) {
 }
 
 void CURLConnection::destroy() {
-    //curl_easy_cleanup(m_pCurl);
+    curl_easy_cleanup(m_pCurl);
 }
 
 void CURLConnection::setData(std::vector<CURLParameter*> parameters) {
+    int i = 0;
+    
+    while(i < m_mUserData.size()) {
+        delete m_mUserData[i];
+        i++;
+    }
+    m_mUserData.clear();
+
     this->m_mUserData = parameters;
+}
+
+CURLConnection::~CURLConnection() {
+    int i = 0;
+
+    while(i < m_mUserData.size()) {
+        delete m_mUserData[i];
+        i++;
+    }
+    m_mUserData.clear();
+
+    destroy();
 }

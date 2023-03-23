@@ -30,12 +30,16 @@ namespace LevelAPI {
 
             CURLConnectionSettings(FILE *file);
             CURLConnectionSettings(void *memory_pointer, int maxSize);
+
+            ~CURLConnectionSettings();
         };
         class CURLConnection {
         protected:
             CURL *m_pCurl;
             bool m_bDebug;
             std::vector<CURLParameter*> m_mUserData;
+
+            void destroy();
         public:
             void setDebug(bool d);
             void setData(std::vector<CURLParameter*> parameters);
@@ -46,10 +50,9 @@ namespace LevelAPI {
             virtual CURLResult *access_page(const char *url, const char *method, FILE *file);
             
             static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream);
-
-            void destroy();
         
             CURLConnection();
+            ~CURLConnection();
         };
     }
 }

@@ -7,7 +7,6 @@ GDServer::GDServer() {
     m_pLinkedCURL = new CURLConnection();
 }
 GDServer::~GDServer() {
-    m_pLinkedCURL->destroy();
     delete m_pLinkedCURL;
     delete m_sEndpointURL;
 }
