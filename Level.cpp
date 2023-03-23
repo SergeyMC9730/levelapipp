@@ -9,6 +9,13 @@ Level::Level() {
     m_uRelease = new LevelRelease();
     m_uRelease->m_fActualVersion = new std::string(m_uRelease->determineFromID(m_nLevelID));
 
+    m_sLevelPath = new std::string("");
+    m_sUsername = new std::string("");
+    m_sLevelName = new std::string("");
+    m_sDescription = new std::string("");
+    m_sUploadDate = new std::string("");
+    m_sUpdateDate = new std::string("");
+
     setupJSON();
 }
 
@@ -64,6 +71,7 @@ void Level::save() {
 
 void Level::restore() {
     #define RS(t, str, val) val = levelJson[str].get<t>();
+    #define RSS(t, str, val) delete val; val = new t (levelJson[str].get<t>());
     
     RS(int, "levelID", m_nLevelID)
     RS(int, "version", m_nVersion)
@@ -95,12 +103,12 @@ void Level::restore() {
     RS(bool, "ldmAvailable", m_bLDM)
     RS(bool, "is2P", m_b2P)
 
-    RS(std::string, "levelName", *m_sLevelName)
-    RS(std::string, "levelDescription", *m_sDescription)
-    RS(std::string, "uploadDate", *m_sUploadDate)
-    RS(std::string, "updateDate", *m_sUpdateDate)
-    RS(std::string, "username", *m_sUsername)
-    RS(std::string, "actualGameVersion", *m_uRelease->m_fActualVersion)
+    RSS(std::string, "levelName", m_sLevelName)
+    RSS(std::string, "levelDescription", m_sDescription)
+    RSS(std::string, "uploadDate", m_sUploadDate)
+    RSS(std::string, "updateDate", m_sUpdateDate)
+    RSS(std::string, "username", m_sUsername)
+    RSS(std::string, "actualGameVersion", m_uRelease->m_fActualVersion)
 
     std::string g = *m_sLevelPath + "/meta.json";
 
@@ -112,6 +120,10 @@ void Level::restore() {
 
 Level::~Level() {
     delete m_uRelease;
-    // delete m_sLevelPath;
-    // delete m_sUsername;
+    delete m_sLevelPath;
+    delete m_sUsername;
+    delete m_sLevelName;
+    delete m_sDescription;
+    delete m_sUploadDate;
+    delete m_sUpdateDate;
 }

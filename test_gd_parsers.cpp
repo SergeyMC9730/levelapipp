@@ -26,7 +26,7 @@ void Tests::testGDParsersThread() {
     int i = 0;
     while(i < levels.size()) {
         auto level = levels[i];
-        //std::cout << "[LevelAPI TEST 1] Level " << i << " \"" << levels[i]->m_sLevelName->c_str() << "\" by " << levels[i]->m_sUsername->c_str() << std::endl;
+        std::cout << "[LevelAPI TEST 1] Level " << i << " \"" << levels[i]->m_sLevelName->c_str() << "\" by " << levels[i]->m_sUsername->c_str() << std::endl;
         delete levels[i];
         i++;
     }

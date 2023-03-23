@@ -10,7 +10,8 @@ namespace LevelAPI {
 
             GJGameLevel *getLevelMetaByID(int id) override;
             std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type) override;
-            LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level);
+            // returns self
+            LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level) override;
         };
     }
 }

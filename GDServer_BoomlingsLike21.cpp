@@ -68,11 +68,16 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     return vec1;
 };
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
-    // m_pLinkedCURL->setData(std::vector<CURLParameter *> parameters)
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
-        new CURLParameter("type", 0)
+        new CURLParameter("levelID", level->m_nLevelID)
     });
 
-    return nullptr;
+    CURLResult *res = m_pLinkedCURL->access_page("https://www.boomlings.com/database/downloadGJLevel22.php", "POST");
+    if(res->http_status != 200 || res->result != 0) return level;
+
+    LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data);
+    level->m_sLevelString = new std::string(lvl->m_sLevelString->c_str());
+
+    return level;
 }
