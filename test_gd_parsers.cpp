@@ -19,7 +19,7 @@ void Tests::testGDParsers() {
 }
 void Tests::testGDParsersThread() {
     auto gd = new Backend::GDServer_BoomlingsLike21(new std::string(""));
-    auto levels = gd->getLevelsBySearch("4");
+    auto levels = gd->getLevelsBySearchType(4);
     
     std::cout << termcolor::magenta << "[LevelAPI TEST 1] gd.cpp returned " << levels.size() << " levels\n" << termcolor::reset;
 

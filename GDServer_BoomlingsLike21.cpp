@@ -19,7 +19,7 @@ GJGameLevel *GDServer_BoomlingsLike21::getLevelMetaByID(int id) {
     return nullptr;
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::getLevelsBySearch(const char *type) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::getLevelsBySearchType(int type) {
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
         new CURLParameter("type", type)
@@ -69,6 +69,10 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
 };
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
     // m_pLinkedCURL->setData(std::vector<CURLParameter *> parameters)
+    m_pLinkedCURL->setData({
+        new CURLParameter("secret", "Wmfd2893gb7"),
+        new CURLParameter("type", 0)
+    });
 
     return nullptr;
 }

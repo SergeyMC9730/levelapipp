@@ -22,7 +22,7 @@ namespace LevelAPI {
 
             virtual GJGameLevel *getLevelMetaByID(int id);
             virtual LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level);
-            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearch(const char *type);
+            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type);
         };
     }
 }

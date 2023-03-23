@@ -14,7 +14,7 @@ GJGameLevel *GDServer::getLevelMetaByID(int id) {
     return nullptr;
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearch(const char *type) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchType(int type) {
     return {};
 }
 
