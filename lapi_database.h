@@ -33,6 +33,7 @@ namespace LevelAPI {
             std::string *m_sUsername;
 
             int m_nRetryAfter;
+            bool m_bHasLevelString;
 
             void setupJSON();
             Level();
@@ -110,6 +111,8 @@ namespace LevelAPI {
             std::string *m_sInternalName;
             std::string *m_sLevelDataPath;
             NodeQueue *m_uQueue;
+
+            bool m_bRateLimitApplied;
 
             void initLevel(Level *level);
             

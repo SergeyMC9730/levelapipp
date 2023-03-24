@@ -86,7 +86,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
     uurl += "/downloadGJLevel22.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
-    printf("response 2: %s\n", res->data);
+    // printf("response 2: %s\n", res->data);
     level->m_nRetryAfter = res->retry_after;
     if(res->http_status != 200 || res->result != 0) return level;
 

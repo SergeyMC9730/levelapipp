@@ -91,7 +91,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
     res->result = result;
     res->http_status = httpStatus;
     res->retry_after = (int)ra;
-    printf("[CURL] retry after %d seconds\n", (int)ra);
+    // printf("[CURL] retry after %d seconds\n", (int)ra);
     res->data = (const char *)settings->m_pData;
     res->maxSize = settings->m_nMaxMemorySize;
     res->realSize = settings->m_nSize;

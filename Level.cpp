@@ -76,17 +76,20 @@ void Level::save() {
 
     std::string g = *m_sLevelPath + "/meta.json";
     std::string g2 = *m_sLevelPath + "/data.gmd2";
-
+    
     std::ofstream file(g);
-    file << levelJson.dump(4);
+    file << levelJson.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
 
-    auto gmd2file = new GMD2();
-    gmd2file->setFileName(g2);
-    gmd2file->setDebug(false);
-    gmd2file->setLevel(this);
-    gmd2file->generate();
+    if(m_bHasLevelString) {
+        auto gmd2file = new GMD2();
+        gmd2file->setFileName(g2);
+        gmd2file->setDebug(false);
+        gmd2file->setLevel(this);
+        gmd2file->generate();
 
-    delete gmd2file;
+        delete gmd2file;
+    }
+
     file.close();
 
     return;
