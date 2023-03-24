@@ -4,6 +4,7 @@
 #include <thread>
 #include <iostream>
 
+#include "Tools.h"
 #include "GDServer_BoomlingsLike21.h"
 
 using namespace LevelAPI;
@@ -32,6 +33,10 @@ start:
         waittime = level->m_nRetryAfter;
         if(waittime == 0) {
             nd->initLevel(level);
+            // std::string *strold = level->m_sDescription;
+            LevelAPI::Tools::filterString(level->m_sDescription);
+            // delete strold;
+            // level->m_sDescription = strnew;
             level->save();
             std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Resolved level " << level->m_nLevelID << std::endl; 
         } else {

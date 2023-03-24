@@ -9,6 +9,8 @@ namespace LevelAPI {
     namespace Backend {
         class CURLResult {
         public:
+            int realSize;
+
             int result;
             int maxSize;
 

@@ -5,6 +5,7 @@
 
 namespace LevelAPI {
     namespace Tools {
+        void filterString(std::string *str);
         class LevelRange {
         public:
             int m_nMin;
