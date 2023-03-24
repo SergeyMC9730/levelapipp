@@ -121,7 +121,7 @@ void GMD2::generate() {
                 ldata += this->m_pLevel->m_sLevelString->c_str();
             ldata += "</s>";
 
-        std::string knum = (this->m_pLevel->m_nSongID == 0) ? "k45" : "k8";
+        std::string knum = (this->m_pLevel->m_nSongID == 0) ? "k8" : "k45";
         std::string song = "";
             song += "<k>";
                 song += knum;
@@ -129,7 +129,7 @@ void GMD2::generate() {
             
             song += "<i>";
                 char *buf = (char *)malloc(128);
-                sprintf(buf, "%d", (this->m_pLevel->m_nSongID == 0) ? this->m_pLevel->m_nMusicID - 1: this->m_pLevel->m_nSongID);
+                sprintf(buf, "%d", (this->m_pLevel->m_nSongID == 0) ? ((this->m_pLevel->m_nMusicID == 0) ? 0 : this->m_pLevel->m_nMusicID - 1) : this->m_pLevel->m_nSongID);
                 song += buf;
             song += "</i>";
         song += "<k>k13</k><t/><k>k21</k><i>2</i><k>k50</k><i>35</i>";

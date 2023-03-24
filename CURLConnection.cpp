@@ -1,5 +1,7 @@
 #include "curl_backend.h"
+#include "gmd2pp/curl/include/curl/curl.h"
 #include "gmd2pp/curl/include/curl/easy.h"
+#include "gmd2pp/curl/include/curl/system.h"
 #include <cstddef>
 #include <cstdlib>
 #include <curl/curl.h>
@@ -16,7 +18,7 @@ size_t CURLConnection::write_data(void *ptr, size_t size, size_t nmemb, void *st
     auto settings = static_cast<CURLConnectionSettings *>(stream);
 
     if(settings->m_bWriteToMemory) {
-        if(settings->sendDebug) printf("size: %d nmemb: %d | msize: %d mx size: %d\n", (int)size, (int)nmemb, settings->m_nSize, settings->m_nMaxMemorySize);
+        // if(settings->sendDebug) printf("size: %d nmemb: %d | msize: %d mx size: %d\n", (int)size, (int)nmemb, settings->m_nSize, settings->m_nMaxMemorySize);
         if(nmemb > settings->m_nMaxMemorySize - settings->m_nSize) {
             settings->m_pData = realloc(settings->m_pData, settings->m_nMaxMemorySize + nmemb + 1);
             settings->m_nMaxMemorySize = settings->m_nMaxMemorySize + nmemb;
@@ -83,9 +85,13 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
     }
 
     int httpStatus;
+    curl_off_t ra;
     curl_easy_getinfo(m_pCurl, CURLINFO_RESPONSE_CODE, &httpStatus);
+    curl_easy_getinfo(m_pCurl, CURLINFO_RETRY_AFTER, &ra);
     res->result = result;
     res->http_status = httpStatus;
+    res->retry_after = (int)ra;
+    printf("[CURL] retry after %d seconds\n", (int)ra);
     res->data = (const char *)settings->m_pData;
     res->maxSize = settings->m_nSize;
 

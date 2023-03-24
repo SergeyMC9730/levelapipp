@@ -24,7 +24,12 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
         new CURLParameter("secret", "Wmfd2893gb7"),
         new CURLParameter("type", type)
     });
-    CURLResult *res = m_pLinkedCURL->access_page("https://www.boomlings.com/database/getGJLevels21.php", "POST");
+
+    std::string uurl = "";
+    uurl += *m_sEndpointURL;
+    uurl += "/getGJLevels21.php";
+
+    CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     if(res->http_status != 200 || res->result != 0) return {};
 
     std::vector<LevelAPI::DatabaseController::Level *> vec1;
@@ -65,6 +70,9 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
 
     vec4array.clear();
     vec5levels.clear();
+
+    free((void *)res->data);
+
     return vec1;
 };
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
@@ -73,11 +81,25 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
         new CURLParameter("levelID", level->m_nLevelID)
     });
 
-    CURLResult *res = m_pLinkedCURL->access_page("https://www.boomlings.com/database/downloadGJLevel22.php", "POST");
+    std::string uurl = "";
+    uurl += *m_sEndpointURL;
+    uurl += "/downloadGJLevel22.php";
+
+    CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
+    printf("response 2: %s\n", res->data);
+    level->m_nRetryAfter = res->retry_after;
     if(res->http_status != 200 || res->result != 0) return level;
 
     LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data);
+    delete level->m_sLevelString;
     level->m_sLevelString = new std::string(lvl->m_sLevelString->c_str());
+    level->m_nMusicID = lvl->m_nMusicID;
+    level->m_nSongID = lvl->m_nSongID;
+
+    free((void *)res->data);
+
+    delete lvl;
+    delete res;
 
     return level;
 }

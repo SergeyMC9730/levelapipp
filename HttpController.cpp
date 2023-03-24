@@ -1,8 +1,8 @@
-#include "lapi_database.h"
+#include "HttpController.h"
 
 #include "json/single_include/nlohmann/json.hpp"
 
-using namespace LevelAPI::DatabaseController;
+using namespace LevelAPI;
 
 #include <string>
 #include <fstream>
@@ -17,4 +17,22 @@ void HttpController::parse() {
 }
 int HttpController::getPort() {
     return HttpController_json["port"];
+}
+int HttpController::getThreads() {
+    return HttpController_json["threads"];
+}
+void HttpController::setup() {
+    std::ifstream h("database/configuration/http.json");
+    if(!h.good()) {
+        nlohmann::json j;
+        j["port"] = 8000;
+        j["threads"] = 16;
+
+        std::string j2 = j.dump();
+
+        std::ofstream j3;
+        j3.open ("database/configuration/http.json");
+        j3 << j2;
+        j3.close();
+    }
 }

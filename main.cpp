@@ -10,6 +10,8 @@
 #include "lapi_database.h"
 #include "lapi_version.h"
 
+#include "HttpController.h"
+
 #include "termcolor/include/termcolor/termcolor.hpp"
 
 #include "GDServer_BoomlingsLike21.h"
@@ -23,23 +25,24 @@ int main(int, char**) {
     std::cout << termcolor::bright_cyan << "LevelAPI is in alpha state so please report any bugs to my GitHub repository!" << "\n\n" << termcolor::reset;
 
     DatabaseController::setup();
-    DatabaseController::HttpController::parse();
+    HttpController::setup();
+    HttpController::parse();
 
     std::cout << termcolor::reset;
 
     LevelAPI::Tests::testCurl();
-    LevelAPI::Tests::testGDParsers();
+    // LevelAPI::Tests::testGDParsers();
 
     webserver ws = create_webserver()
-        .port(DatabaseController::HttpController::getPort())
-        .max_threads(64)
+        .port(HttpController::getPort())
+        .max_threads(HttpController::getThreads())
         .memory_limit(256 * 1024)
         .debug()
         // .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK)
     ;
 
-    ws.register_resource("/api/v1/hello", static_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
-    std::cout << "[LevelAPI] Running on port " << DatabaseController::HttpController::getPort() << std::endl;
+    ws.register_resource("/api/v1/hello", reinterpret_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
+    std::cout << "[LevelAPI] Running on port " << HttpController::getPort() << std::endl;
 
     DatabaseController::database->save();
 

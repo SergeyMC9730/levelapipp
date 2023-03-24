@@ -25,17 +25,7 @@ void LevelAPI::DatabaseController::setup() {
         mkdir(fpaths[i].c_str(), 0777);
         i++;
     }
-
-    nlohmann::json j;
-    j["port"] = 8000;
-
-    std::string j2 = j.dump();
-
-    ofstream j3;
-    j3.open ("database/configuration/http.json");
-    j3 << j2;
-    j3.close();
-
+    
     db = new Database(new std::string("database"));    
 
     return;

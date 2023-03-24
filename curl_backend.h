@@ -13,6 +13,7 @@ namespace LevelAPI {
             int maxSize;
 
             int http_status;
+            int retry_after;
 
             const char *data;
         };

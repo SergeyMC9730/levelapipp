@@ -1,12 +1,14 @@
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
+#include "DatabaseControllerThreads.h"
+
 #include <fstream>
 #include <vector>
 #include <iostream>
 #include <chrono>
 #include <malloc.h>
-
 #include <sys/stat.h>
+#include <thread>
 
 using namespace LevelAPI::DatabaseController;
 
@@ -26,6 +28,8 @@ Database::Database(std::vector<Node *> *nodes) {
     databaseJson["nodeSize"] = m_nNodeSize;
 
     save();
+
+    runThreads();
 }
 Database::Database(Node *node) {
     m_vNodes = new std::vector<Node *>();
@@ -38,6 +42,8 @@ Database::Database(Node *node) {
     databaseJson["nodeSize"] = m_nNodeSize;
 
     save();
+
+    runThreads();
 }
 Database::Database(std::string *path) {
     databasePath = path;
@@ -72,6 +78,8 @@ Database::Database(std::string *path) {
 
     recalculate();
 
+    runThreads();
+
     return;
 }
 Database::Database() {
@@ -84,6 +92,8 @@ Database::Database() {
     databaseJson["nodeSize"] = m_nNodeSize;
 
     save();
+
+    runThreads();
 }
 
 void Database::recalculate() {
@@ -91,7 +101,7 @@ void Database::recalculate() {
 }
 
 void Database::save() {
-    auto start = std::chrono::high_resolution_clock::now();
+    //auto start = std::chrono::high_resolution_clock::now();
 
     recalculate();
 
@@ -116,10 +126,10 @@ void Database::save() {
         std::cout << "[LevelAPI WARN] Couldn't clean up memory" << std::endl;
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
+    //auto end = std::chrono::high_resolution_clock::now();
 
-    auto etime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "[LevelAPI] Database took " << (float)etime.count() / 1000.f << "ms to save itself" << std::endl;
+    //auto etime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    //std::cout << "[LevelAPI] Database took " << (float)etime.count() / 1000.f << "ms to save itself" << std::endl;
 }
 
 void Database::setupJSON() {
@@ -137,10 +147,33 @@ Node *Database::getNode(std::string internalName) {
 
 Database::~Database() {
     int i = 0;
+    
+    while(i < m_vThreads.size()) {
+        delete m_vThreads[i];
+        i++;
+    }
+    
+    i = 0;
     while(i < m_vNodes->size()) {
         delete m_vNodes->at(i);
         i++;
     }
+
     delete m_vNodes;
     delete databasePath;
+    m_vThreads.clear();
+}
+
+void Database::runThreads() {
+    std::thread *dbt = new std::thread(DatabaseController::database_runner, this);
+    dbt->detach();
+
+    m_vThreads.push_back(dbt);
+
+    int i = 0;
+    while(i < m_vNodes->size()) {
+        std::thread *ndt = new std::thread(DatabaseController::node_runner, m_vNodes->at(i));
+        m_vThreads.push_back(ndt);
+        i++;
+    }
 }

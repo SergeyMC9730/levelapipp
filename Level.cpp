@@ -1,6 +1,7 @@
 #include "lapi_database.h"
 #include "Tools.h"
 #include "json/single_include/nlohmann/json.hpp"
+#include "gmd2pp/gmd2.h"
 #include <fstream>
 
 using namespace LevelAPI::DatabaseController;
@@ -9,12 +10,19 @@ Level::Level() {
     m_uRelease = new LevelRelease();
     m_uRelease->m_fActualVersion = new std::string(m_uRelease->determineFromID(m_nLevelID));
 
-    m_sLevelPath = new std::string("");
+    m_sLevelPath = new std::string(".");
     m_sUsername = new std::string("");
     m_sLevelName = new std::string("");
     m_sDescription = new std::string("");
     m_sUploadDate = new std::string("");
     m_sUpdateDate = new std::string("");
+    m_sLevelString = new std::string("");
+    m_sSettings = new std::string("");
+    m_sExtraString = new std::string("");
+    m_sXORPassword = new std::string("");
+    m_sRecordString = new std::string("");
+
+    m_nDislikes = 0;
 
     setupJSON();
 }
@@ -25,7 +33,7 @@ void Level::setupJSON() {
 
 void Level::save() {
     #define fill(str, val) levelJson[str] = val;
-    #define fill_str(str, val) fill(str, val->c_str());
+    #define fill_str(str, val) fill(str, *val);
 
     m_uRelease->m_fActualVersion = new std::string(m_uRelease->determineFromID(m_nLevelID));
 
@@ -46,7 +54,7 @@ void Level::save() {
     fill("copiedFrom", m_nCopiedID)
     fill("dailyNumber", m_nDailyNumber)
     fill("coins", m_nCoins)
-    fill("starsReequested", m_nStarsRequested)
+    fill("starsRequested", m_nStarsRequested)
     fill("isEpic", (bool)m_nEpic)
     fill("demonDifficulty", m_nDemonDifficulty)
     fill("editorTime", m_nEditorTime)
@@ -65,6 +73,21 @@ void Level::save() {
     fill_str("updateDate", m_sUpdateDate)
     fill_str("username", m_sUsername);
     fill_str("actualGameVersion", m_uRelease->m_fActualVersion)
+
+    std::string g = *m_sLevelPath + "/meta.json";
+    std::string g2 = *m_sLevelPath + "/data.gmd2";
+
+    std::ofstream file(g);
+    file << levelJson.dump(4);
+
+    auto gmd2file = new GMD2();
+    gmd2file->setFileName(g2);
+    gmd2file->setDebug(false);
+    gmd2file->setLevel(this);
+    gmd2file->generate();
+
+    delete gmd2file;
+    file.close();
 
     return;
 }
@@ -89,14 +112,14 @@ void Level::restore() {
     RS(int, "copiedFrom", m_nCopiedID)
     RS(int, "dailyNumber", m_nDailyNumber)
     RS(int, "coins", m_nCoins)
-    RS(int, "starsReequested", m_nStarsRequested)
+    RS(int, "starsRequested", m_nStarsRequested)
     RS(int, "isEpic", m_nEpic)
     RS(int, "demonDifficulty", m_nDemonDifficulty)
     RS(int, "editorTime", m_nEditorTime)
     RS(int, "editorTimeTotal", m_nEditorTimeTotal)
     RS(int, "accountID", m_nAccountID)
+    RS(int, "songID", m_nSongID)
 
-    RS(bool, "songID", m_nSongID)
     RS(bool, "isAuto", m_bAuto)
     RS(bool, "isDemon", m_bDemon)
     RS(bool, "areCoinsVerified", m_bVerifiedCoins)
@@ -109,11 +132,6 @@ void Level::restore() {
     RSS(std::string, "updateDate", m_sUpdateDate)
     RSS(std::string, "username", m_sUsername)
     RSS(std::string, "actualGameVersion", m_uRelease->m_fActualVersion)
-
-    std::string g = *m_sLevelPath + "/meta.json";
-
-    std::ofstream file(g);
-    file << levelJson.dump(4);
 
     return;
 }

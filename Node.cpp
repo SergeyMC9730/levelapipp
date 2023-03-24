@@ -69,10 +69,10 @@ Level *Node::getLevel(int id) {
     #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
     struct stat buffer;
-    std::string *p1 = new std::string("database/nodes/" + *m_sInternalName + "/levels/" + std::to_string(id));
-    std::string *p2 = new std::string("database/nodes/" + *m_sInternalName + "/levels/" + std::to_string(id) + "/level.gmd2");
-    std::string *p3 = new std::string("database/nodes/" + *m_sInternalName + "/levels/" + std::to_string(id) + "/meta.json");
-    // TODO comment registering
+    std::string *p1 = new std::string("database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(id));
+    std::string *p2 = new std::string("database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(id) + "/level.gmd2");
+    std::string *p3 = new std::string("database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(id) + "/meta.json");
+    // TODO: comment registering
     
     if(!file_exists(p1->c_str())) return new Level();
     if(!file_exists(p2->c_str())) return new Level();
@@ -100,4 +100,11 @@ Node::~Node() {
     delete m_sInternalName;
     delete m_sLevelDataPath;
     delete m_uQueue;
+}
+
+void Node::initLevel(Level *level) {
+    std::string p = "database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(level->m_nLevelID);
+    delete level->m_sLevelPath;
+    level->m_sLevelPath = new std::string(p);
+    mkdir(p.c_str(), 0777);
 }

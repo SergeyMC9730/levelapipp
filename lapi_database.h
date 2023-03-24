@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "gmd2pp/level-converter/GJGameLevel.h"
@@ -14,10 +15,6 @@
 
 namespace LevelAPI {
     namespace DatabaseController {
-        namespace HttpController {
-            void parse();
-            int getPort();
-        }
         class LevelRelease {
         public:
             ~LevelRelease();
@@ -34,6 +31,8 @@ namespace LevelAPI {
             std::string *m_sLevelPath;
             int m_nAccountID;
             std::string *m_sUsername;
+
+            int m_nRetryAfter;
 
             void setupJSON();
             Level();
@@ -111,6 +110,8 @@ namespace LevelAPI {
             std::string *m_sInternalName;
             std::string *m_sLevelDataPath;
             NodeQueue *m_uQueue;
+
+            void initLevel(Level *level);
             
             void save();
             void recover();
@@ -126,10 +127,12 @@ namespace LevelAPI {
             ~Node();
         };
         class Database {
+        private:
+            std::vector<std::thread *> m_vThreads;
         public:
             nlohmann::json databaseJson;
             std::string *databasePath;
-        public:
+
             bool exists();
 
             Database(std::vector<Node *> *nodes);
@@ -147,6 +150,8 @@ namespace LevelAPI {
             void setupJSON();
 
             Node *getNode(std::string internalName);
+
+            void runThreads();
 
             ~Database();
         };

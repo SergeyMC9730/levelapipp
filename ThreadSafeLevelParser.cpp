@@ -12,7 +12,7 @@ using namespace LevelAPI::Backend;
 
 #define PARSE_KEY_PKSTRING(keyN, member) \
     case keyN: {\
-        member = new std::string(info[i]); \
+        delete member; member = new std::string(info[i].c_str()); \
         break; \
     }
 #define PARSE_KEY_PKINT(keyN, member) \
@@ -33,6 +33,7 @@ using namespace LevelAPI::Backend;
 #define PARSE_KEY(keyN, member, vType) PARSE_KEY_##vType(keyN, member)
 
 LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *response) {
+    //printf("response: %s\n", response);
     DatabaseController::Level *level = new DatabaseController::Level();
 
     auto info = splitString(response, ':');
@@ -44,6 +45,7 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *
     while(i < info.size()) {
         currentKey = std::stoi(info[i]);
         i++;
+        //printf("%d = %s\n", currentKey, info[i].c_str());
         switch(currentKey) {
             PARSE_KEY(1, level->m_nLevelID, PKINT);
             PARSE_KEY(5, level->m_nVersion, PKINT);
@@ -59,7 +61,8 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *
             PARSE_KEY(16, level->m_nDislikes, PKINT);
             PARSE_KEY(18, level->m_nStars, PKINT);
             PARSE_KEY(19, level->m_nFeatureScore, PKINT);
-            PARSE_KEY(30, level->m_nSongID, PKINT);
+            PARSE_KEY(30, level->m_nCopiedID, PKINT);
+            PARSE_KEY(35, level->m_nSongID, PKINT);
             PARSE_KEY(37, level->m_nCoins, PKINT);
             PARSE_KEY(39, level->m_nStarsRequested, PKINT);
             PARSE_KEY(41, level->m_nDailyNumber, PKINT);
@@ -90,6 +93,7 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *
         i++;
     }
 
+    delete level->m_uRelease->m_fActualVersion;
     level->m_uRelease->m_fActualVersion = new std::string(DatabaseController::LevelRelease::determineFromID(level->m_nLevelID));
     level->m_uRelease->m_nGameVersion = level->m_nGameVersion;
 
