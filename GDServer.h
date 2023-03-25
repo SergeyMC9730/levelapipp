@@ -24,7 +24,7 @@ namespace LevelAPI {
 	    virtual void setDebug(bool d);
 	    virtual bool getDebug();
 
-            virtual GJGameLevel *getLevelMetaByID(int id);
+            virtual LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo);
             // returns self
             virtual LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level);
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type);

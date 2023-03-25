@@ -11,13 +11,16 @@
             "levelDataPath": "levels",
             "policy": {
                 "enableRecentTab": false,
-                "waitResolverRateLimit": true
+                "waitResolverRateLimit": true,
+                "resolverInterval": 4,
+                "queueProcessingInterval": 2,
+                "enableLinearResolver": false
             },
             "queue": {
                 "commandQueue": [
                     {
-                        "data": "-",
-                        "type": 2
+                        "data": "128",
+                        "type": 0
                     }
                 ],
                 "executeQueue": false,

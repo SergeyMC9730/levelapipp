@@ -105,6 +105,7 @@ Node::~Node() {
     delete m_sInternalName;
     delete m_sLevelDataPath;
     delete m_uQueue;
+    delete m_pPolicy;
 }
 
 void Node::initLevel(Level *level) {

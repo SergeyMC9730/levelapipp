@@ -10,7 +10,7 @@ GDServer::~GDServer() {
     delete m_pLinkedCURL;
     delete m_sEndpointURL;
 }
-GJGameLevel *GDServer::getLevelMetaByID(int id) {
+LevelAPI::DatabaseController::Level *GDServer::getLevelMetaByID(int id, bool resolveAccountInfo) {
     return nullptr;
 }
 

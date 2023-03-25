@@ -116,6 +116,9 @@ namespace LevelAPI {
 
             bool m_bEnableRecentTab;
             bool m_bWaitResolverRL;
+            bool m_bEnableLinearResolver;
+            float m_nResolverInterval;
+            float m_nQueueProcessingInterval;
 
             void save();
             void recover();

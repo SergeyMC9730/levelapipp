@@ -15,8 +15,53 @@ using namespace LevelAPI::Backend;
 GDServer_BoomlingsLike21::GDServer_BoomlingsLike21(std::string *endpoint) : GDServer() {
     m_sEndpointURL = endpoint;
 }
-GJGameLevel *GDServer_BoomlingsLike21::getLevelMetaByID(int id) {
-    return nullptr;
+LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(int id, bool resolveAccountInfo) {
+    LevelAPI::DatabaseController::Level *lvl;
+    
+    if (id <= 0) {
+        lvl = new DatabaseController::Level();
+        lvl->m_nRetryAfter = id - 1;
+        return lvl;
+    }
+
+    m_pLinkedCURL->setDebug(getDebug());
+
+    m_pLinkedCURL->setData({
+        new CURLParameter("secret", "Wmfd2893gb7"),
+        new CURLParameter("levelID", id)
+    });
+
+    std::string uurl = "";
+    uurl += *m_sEndpointURL;
+    uurl += "/downloadGJLevel22.php";
+
+    CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
+    //printf("response 2: %s\n", res->data);
+    // level->m_nRetryAfter = res->retry_after;
+
+    if(res->http_status != 200 || res->result != 0) {
+        lvl = new DatabaseController::Level();
+        lvl->m_nRetryAfter = res->retry_after;
+        delete res;
+        return lvl;
+    }
+
+    std::string strtest = "";
+    strtest += res->data;
+    if(!strtest.compare("-1")) {
+        delete res;
+
+        lvl = new DatabaseController::Level();
+        lvl->m_nRetryAfter = -128;
+        return lvl;
+    }
+
+    lvl = LevelParser::parseFromResponse(res->data);
+    lvl->m_nRetryAfter = 0;
+    
+    delete res;
+
+    return lvl;
 }
 
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::getLevelsBySearchType(int type) {
@@ -65,6 +110,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
         LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str());
         Account20 ac20 = playerMap[lvl->m_nPlayerID];
         lvl->m_nAccountID = ac20.accountID;
+        delete lvl->m_sUsername;
         lvl->m_sUsername = new std::string(ac20.username);
         vec1.push_back(lvl);
         i++;
@@ -93,6 +139,15 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
     //printf("response 2: %s\n", res->data);
     level->m_nRetryAfter = res->retry_after;
     if(res->http_status != 200 || res->result != 0) return level;
+
+    std::string strtest = "";
+    strtest += res->data;
+    if(!strtest.compare("-1")) {
+        delete res;
+
+        level->m_nRetryAfter = -128;
+        return level;
+    }
 
     LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data);
     delete level->m_sLevelString;

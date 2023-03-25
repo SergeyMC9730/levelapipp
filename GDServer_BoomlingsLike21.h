@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GDServer.h"
+#include "lapi_database.h"
 
 namespace LevelAPI {
     namespace Backend {
@@ -8,7 +9,7 @@ namespace LevelAPI {
         public:
             GDServer_BoomlingsLike21(std::string *endpoint);
 
-            GJGameLevel *getLevelMetaByID(int id) override;
+            LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo) override;
             std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type) override;
             // returns self
             LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level) override;

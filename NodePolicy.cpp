@@ -9,6 +9,9 @@ NodePolicy::NodePolicy() {
     // init with default settings
     m_bEnableRecentTab = false;
     m_bWaitResolverRL = true;
+    m_nResolverInterval = 4;
+    m_nQueueProcessingInterval = 2;
+    m_bEnableLinearResolver = false;
     
     setupJSON();
     save();
@@ -17,14 +20,16 @@ NodePolicy::NodePolicy() {
 void NodePolicy::save() {
     policyJson["enableRecentTab"] = m_bEnableRecentTab;
     policyJson["waitResolverRateLimit"] = m_bWaitResolverRL;
+    policyJson["resolverInterval"] = m_nResolverInterval;
+    policyJson["queueProcessingInterval"] = m_nQueueProcessingInterval;
+    policyJson["enableLinearResolver"] = m_bEnableLinearResolver;
 }
 void NodePolicy::recover() {
     m_bEnableRecentTab = policyJson["enableRecentTab"].get<bool>();
     m_bWaitResolverRL = policyJson["waitResolverRateLimit"].get<bool>();
-
-    if(!m_bWaitResolverRL) {
-        std::cout << "[LevelAPI WARN] Ignoring Cloudflare's rate limits may cause your IP address being blocked entirely!" << std::endl;
-    }
+    m_nResolverInterval = policyJson["resolverInterval"].get<float>();
+    m_nQueueProcessingInterval = policyJson["queueProcessingInterval"].get<float>();
+    m_bEnableLinearResolver = policyJson["enableLinearResolver"].get<bool>();
 }
 
 void NodePolicy::setupJSON() {
