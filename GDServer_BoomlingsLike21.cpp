@@ -20,6 +20,8 @@ GJGameLevel *GDServer_BoomlingsLike21::getLevelMetaByID(int id) {
 }
 
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::getLevelsBySearchType(int type) {
+    m_pLinkedCURL->setDebug(getDebug());
+
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
         new CURLParameter("type", type)
@@ -76,6 +78,8 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     return vec1;
 };
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
+    m_pLinkedCURL->setDebug(getDebug());
+
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
         new CURLParameter("levelID", level->m_nLevelID)
@@ -86,7 +90,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
     uurl += "/downloadGJLevel22.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
-    // printf("response 2: %s\n", res->data);
+    printf("response 2: %s\n", res->data);
     level->m_nRetryAfter = res->retry_after;
     if(res->http_status != 200 || res->result != 0) return level;
 

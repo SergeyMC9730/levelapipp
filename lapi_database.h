@@ -15,6 +15,13 @@
 
 namespace LevelAPI {
     namespace DatabaseController {
+        enum NodeCommands {
+            NC_ID = 0,
+            NC_USER = 1,
+            NC_RECENT = 2,
+            NC_NONE = 3,
+            NC_IDLE = 4
+        };
         class LevelRelease {
         public:
             ~LevelRelease();
@@ -72,6 +79,8 @@ namespace LevelAPI {
             bool m_bExecuteQueue;
             int m_nRuntimeState;
 
+            uint8_t currentState;
+
             void save();
             void recover();
 
@@ -102,7 +111,7 @@ namespace LevelAPI {
         class Node {
         public:
             nlohmann::json nodeJson;
-        public:
+
             Node(NodeDatabase *database, std::string *internalName, std::string *levelDataPath, NodeQueue *queue);
             Node(NodeDatabase *database, std::string *internalName, std::string *levelDataPath);
             Node();
@@ -111,6 +120,8 @@ namespace LevelAPI {
             std::string *m_sInternalName;
             std::string *m_sLevelDataPath;
             NodeQueue *m_uQueue;
+
+            nlohmann::json m_jLastDownloadedLevel;
 
             bool m_bRateLimitApplied;
 

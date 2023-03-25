@@ -33,7 +33,7 @@ using namespace LevelAPI::Backend;
 #define PARSE_KEY(keyN, member, vType) PARSE_KEY_##vType(keyN, member)
 
 LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *response) {
-    //printf("response: %s\n", response);
+    printf("response: %s\n", response);
     DatabaseController::Level *level = new DatabaseController::Level();
 
     auto info = splitString(response, ':');

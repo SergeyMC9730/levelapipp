@@ -21,3 +21,10 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchTy
 LevelAPI::DatabaseController::Level *GDServer::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
     return nullptr;
 }
+
+void GDServer::setDebug(bool d) {
+	m_bDebug = d;
+}
+bool GDServer::getDebug() {
+	return m_bDebug;
+}

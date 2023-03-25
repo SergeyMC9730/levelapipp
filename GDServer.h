@@ -16,9 +16,13 @@ namespace LevelAPI {
         protected:
             std::string *m_sEndpointURL;
             CURLConnection *m_pLinkedCURL;
+	    bool m_bDebug;
         public:
             GDServer();
             ~GDServer();
+
+	    virtual void setDebug(bool d);
+	    virtual bool getDebug();
 
             virtual GJGameLevel *getLevelMetaByID(int id);
             // returns self
