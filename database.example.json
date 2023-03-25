@@ -1,0 +1,28 @@
+{
+    "nodeSize": 1,
+    "nodes": [
+        {
+            "database": {
+                "endpoint": "https://www.boomlings.com/database",
+                "featureSet": 21,
+                "readOnly": false
+            },
+            "internalName": "boomlings",
+            "levelDataPath": "levels",
+            "policy": {
+                "enableRecentTab": false,
+                "waitResolverRateLimit": true
+            },
+            "queue": {
+                "commandQueue": [
+                    {
+                        "data": "-",
+                        "type": 2
+                    }
+                ],
+                "executeQueue": false,
+                "runtimeState": 0
+            }
+        }
+    ]
+}

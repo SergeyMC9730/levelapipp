@@ -30,6 +30,7 @@ Node::Node() {
     m_sInternalName = new std::string("-");
     m_sLevelDataPath = new std::string("-");
     m_uQueue = new NodeQueue();
+    m_pPolicy = new NodePolicy();
 
     setupJSON();
 
@@ -39,11 +40,13 @@ Node::Node() {
 void Node::save() {
     m_uDatabase->save();
     m_uQueue->save();
+    m_pPolicy->save();
 
     nodeJson["database"] = m_uDatabase->ndJson;
     nodeJson["internalName"] = *m_sInternalName;
     nodeJson["levelDataPath"] = *m_sLevelDataPath;
     nodeJson["queue"] = m_uQueue->queueJson;
+    nodeJson["policy"] = m_pPolicy->policyJson;
 }
 
 void Node::recover() {
@@ -53,6 +56,8 @@ void Node::recover() {
     m_uQueue->recover();
     m_uDatabase->ndJson = nodeJson["database"];
     m_uDatabase->recover();
+    m_pPolicy->policyJson = nodeJson["policy"];
+    m_pPolicy->recover();
 
     std::string p1 = "database/nodes/" + *m_sInternalName;
     std::string p2 = "database/nodes/" + *m_sInternalName + "/levels";

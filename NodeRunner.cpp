@@ -12,6 +12,7 @@ using namespace LevelAPI;
 using namespace std::chrono_literals;
 
 void DatabaseController::node_runner_recentBot(Node *nd) {
+    if(!nd->m_pPolicy->m_bEnableRecentTab) return;
 start:
     std::this_thread::sleep_for(std::chrono::seconds(2s));
     if(nd->m_uQueue->currentState == NC_NONE || nd->m_uQueue->currentState == NC_IDLE) {
@@ -34,7 +35,7 @@ void DatabaseController::node_runner_waitResolverRL(Node *nd, int rate_limit_len
 
 void DatabaseController::node_runner(Node *nd) {
     auto server = new Backend::GDServer_BoomlingsLike21(nd->m_uDatabase->m_sEndpoint);
-    server->setDebug(true);
+    //server->setDebug(true);
 
     std::thread rcbt(DatabaseController::node_runner_recentBot, nd);
     rcbt.detach();
@@ -57,12 +58,14 @@ start:
 
     switch(q->m_nCommand) {
         case NodeCommands::NC_RECENT: {
+            if(!nd->m_pPolicy->m_bEnableRecentTab) break;
+
             std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Fetching recent levels..." << std::endl;
             auto levels = server->getLevelsBySearchType(4);
 
             int i = 0;
 
-            if(nd->m_bRateLimitApplied) {
+            if(nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL) {
                 while(i < levels.size()) {
                     int levelid;
                     std::string levelname;
@@ -98,6 +101,7 @@ start:
                         nd->m_jLastDownloadedLevel = level->levelJson;
                         std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Resolved level " << levelid << " \"" << levelname << "\"" << std::endl; 
                     } else {
+                        if(!nd->m_pPolicy->m_bWaitResolverRL) break;
                         std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << waittime << "s" << std::endl;
                         nd->m_bRateLimitApplied = true;
                         break;

@@ -13,7 +13,12 @@ NodeCommandQueue::NodeCommandQueue(int command, std::string *text) {
 }
 
 NodeCommandQueue::NodeCommandQueue() {
-    NodeCommandQueue(0, new std::string("-"));
+    m_nCommand = NC_NONE;
+    m_sText = new std::string("-");
+
+    setupJSON();
+
+    save();
 }
 
 void NodeCommandQueue::save() {

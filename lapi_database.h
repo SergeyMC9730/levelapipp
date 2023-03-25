@@ -108,6 +108,20 @@ namespace LevelAPI {
 
             ~NodeDatabase();
         };
+        class NodePolicy {
+        public:
+            nlohmann::json policyJson;
+
+            NodePolicy();
+
+            bool m_bEnableRecentTab;
+            bool m_bWaitResolverRL;
+
+            void save();
+            void recover();
+
+            void setupJSON();
+        };
         class Node {
         public:
             nlohmann::json nodeJson;
@@ -120,6 +134,7 @@ namespace LevelAPI {
             std::string *m_sInternalName;
             std::string *m_sLevelDataPath;
             NodeQueue *m_uQueue;
+            NodePolicy *m_pPolicy;
 
             nlohmann::json m_jLastDownloadedLevel;
 
