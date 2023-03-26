@@ -36,6 +36,7 @@ void Tests::testCurlThread() {
 
     free((void *)res->data);
     delete res;
+    res = nullptr;
 
     // res = con.access_page("https://www.boomlings.com/database/getGJLevels21.php", "POST");
 
@@ -48,6 +49,7 @@ void Tests::testCurlThread() {
 
     // free((void *)res->data);
     // delete res;
+    // res = nullptr;
 
     return;
 }

@@ -77,7 +77,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
     int result = (int)curl_easy_perform(m_pCurl);
 
     if(result != CURLE_OK) {
-        printf("[CURL WARN] Couldn't connect to server: %s\n", curl_easy_strerror((CURLcode)result));
+        printf("[CURL WARN] %s\n", curl_easy_strerror((CURLcode)result));
         res->result = result;
         res->data = (const char *)settings->m_pData;
         res->maxSize = 1024;
@@ -97,6 +97,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
     res->realSize = settings->m_nSize;
 
     delete settings;
+    settings = nullptr;
 
     char *resdata = (char *)res->data;
     resdata[res->realSize] = 0;
@@ -156,6 +157,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method, FIL
     res->maxSize = settings->m_nSize;
 
     delete settings;
+    settings = nullptr;
     
     return res;
 }
@@ -173,6 +175,7 @@ void CURLConnection::setData(std::vector<CURLParameter*> parameters) {
     
     while(i < m_mUserData.size()) {
         delete m_mUserData[i];
+        m_mUserData[i] = nullptr;
         i++;
     }
     m_mUserData.clear();
@@ -185,6 +188,7 @@ CURLConnection::~CURLConnection() {
 
     while(i < m_mUserData.size()) {
         delete m_mUserData[i];
+        m_mUserData[i] = nullptr;
         i++;
     }
     m_mUserData.clear();

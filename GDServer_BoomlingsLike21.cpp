@@ -43,6 +43,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
         lvl = new DatabaseController::Level();
         lvl->m_nRetryAfter = res->retry_after;
         delete res;
+        res = nullptr;
         return lvl;
     }
 
@@ -50,6 +51,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
     strtest += res->data;
     if(!strtest.compare("-1")) {
         delete res;
+        res = nullptr;
 
         lvl = new DatabaseController::Level();
         lvl->m_nRetryAfter = -128;
@@ -61,6 +63,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
     
     free((void *)res->data);
     delete res;
+    res = nullptr;
 
     return lvl;
 }
@@ -112,6 +115,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
         Account20 ac20 = playerMap[lvl->m_nPlayerID];
         lvl->m_nAccountID = ac20.accountID;
         delete lvl->m_sUsername;
+        lvl->m_sUsername = nullptr;
         lvl->m_sUsername = new std::string(ac20.username);
         vec1.push_back(lvl);
         i++;
@@ -122,6 +126,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
 
     free((void *)res->data);
     delete res;
+    res = nullptr;
 
     return vec1;
 };
@@ -146,6 +151,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
     strtest += res->data;
     if(!strtest.compare("-1")) {
         delete res;
+        res = nullptr;
 
         level->m_nRetryAfter = -128;
         return level;
@@ -153,15 +159,16 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
 
     LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data);
     delete level->m_sLevelString;
+    level->m_sLevelString = nullptr;
     level->m_sLevelString = new std::string(lvl->m_sLevelString->c_str());
     level->m_nMusicID = lvl->m_nMusicID;
     level->m_nSongID = lvl->m_nSongID;
 
     free((void *)res->data);
-
-    free((void *)res->data);
     delete lvl;
     delete res;
+    lvl = nullptr;
+    res = nullptr;
 
     return level;
 }

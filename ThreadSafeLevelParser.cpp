@@ -2,6 +2,7 @@
 #include "StringSplit.h"
 #include "lapi_database.h"
 #include "gmd2pp/level-converter/base64.h"
+#include <iostream>
 
 using namespace LevelAPI::Backend;
 
@@ -12,7 +13,9 @@ using namespace LevelAPI::Backend;
 
 #define PARSE_KEY_PKSTRING(keyN, member) \
     case keyN: {\
-        delete member; member = new std::string(info[i].c_str()); \
+        delete member;\
+        member = nullptr;\
+        member = new std::string(info[i].c_str()); \
         break; \
     }
 #define PARSE_KEY_PKINT(keyN, member) \
@@ -27,10 +30,16 @@ using namespace LevelAPI::Backend;
     }
 #define PARSE_KEY_PKBASE64(keyN, member) \
     case keyN: {\
-        if(decrypt_description) { \
-            if(info[i].compare("")) member = new std::string((char *)base64_decode(info[i]).data()); \
-        } else { \
-            member = new std::string(info[i].c_str()); \
+        try { \
+            if(decrypt_description) { \
+                if(info[i].compare("")) member = new std::string((char *)base64_decode(info[i]).data()); \
+            } else { \
+                delete member; member = nullptr; member = new std::string(info[i].c_str()); \
+            } \
+        } \
+        catch (std::logic_error &e) { \
+            std::cout << "[LevelAPI WARN] Got logic_error exception!" << std::endl; \
+            member = new std::string(" "); \
         } \
         break; \
     }
@@ -102,6 +111,7 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *
     }
 
     delete level->m_uRelease->m_fActualVersion;
+    level->m_uRelease->m_fActualVersion = nullptr;
     level->m_uRelease->m_fActualVersion = new std::string(DatabaseController::LevelRelease::determineFromID(level->m_nLevelID));
     level->m_uRelease->m_nGameVersion = level->m_nGameVersion;
 

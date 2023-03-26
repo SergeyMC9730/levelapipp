@@ -139,7 +139,7 @@ start:
                     int levelid;
                     std::string levelname;
                     levelid = levels[i]->m_nLevelID;
-                    levelname = std::string(*(levels[i]->m_sLevelName));
+                    levelname = std::string(levels[i]->m_sLevelName->c_str());
                     
                     nd->initLevel(levels[i]);
                     levels[i]->m_bHasLevelString = false;
@@ -147,6 +147,7 @@ start:
                     nd->m_jLastDownloadedLevel = levels[i]->levelJson;
 
                     delete levels[i];
+                    levels[i] = nullptr;
 
                     std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Level saved without level string (RL state): " << levelid << " \"" << levelname << "\"" << std::endl; 
 
@@ -173,12 +174,14 @@ start:
                         level->save();
                         nd->m_jLastDownloadedLevel = level->levelJson;
                         delete level;
+                        level = nullptr;
                         std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Resolved level " << levelid << " \"" << levelname << "\"" << std::endl; 
                     } else {
                         if(!nd->m_pPolicy->m_bWaitResolverRL || level->m_nRetryAfter < 0) break;
                         std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << waittime << "s" << std::endl;
                         nd->m_bRateLimitApplied = true;
                         delete level;
+                        level = nullptr;
                         break;
                     }
 
@@ -212,6 +215,7 @@ start:
                 std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << waittime << "s" << std::endl;
                 nd->m_bRateLimitApplied = true;
                 delete level;
+                level = nullptr;
             } else {
                 nd->initLevel(level);
                 level->m_bHasLevelString = true;
@@ -219,6 +223,7 @@ start:
                 nd->m_jLastDownloadedLevel = level->levelJson;
                 std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Fetched level " << id << std::endl;
                 delete level;
+                level = nullptr;
             }
 
             break;
@@ -228,6 +233,7 @@ start:
         case NC_IDLE: break;
     }
     delete q;
+    q = nullptr;
     nd->m_uQueue->m_vCommandQueue->erase(nd->m_uQueue->m_vCommandQueue->begin());
     nd->m_uQueue->save();
 

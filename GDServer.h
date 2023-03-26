@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-#include "gmd2pp/level-converter/GJGameLevel.h"
 #include "lapi_database.h"
 
 #define GDSEARCH_RECENT "4"

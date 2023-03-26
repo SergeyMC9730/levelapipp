@@ -38,4 +38,5 @@ void NodeDatabase::setupJSON() {
 
 NodeDatabase::~NodeDatabase() {
     delete m_sEndpoint;
+    m_sEndpoint = nullptr;
 }

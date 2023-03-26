@@ -37,4 +37,5 @@ void NodeCommandQueue::setupJSON() {
 
 NodeCommandQueue::~NodeCommandQueue() {
     delete m_sText;
+    m_sText = nullptr;
 }

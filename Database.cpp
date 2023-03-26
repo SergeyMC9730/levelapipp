@@ -150,6 +150,7 @@ Database::~Database() {
     
     while(i < m_vThreads.size()) {
         delete m_vThreads[i];
+        m_vThreads[i] = nullptr;
         i++;
     }
     
@@ -161,6 +162,8 @@ Database::~Database() {
 
     delete m_vNodes;
     delete databasePath;
+    m_vNodes = nullptr;
+    databasePath = nullptr;
     m_vThreads.clear();
 }
 

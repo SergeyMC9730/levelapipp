@@ -16,4 +16,5 @@ std::string LevelRelease::determineFromID(int id) {
 
 LevelRelease::~LevelRelease() {
     delete m_fActualVersion;
+    m_fActualVersion = nullptr;
 }

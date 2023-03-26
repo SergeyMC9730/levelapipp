@@ -97,4 +97,5 @@ NodeQueue::~NodeQueue() {
         i++;
     }
     delete m_vCommandQueue;
+    m_vCommandQueue = nullptr;
 }

@@ -90,8 +90,11 @@ Level *Node::getLevel(int id) {
     l->restore();
 
     delete p1;
+    p1 = nullptr;
     delete p2;
+    p2 = nullptr;
     delete p3;
+    p3 = nullptr;
 
     return l;
 }
@@ -102,15 +105,21 @@ Node *Node::getSelf() {
 
 Node::~Node() {
     delete m_uDatabase;
+    m_uDatabase = nullptr;
     delete m_sInternalName;
+    m_sInternalName = nullptr;
     delete m_sLevelDataPath;
+    m_sLevelDataPath = nullptr;
     delete m_uQueue;
+    m_uQueue = nullptr;
     delete m_pPolicy;
+    m_pPolicy = nullptr;
 }
 
 void Node::initLevel(Level *level) {
     std::string p = "database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(level->m_nLevelID);
     delete level->m_sLevelPath;
+    level->m_sLevelPath = nullptr;
     level->m_sLevelPath = new std::string(p);
     mkdir(p.c_str(), 0777);
 }

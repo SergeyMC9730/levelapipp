@@ -67,7 +67,7 @@ void Level::setupJSON() {
 
 void Level::save() {
     #define fill(str, val) levelJson[str] = val;
-    #define fill_str(str, val) fill(str, *val);
+    #define fill_str(str, val) fill(str, val->c_str());
 
     m_uRelease->m_fActualVersion = new std::string(m_uRelease->determineFromID(m_nLevelID));
 
@@ -122,6 +122,7 @@ void Level::save() {
         gmd2file->generate();
 
         delete gmd2file;
+        gmd2file = nullptr;
     }
 
     file.close();
@@ -131,7 +132,7 @@ void Level::save() {
 
 void Level::restore() {
     #define RS(t, str, val) val = levelJson[str].get<t>();
-    #define RSS(t, str, val) delete val; val = new t (levelJson[str].get<t>());
+    #define RSS(t, str, val) delete val; val = nullptr; val = new t (levelJson[str].get<t>());
     
     RS(int, "levelID", m_nLevelID)
     RS(int, "version", m_nVersion)
@@ -175,10 +176,27 @@ void Level::restore() {
 
 Level::~Level() {
     delete m_uRelease;
+    m_uRelease = nullptr;
     delete m_sLevelPath;
+    m_sLevelPath = nullptr;
     delete m_sUsername;
+    m_sUsername = nullptr;
     delete m_sLevelName;
+    m_sLevelName = nullptr;
     delete m_sDescription;
+    m_sDescription = nullptr;
     delete m_sUploadDate;
+    m_sUploadDate = nullptr;
     delete m_sUpdateDate;
+    m_sUpdateDate = nullptr;
+    delete m_sLevelString;
+    m_sLevelString = nullptr;
+    delete m_sSettings;
+    m_sSettings = nullptr;
+    delete m_sExtraString;
+    m_sExtraString = nullptr;
+    delete m_sXORPassword;
+    m_sXORPassword = nullptr;
+    delete m_sRecordString;
+    m_sRecordString = nullptr;
 }

@@ -16,13 +16,12 @@
 #include "pugixml_patch/src/pugixml.hpp"
 
 GMD2::GMD2() {
-    this->m_pLevel = new GJGameLevel();
     this->m_pTools = new GMDTools();
 }
 
 GMD2::~GMD2() {
-    delete(this->m_pLevel);
-    delete(this->m_pTools);
+    delete this->m_pTools;
+    this->m_pTools = nullptr;
 }
 
 GJGameLevel *GMD2::getLevel() {
