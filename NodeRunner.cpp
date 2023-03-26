@@ -4,8 +4,10 @@
 #include <thread>
 #include <iostream>
 
+#include "GDServer.h"
 #include "Tools.h"
 #include "GDServer_BoomlingsLike21.h"
+#include "GDServer_BoomlingsLike19.h"
 #include "lapi_database.h"
 
 using namespace LevelAPI;
@@ -36,7 +38,19 @@ void DatabaseController::node_runner_waitResolverRL(Node *nd, int rate_limit_len
 }
 
 void DatabaseController::node_runner(Node *nd) {
-    auto server = new Backend::GDServer_BoomlingsLike21(nd->m_uDatabase->m_sEndpoint);
+
+    Backend::GDServer *server;
+    switch(nd->m_uDatabase->m_nFeatureSet) {
+        case 21: {
+            server = static_cast<Backend::GDServer *>(new Backend::GDServer_BoomlingsLike21(nd->m_uDatabase->m_sEndpoint));
+            break;
+        }
+        case 19: {
+            server = static_cast<Backend::GDServer *>(new Backend::GDServer_BoomlingsLike19(nd->m_uDatabase->m_sEndpoint));
+            break;
+        }
+    }
+    // auto server = new Backend::GDServer_BoomlingsLike21(nd->m_uDatabase->m_sEndpoint);
     //server->setDebug(true);
 
     std::thread rcbt(DatabaseController::node_runner_recentBot, nd);
@@ -49,12 +63,21 @@ void DatabaseController::node_runner(Node *nd) {
 
 error_ignore:
     std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] No stuff in the queue. Skipping" << std::endl;
+    goto run_again;
+loop_readonly2:
+    std::cout << "[LevelAPI " << *nd->m_sInternalName << "] Running node in READ-ONLY mode!" << std::endl;
+    //delete server;
+loop_readonly:
+    std::this_thread::sleep_for(std::chrono::seconds(2s));
+    goto loop_readonly;
 run_again:
     if(nd->m_bRateLimitApplied) {
         std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, waittime);
         rlt.detach();
     }
 start_linear:
+    if (nd->m_uDatabase->m_bReadOnly) goto loop_readonly2;
+
     if(!nd->m_pPolicy->m_bEnableLinearResolver) goto start;
     nd->m_uQueue->m_bExecuteQueue = !nd->m_uQueue->m_bExecuteQueue;
     nd->m_uQueue->save();
@@ -144,7 +167,7 @@ start:
                     std::string levelname;
                     if(waittime == 0) {
                         levelid = level->m_nLevelID;
-                        levelname = std::string(*level->m_sLevelName);
+                        levelname = std::string(level->m_sLevelName->c_str());
                         nd->initLevel(level);
                         level->m_bHasLevelString = true;
                         level->save();

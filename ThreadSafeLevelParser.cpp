@@ -27,12 +27,20 @@ using namespace LevelAPI::Backend;
     }
 #define PARSE_KEY_PKBASE64(keyN, member) \
     case keyN: {\
-        if(info[i].compare("")) member = new std::string((char *)base64_decode(info[i]).data()); \
+        if(decrypt_description) { \
+            if(info[i].compare("")) member = new std::string((char *)base64_decode(info[i]).data()); \
+        } else { \
+            member = new std::string(info[i].c_str()); \
+        } \
         break; \
     }
 #define PARSE_KEY(keyN, member, vType) PARSE_KEY_##vType(keyN, member)
 
-LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *response) {
+LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *response) { 
+    return LevelParser::parseFromResponse(response, true);
+}
+
+LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *response, bool decrypt_description) {
     //printf("response: %s\n", response);
     DatabaseController::Level *level = new DatabaseController::Level();
 

@@ -1,4 +1,5 @@
-#include "GDServer_BoomlingsLike21.h"
+#include "GDServer_BoomlingsLike19.h"
+
 #include "GDServer.h"
 #include "curl_backend.h"
 #include "ThreadSafeLevelParser.h"
@@ -12,10 +13,10 @@
 
 using namespace LevelAPI::Backend;
 
-GDServer_BoomlingsLike21::GDServer_BoomlingsLike21(std::string *endpoint) : GDServer() {
+GDServer_BoomlingsLike19::GDServer_BoomlingsLike19(std::string *endpoint) : GDServer() {
     m_sEndpointURL = endpoint;
 }
-LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(int id, bool resolveAccountInfo) {
+LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(int id, bool resolveAccountInfo) {
     LevelAPI::DatabaseController::Level *lvl;
     
     if (id <= 0) {
@@ -33,7 +34,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
 
     std::string uurl = "";
     uurl += *m_sEndpointURL;
-    uurl += "/downloadGJLevel22.php";
+    uurl += "/downloadGJLevel19.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     //printf("response 2: %s\n", res->data);
@@ -56,7 +57,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
         return lvl;
     }
 
-    lvl = LevelParser::parseFromResponse(res->data);
+    lvl = LevelParser::parseFromResponse(res->data, true);
     lvl->m_nRetryAfter = 0;
     
     free((void *)res->data);
@@ -65,7 +66,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
     return lvl;
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::getLevelsBySearchType(int type) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type) {
     m_pLinkedCURL->setDebug(getDebug());
 
     m_pLinkedCURL->setData({
@@ -75,7 +76,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
 
     std::string uurl = "";
     uurl += *m_sEndpointURL;
-    uurl += "/getGJLevels21.php";
+    uurl += "/getGJLevels19.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     if(res->http_status != 200 || res->result != 0) return {};
@@ -108,7 +109,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     vec4array = splitString(vec2[1].c_str(), '|');
     i = 0;
     while(i < vec5levels.size()) {
-        LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str());
+        LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str(), true);
         Account20 ac20 = playerMap[lvl->m_nPlayerID];
         lvl->m_nAccountID = ac20.accountID;
         delete lvl->m_sUsername;
@@ -125,7 +126,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
 
     return vec1;
 };
-LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
+LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
     m_pLinkedCURL->setDebug(getDebug());
 
     m_pLinkedCURL->setData({
@@ -135,7 +136,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
 
     std::string uurl = "";
     uurl += *m_sEndpointURL;
-    uurl += "/downloadGJLevel22.php";
+    uurl += "/downloadGJLevel19.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     //printf("response 2: %s\n", res->data);
@@ -151,13 +152,11 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
         return level;
     }
 
-    LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data);
+    LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data, true);
     delete level->m_sLevelString;
     level->m_sLevelString = new std::string(lvl->m_sLevelString->c_str());
     level->m_nMusicID = lvl->m_nMusicID;
     level->m_nSongID = lvl->m_nSongID;
-
-    free((void *)res->data);
 
     free((void *)res->data);
     delete lvl;
