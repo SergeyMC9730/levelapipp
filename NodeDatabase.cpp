@@ -21,7 +21,7 @@ NodeDatabase::NodeDatabase() {
 }
 
 void NodeDatabase::save() {
-    ndJson["endpoint"] = *m_sEndpoint;
+    ndJson["endpoint"] = m_sEndpoint->c_str();
     ndJson["featureSet"] = m_nFeatureSet;
     ndJson["readOnly"] = m_bReadOnly;
 }
