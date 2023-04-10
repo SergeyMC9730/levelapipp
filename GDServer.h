@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Account20.h"
 #include "curl_backend.h"
 
 #include <string>
@@ -11,10 +12,20 @@
 
 namespace LevelAPI {
     namespace Backend {
+        class GDServerUploadResult {
+        public:
+            bool successful;
+            int id;
+        };
         class GDServer {
         protected:
             std::string *m_sEndpointURL;
             CURLConnection *m_pLinkedCURL;
+            
+            std::string *m_sUsername;
+            std::string *m_sPassword;
+
+            Account20 *m_pAccount;
 	    bool m_bDebug;
         public:
             GDServer();
@@ -27,6 +38,13 @@ namespace LevelAPI {
             // returns self
             virtual LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level);
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type);
+        
+            virtual void setCredintials(std::string u, std::string p);
+            virtual bool login();
+
+            virtual int getGameVersion();
+
+            virtual GDServerUploadResult *uploadLevel(DatabaseController::Level *level);
         };
     }
 }

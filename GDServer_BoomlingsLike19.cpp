@@ -173,3 +173,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
 
     return level;
 }
+
+int GDServer_BoomlingsLike19::getGameVersion() {
+    return 19;
+}

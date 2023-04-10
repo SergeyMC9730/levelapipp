@@ -25,3 +25,6 @@
 [submodule "termcolor"]
 	path = termcolor
 	url = https://github.com/ikalnytskyi/termcolor.git
+[submodule "GDCrypto"]
+	path = GDCrypto
+	url = https://github.com/cos8oih/GDCrypto.git

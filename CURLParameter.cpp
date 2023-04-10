@@ -38,6 +38,42 @@ CURLParameter::CURLParameter(std::string k, std::string v) {
     key = buffer0;
     value = buffer1;
 }
+CURLParameter::CURLParameter(std::string k, std::string *v) {
+    eraseBuffers();
+
+    buffer0 = (char *)malloc(k.size() + 1);
+    buffer1 = (char *)malloc(v->size() + 1);
+
+    memcpy(buffer0, k.c_str(), k.size());
+    memcpy(buffer1, v->c_str(), v->size());
+
+    key = buffer0;
+    value = buffer1;
+}
+CURLParameter::CURLParameter(std::string *k, std::string v) {
+    eraseBuffers();
+
+    buffer0 = (char *)malloc(k->size() + 1);
+    buffer1 = (char *)malloc(v.size() + 1);
+
+    memcpy(buffer0, k->c_str(), k->size());
+    memcpy(buffer1, v.c_str(), v.size());
+
+    key = buffer0;
+    value = buffer1;
+}
+CURLParameter::CURLParameter(std::string *k, std::string *v) {
+    eraseBuffers();
+
+    buffer0 = (char *)malloc(k->size() + 1);
+    buffer1 = (char *)malloc(v->size() + 1);
+
+    memcpy(buffer0, k->c_str(), k->size());
+    memcpy(buffer1, v->c_str(), v->size());
+
+    key = buffer0;
+    value = buffer1;
+}
 CURLParameter::CURLParameter(std::string k, int v) {
     eraseBuffers();
 

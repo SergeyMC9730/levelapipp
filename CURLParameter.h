@@ -15,6 +15,9 @@ public:
     CURLParameter(const char *k, const char *v);
     CURLParameter(const char *k, int v);
     CURLParameter(std::string k, std::string v);
+    CURLParameter(std::string k, std::string *v);
+    CURLParameter(std::string *k, std::string v);
+    CURLParameter(std::string *k, std::string *v);
     CURLParameter(std::string k, int v);
 
     ~CURLParameter();

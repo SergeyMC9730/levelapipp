@@ -13,6 +13,12 @@ namespace LevelAPI {
             std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type) override;
             // returns self
             LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level) override;
+        
+            GDServerUploadResult *uploadLevel(DatabaseController::Level *level) override;
+
+            bool login() override;
+
+            int getGameVersion() override;
         };
     }
 }

@@ -50,8 +50,11 @@ void DatabaseController::node_runner(Node *nd) {
             break;
         }
     }
+
+    return;
+
     // auto server = new Backend::GDServer_BoomlingsLike21(nd->m_uDatabase->m_sEndpoint);
-    //server->setDebug(true);
+    server->setDebug(true);
 
     std::thread rcbt(DatabaseController::node_runner_recentBot, nd);
     rcbt.detach();

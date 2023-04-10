@@ -48,7 +48,7 @@ link_libraries(httpserver microhttpd)
 install(TARGETS httpserver EXPORT levelapi_workarounds)
 
 add_subdirectory(gmd2pp)
-
+add_subdirectory(GDCrypto)
 
 install(TARGETS gmd2 EXPORT levelapi_workarounds)
 

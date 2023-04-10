@@ -1,10 +1,12 @@
 #include "GDServer_BoomlingsLike21.h"
+#include "CURLParameter.h"
 #include "GDServer.h"
 #include "curl_backend.h"
 #include "ThreadSafeLevelParser.h"
 #include "lapi_database.h"
 #include "Account20.h"
 #include "StringSplit.h"
+#include "UUID.h"
 
 #include <cstdint>
 #include <cstring>
@@ -171,4 +173,52 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
     res = nullptr;
 
     return level;
+}
+
+GDServerUploadResult *GDServer_BoomlingsLike21::uploadLevel(DatabaseController::Level *level) {
+    auto res = new GDServerUploadResult();
+    
+    res->successful = false;
+    res->id = 0;
+    
+    if (level == nullptr) return res;
+    if (res == nullptr) return res;
+    if (m_sUsername->empty() || m_sPassword->empty()) return res;
+
+    m_pLinkedCURL->setDebug(getDebug());
+
+    m_pLinkedCURL->setData({
+        new CURLParameter("secret", "Wmfd2893gb7"),
+        new CURLParameter("gameVersion", getGameVersion()),
+
+    });
+
+    return res;
+}
+
+int GDServer_BoomlingsLike21::getGameVersion() {
+    return 21;
+}
+
+bool GDServer_BoomlingsLike21::login() {
+    m_pLinkedCURL->setDebug(getDebug());
+
+    m_pLinkedCURL->setData({
+        new CURLParameter("secret", "Wmfv3899gc9"),
+        new CURLParameter("udid", ConnectionCrypt::createUUID()),
+        new CURLParameter("password", m_sPassword),
+        new CURLParameter("userName", m_sUsername)
+    });
+
+    std::string uurl = "";
+    uurl += *m_sEndpointURL;
+    uurl += "/accounts/loginGJAccount.php";
+
+    CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
+    printf("response login: %s\n", res->data);
+    printf("%d %d %d\n", res->http_status, res->result, res->retry_after);
+    int ra = res->retry_after;
+    if(res->http_status != 200 || res->result != 0 || ra != 0) return false;
+
+    return true;
 }
