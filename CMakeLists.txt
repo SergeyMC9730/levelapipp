@@ -36,6 +36,8 @@ include_directories(httpserver PRIVATE
     libhttpserver/src/details
     libhttpserver/src/httpserver
     libhttpserver/src/httpserver/details
+    DPP/include/dpp
+    DPP/include/
 )
 # include_directories(levelapi_server PRIVATE
 
@@ -49,6 +51,7 @@ install(TARGETS httpserver EXPORT levelapi_workarounds)
 
 add_subdirectory(gmd2pp)
 add_subdirectory(GDCrypto)
+add_subdirectory(DPP)
 
 install(TARGETS gmd2 EXPORT levelapi_workarounds)
 
@@ -59,4 +62,4 @@ add_executable(levelapi_server
     ${levelapi_server_requests}
 )
 
-target_link_libraries(levelapi_server httpserver gmd2)
+target_link_libraries(levelapi_server httpserver gmd2 dpp)

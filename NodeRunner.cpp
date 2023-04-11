@@ -3,15 +3,73 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <vector>
 
 #include "GDServer.h"
 #include "Tools.h"
 #include "GDServer_BoomlingsLike21.h"
 #include "GDServer_BoomlingsLike19.h"
 #include "lapi_database.h"
+#include "message.h"
 
 using namespace LevelAPI;
 using namespace std::chrono_literals;
+
+std::string time_in_HH_MM_SS_MMM()
+{
+    using namespace std::chrono;
+
+    // get current time
+    auto now = system_clock::now();
+
+    // get number of milliseconds for the current second
+    // (remainder after division into seconds)
+    auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
+
+    // convert to std::time_t in order to convert to std::tm (broken time)
+    auto timer = system_clock::to_time_t(now);
+
+    // convert to broken time
+    std::tm bt = *std::localtime(&timer);
+
+    std::ostringstream oss;
+
+    oss << std::put_time(&bt, "%H:%M:%S"); // HH:MM:SS
+    oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+
+    return oss.str();
+}
+
+dpp::embed create_level_embed(std::string levelname, std::string author, int id) {
+    std::string msg = "**New level** appeared on the server at `";
+    msg += time_in_HH_MM_SS_MMM();
+    msg += "!`";
+
+    dpp::embed embed = dpp::embed().
+        set_color(0x66FC03).
+        set_title("New Level").
+        set_description(msg).
+        add_field(
+            "ID: ",
+            "**" + std::to_string(id) + "**",
+            true
+        ).
+        add_field(
+            "Name: ",
+            "**" + levelname + "**",
+            true
+        ).
+        add_field(
+            "Author: ",
+            "**" + author + "**",
+            true
+        ).
+        set_footer(dpp::embed_footer().set_text("LevelAPI")).
+        set_timestamp(time(0)
+    );
+    
+    return embed;
+} 
 
 void DatabaseController::node_runner_recentBot(Node *nd) {
     if(!nd->m_pPolicy->m_bEnableRecentTab) return;
@@ -38,6 +96,9 @@ void DatabaseController::node_runner_waitResolverRL(Node *nd, int rate_limit_len
 }
 
 void DatabaseController::node_runner(Node *nd) {
+    std::cout << "[LevelAPI] Preparing node " << nd->m_sInternalName->c_str() << std::endl;
+
+    std::vector<int> recent_downloadedids;
 
     Backend::GDServer *server;
     switch(nd->m_uDatabase->m_nFeatureSet) {
@@ -51,10 +112,8 @@ void DatabaseController::node_runner(Node *nd) {
         }
     }
 
-    return;
-
     // auto server = new Backend::GDServer_BoomlingsLike21(nd->m_uDatabase->m_sEndpoint);
-    server->setDebug(true);
+    server->setDebug(false);
 
     std::thread rcbt(DatabaseController::node_runner_recentBot, nd);
     rcbt.detach();
@@ -71,14 +130,17 @@ loop_readonly2:
     std::cout << "[LevelAPI " << *nd->m_sInternalName << "] Running node in READ-ONLY mode!" << std::endl;
     //delete server;
 loop_readonly:
+    std::cout << "[LevelAPI " << *nd->m_sInternalName << "] Running node in READ-ONLY mode!" << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(2s));
     goto loop_readonly;
 run_again:
+    std::cout << "[LevelAPI " << *nd->m_sInternalName << "] run again" << std::endl;
     if(nd->m_bRateLimitApplied) {
         std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, waittime);
         rlt.detach();
     }
 start_linear:
+    std::cout << "[LevelAPI " << *nd->m_sInternalName << "] start_linear" << std::endl;
     if (nd->m_uDatabase->m_bReadOnly) goto loop_readonly2;
 
     if(!nd->m_pPolicy->m_bEnableLinearResolver) goto start;
@@ -86,34 +148,39 @@ start_linear:
     nd->m_uQueue->save();
     if(nd->m_uQueue->m_bExecuteQueue || nd->m_bRateLimitApplied) goto start;
     else {
-        std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] Waiting " << nd->m_pPolicy->m_nResolverInterval<< "s" << std::endl;
+        if(nd->m_pPolicy->m_bEnableResolver) {
+            std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] Waiting " << nd->m_pPolicy->m_nResolverInterval<< "s" << std::endl;
         
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(
-                (int)(nd->m_pPolicy->m_nResolverInterval * 1000.f)
-            )
-        );
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(
+                    (int)(nd->m_pPolicy->m_nResolverInterval * 1000.f)
+                )
+            );
 
-        std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] Fetching level " << nd->m_uQueue->m_nRuntimeState << "..." << std::endl;
+            std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] Fetching level " << nd->m_uQueue->m_nRuntimeState << "..." << std::endl;
 
-        llevel = server->getLevelMetaByID(nd->m_uQueue->m_nRuntimeState, false);
+            llevel = server->getLevelMetaByID(nd->m_uQueue->m_nRuntimeState, false);
 
-        if (llevel->m_nRetryAfter == 0) {
-            nd->initLevel(llevel);
-            llevel->m_bHasLevelString = true;
-            llevel->save();
-            nd->m_jLastDownloadedLevel = llevel->levelJson;
-            std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] Fetched level " << nd->m_uQueue->m_nRuntimeState << std::endl;
-        } else if (llevel->m_nRetryAfter > 0 && nd->m_pPolicy->m_bWaitResolverRL) {
-            waittime = llevel->m_nRetryAfter;
-            std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << waittime << "s" << std::endl;
-            nd->m_bRateLimitApplied = true;
+            if (llevel->m_nRetryAfter == 0) {
+                nd->initLevel(llevel);
+                llevel->m_bHasLevelString = true;
+                llevel->save();
+                nd->m_jLastDownloadedLevel = llevel->levelJson;
+                std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] Fetched level " << nd->m_uQueue->m_nRuntimeState << std::endl;
+            } else if (llevel->m_nRetryAfter > 0 && nd->m_pPolicy->m_bWaitResolverRL) {
+                waittime = llevel->m_nRetryAfter;
+                std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << waittime << "s" << std::endl;
+                nd->m_bRateLimitApplied = true;
+            }
+
+            nd->m_uQueue->m_nRuntimeState++;   
+        } else {
+            std::cout << "[LevelAPI " << *nd->m_sInternalName << "] WARN: tried to run linear resolver with disabled resolver! " << std::endl;
         }
-
-        nd->m_uQueue->m_nRuntimeState++;
         goto run_again;
     }
 start:
+    std::cout << "[LevelAPI " << *nd->m_sInternalName << "] start" << std::endl;
     if(!nd->m_pPolicy->m_bEnableLinearResolver) {
         std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Waiting " << nd->m_pPolicy->m_nQueueProcessingInterval << "s" << std::endl;
 
@@ -137,7 +204,9 @@ start:
 
             int i = 0;
 
-            if(nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL) {
+            std::vector<int> new_levels;
+
+            if((nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL) || !nd->m_pPolicy->m_bEnableResolver) {
                 while(i < levels.size()) {
                     int levelid;
                     std::string levelname;
@@ -148,6 +217,16 @@ start:
                     levels[i]->m_bHasLevelString = false;
                     levels[i]->save();
                     nd->m_jLastDownloadedLevel = levels[i]->levelJson;
+
+                    if(!std::count(recent_downloadedids.begin(), recent_downloadedids.end(), levels[i]->m_nLevelID)) {
+                        new_levels.push_back(levelid);
+                        recent_downloadedids.push_back(levelid);
+                        if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady) {
+                            DatabaseController::database->m_uLinkedBot->message_create(dpp::message(
+                                dpp::snowflake(DatabaseController::database->m_sRegisteredCID), create_level_embed(levelname, *levels[i]->m_sUsername, levelid)
+                            ));
+                         }
+                    }
 
                     delete levels[i];
                     levels[i] = nullptr;
@@ -176,6 +255,15 @@ start:
                         level->m_bHasLevelString = true;
                         level->save();
                         nd->m_jLastDownloadedLevel = level->levelJson;
+                        if(!std::count(recent_downloadedids.begin(), recent_downloadedids.end(), levels[i]->m_nLevelID)) {
+                            new_levels.push_back(levelid);
+                            recent_downloadedids.push_back(levelid);
+                            if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady) {
+                                DatabaseController::database->m_uLinkedBot->message_create(dpp::message(
+                                    dpp::snowflake(DatabaseController::database->m_sRegisteredCID), create_level_embed(levelname, *level->m_sUsername, levelid)
+                                ));
+                            }
+                        }
                         delete level;
                         level = nullptr;
                         std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Resolved level " << levelid << " \"" << levelname << "\"" << std::endl; 
@@ -192,6 +280,7 @@ start:
                 }
             }
             levels.clear();
+
             break;
         }
         case NC_ID: {
@@ -208,6 +297,10 @@ start:
 
             if(nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL) {
                 std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Impossible to fetch: Rate Limit" << id << std::endl;
+                break;
+            }
+            if(!nd->m_pPolicy->m_bEnableResolver) {
+                std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Impossible to fetch: Disabled" << id << std::endl;
                 break;
             }
 

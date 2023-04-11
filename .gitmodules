@@ -28,3 +28,6 @@
 [submodule "GDCrypto"]
 	path = GDCrypto
 	url = https://github.com/cos8oih/GDCrypto.git
+[submodule "DPP"]
+	path = DPP
+	url = https://github.com/brainboxdotcc/DPP.git

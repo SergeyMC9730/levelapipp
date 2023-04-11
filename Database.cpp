@@ -1,6 +1,10 @@
+#include "cluster.h"
+#include "dispatcher.h"
+#include "intents.h"
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
 #include "DatabaseControllerThreads.h"
+#include "snowflake.h"
 
 #include <fstream>
 #include <vector>
@@ -78,6 +82,38 @@ Database::Database(std::string *path) {
 
     recalculate();
 
+    if (databaseJson.contains("botToken")) {
+        m_bEnableBot = true;
+        m_sBotToken = databaseJson["botToken"].get<std::string>();
+    }
+    if (databaseJson.contains("registeredCID")) {
+        m_sRegisteredCID = databaseJson["registeredCID"].get<std::string>();
+    }
+
+    if(m_bEnableBot) {
+        m_uLinkedBot = new dpp::cluster(m_sBotToken, dpp::i_default_intents | dpp::i_message_content);
+        m_uLinkedBot->on_log(dpp::utility::cout_logger());
+
+        m_uLinkedBot->on_ready([&](const dpp::ready_t& event) {
+	        this->m_bBotReady = true;
+            std::cout << "[LevelAPI] Bot is ready!" << std::endl;
+	    });
+        m_uLinkedBot->on_message_create([&](const dpp::message_create_t& event) {
+            if(!event.msg.author.is_bot()) {
+                if(event.msg.content == "lapi:registerchannel") {
+                    event.reply("This channel would be used for sending notification about new levels uploaded.");
+                    uint64_t val = event.msg.channel_id;
+                    m_sRegisteredCID = std::to_string(val);
+                    save();
+                    
+                }
+                std::cout << "[LevelAPI] message " << event.msg.content << std::endl;
+            }
+	    });
+    }
+
+    m_uLinkedBot->start(dpp::st_return);
+
     runThreads();
 
     return;
@@ -107,6 +143,8 @@ void Database::save() {
 
     databaseJson["nodes"] = nlohmann::json::array();
     databaseJson["nodeSize"] = m_nNodeSize;
+    databaseJson["botToken"] = m_sBotToken;
+    databaseJson["registeredCID"] = m_sRegisteredCID;
 
     int i = 0;
     while(i < m_vNodes->size()) {

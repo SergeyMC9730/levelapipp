@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cluster.h"
 #include "gmd2pp/level-converter/GJGameLevel.h"
 #include <array>
 #include <cstdint>
@@ -10,6 +11,8 @@
 #include "gmd2pp/level-converter/GJGameLevel.h"
 
 #include "json/single_include/nlohmann/json.hpp"
+
+#include <dpp/dpp.h>
 
 #pragma pack(push, 1)
 
@@ -117,6 +120,7 @@ namespace LevelAPI {
             bool m_bEnableRecentTab;
             bool m_bWaitResolverRL;
             bool m_bEnableLinearResolver;
+            bool m_bEnableResolver; // only level meta would be downloaded if resolver is disabled
             float m_nResolverInterval;
             float m_nQueueProcessingInterval;
 
@@ -161,9 +165,16 @@ namespace LevelAPI {
         class Database {
         private:
             std::vector<std::thread *> m_vThreads;
+            std::string m_sBotToken;
+            bool m_bEnableBot;
         public:
             nlohmann::json databaseJson;
             std::string *databasePath;
+            dpp::cluster *m_uLinkedBot;
+
+            bool m_bBotReady;
+
+            std::string m_sRegisteredCID;
 
             bool exists();
 
