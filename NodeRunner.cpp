@@ -74,7 +74,7 @@ dpp::embed create_level_embed(std::string levelname, std::string author, int id)
 void DatabaseController::node_runner_recentBot(Node *nd) {
     if(!nd->m_pPolicy->m_bEnableRecentTab) return;
 start:
-    std::this_thread::sleep_for(std::chrono::seconds(2s));
+    std::this_thread::sleep_for(std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000)));
     if(nd->m_uQueue->m_vCommandQueue->size() == 0) {
         nd->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_RECENT, new std::string("-")));
         nd->m_uQueue->save();
@@ -225,7 +225,12 @@ start:
                             DatabaseController::database->m_uLinkedBot->message_create(dpp::message(
                                 dpp::snowflake(DatabaseController::database->m_sRegisteredCID), create_level_embed(levelname, *levels[i]->m_sUsername, levelid)
                             ));
-                         }
+                            if(levelid == 90000000) {
+                                DatabaseController::database->m_uLinkedBot->message_create(dpp::message(
+                                    dpp::snowflake(DatabaseController::database->m_sRegisteredCID), "@everyone WE DID IT LETS GO"
+                                ));
+                            }
+                        }
                     }
 
                     delete levels[i];
@@ -262,6 +267,11 @@ start:
                                 DatabaseController::database->m_uLinkedBot->message_create(dpp::message(
                                     dpp::snowflake(DatabaseController::database->m_sRegisteredCID), create_level_embed(levelname, *level->m_sUsername, levelid)
                                 ));
+                                if(levelid == 90000000) {
+                                    DatabaseController::database->m_uLinkedBot->message_create(dpp::message(
+                                        dpp::snowflake(DatabaseController::database->m_sRegisteredCID), "@everyone WE DID IT LETS GO"
+                                    ));
+                                }
                             }
                         }
                         delete level;
