@@ -25,6 +25,7 @@ void NodePolicy::save() {
     policyJson["queueProcessingInterval"] = m_nQueueProcessingInterval;
     policyJson["enableLinearResolver"] = m_bEnableLinearResolver;
     policyJson["enableResolver"] = m_bEnableResolver;
+    policyJson["noOutput"] = m_bNoOutput;
 }
 void NodePolicy::recover() {
     if(policyJson.contains("enableRecentTab")) m_bEnableRecentTab = policyJson["enableRecentTab"].get<bool>();
@@ -33,6 +34,7 @@ void NodePolicy::recover() {
     if(policyJson.contains("queueProcessingInterval")) m_nQueueProcessingInterval = policyJson["queueProcessingInterval"].get<float>();
     if(policyJson.contains("enableLinearResolver")) m_bEnableLinearResolver = policyJson["enableLinearResolver"].get<bool>();
     if(policyJson.contains("enableResolver")) m_bEnableResolver = policyJson["enableResolver"].get<bool>();
+    if(policyJson.contains("noOutput")) m_bNoOutput = policyJson["noOutput"].get<bool>();
 }
 
 void NodePolicy::setupJSON() {

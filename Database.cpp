@@ -1,3 +1,4 @@
+#include "DiscordInstance.h"
 #include "cluster.h"
 #include "dispatcher.h"
 #include "intents.h"
@@ -91,28 +92,9 @@ Database::Database(std::string *path) {
     }
 
     if(m_bEnableBot) {
-        m_uLinkedBot = new dpp::cluster(m_sBotToken, dpp::i_default_intents | dpp::i_message_content);
-        m_uLinkedBot->on_log(dpp::utility::cout_logger());
-
-        m_uLinkedBot->on_ready([&](const dpp::ready_t& event) {
-	        this->m_bBotReady = true;
-            std::cout << "[LevelAPI] Bot is ready!" << std::endl;
-	    });
-        m_uLinkedBot->on_message_create([&](const dpp::message_create_t& event) {
-            if(!event.msg.author.is_bot()) {
-                if(event.msg.content == "lapi:registerchannel") {
-                    event.reply("This channel would be used for sending notification about new levels uploaded.");
-                    uint64_t val = event.msg.channel_id;
-                    m_sRegisteredCID = std::to_string(val);
-                    save();
-                    
-                }
-                std::cout << "[LevelAPI] message " << event.msg.content << std::endl;
-            }
-	    });
+        m_pLinkedBot = new LevelAPI::DiscordController::DiscordInstance(this);
+        m_vThreads.push_back(m_pLinkedBot->start());
     }
-
-    m_uLinkedBot->start(dpp::st_return);
 
     runThreads();
 
@@ -143,7 +125,7 @@ void Database::save() {
 
     databaseJson["nodes"] = nlohmann::json::array();
     databaseJson["nodeSize"] = m_nNodeSize;
-    databaseJson["botToken"] = m_sBotToken;
+    if(m_bEnableBot) databaseJson["botToken"] = m_sBotToken;
     databaseJson["registeredCID"] = m_sRegisteredCID;
 
     int i = 0;

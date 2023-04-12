@@ -71,6 +71,7 @@ void Node::setupJSON() {
 }
 
 Level *Node::getLevel(int id) {
+    
     #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
     struct stat buffer;
@@ -79,10 +80,11 @@ Level *Node::getLevel(int id) {
     std::string *p3 = new std::string("database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(id) + "/meta.json");
     // TODO: comment registering
     
-    if(!file_exists(p1->c_str())) return new Level();
-    if(!file_exists(p2->c_str())) return new Level();
-    if(!file_exists(p3->c_str())) return new Level();
-    nlohmann::json file = nlohmann::json::parse(*p3);
+    if(!file_exists(p1->c_str())) return nullptr;
+    if(!file_exists(p3->c_str())) return nullptr;
+
+    std::ifstream i(std::string(p3->c_str()));
+    nlohmann::json file = nlohmann::json::parse(i);
     
     Level *l = new Level();
     l->levelJson = file;

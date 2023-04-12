@@ -14,6 +14,8 @@
 
 #include <dpp/dpp.h>
 
+#include "DiscordInstance.h"
+
 #pragma pack(push, 1)
 
 namespace LevelAPI {
@@ -42,6 +44,8 @@ namespace LevelAPI {
             int m_nAccountID;
             std::string *m_sUsername;
 
+            std::string m_sLinkedNode;
+
             int m_nRetryAfter;
             bool m_bHasLevelString;
 
@@ -49,6 +53,8 @@ namespace LevelAPI {
             Level();
             void restore();
             void save();
+
+            dpp::embed getAsEmbed();
 
             ~Level();
         };
@@ -123,6 +129,7 @@ namespace LevelAPI {
             bool m_bEnableResolver; // only level meta would be downloaded if resolver is disabled
             float m_nResolverInterval;
             float m_nQueueProcessingInterval;
+            bool m_bNoOutput;
 
             void save();
             void recover();
@@ -163,14 +170,13 @@ namespace LevelAPI {
             ~Node();
         };
         class Database {
-        private:
-            std::vector<std::thread *> m_vThreads;
-            std::string m_sBotToken;
-            bool m_bEnableBot;
         public:
             nlohmann::json databaseJson;
             std::string *databasePath;
-            dpp::cluster *m_uLinkedBot;
+            LevelAPI::DiscordController::DiscordInstance *m_pLinkedBot;
+            bool m_bEnableBot;
+            std::vector<std::thread *> m_vThreads;
+            std::string m_sBotToken;
 
             bool m_bBotReady;
 

@@ -2,7 +2,10 @@
 #include "Tools.h"
 #include "json/single_include/nlohmann/json.hpp"
 #include "gmd2pp/gmd2.h"
+#include "message.h"
 #include <fstream>
+#include "Time.h"
+#include <random>
 
 using namespace LevelAPI::DatabaseController;
 
@@ -199,4 +202,89 @@ Level::~Level() {
     m_sXORPassword = nullptr;
     delete m_sRecordString;
     m_sRecordString = nullptr;
+}
+
+dpp::embed Level::getAsEmbed() {
+    Frontend::Time *t = Frontend::Time::create();
+
+    std::string msg = "**New level** appeared on the server at `";
+    msg += t->getAsString();
+    msg += "`!";
+
+    delete t;
+    t = nullptr;
+
+    std::string thumbnail;
+
+    std::random_device rd;
+    std::uniform_int_distribution<int> uid(0, m_nLevelID);
+
+    switch(m_nStarsRequested) {
+        case 1: {
+            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611551366524948/difficulty_auto_btn_001.png";
+            break;
+        }
+        case 2: {
+            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611527320588308/difficulty_01_btn_001.png";
+            break;
+        }
+        case 3: {
+            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611527597391872/difficulty_02_btn_001.png";
+            break;
+        }
+        case 4:
+        case 5: {
+            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611527849066536/difficulty_03_btn_001.png";
+            break;
+        }
+        case 6:
+        case 7: {
+            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611528117506209/difficulty_04_btn_001.png";
+            break;
+        }
+        case 8:
+        case 9: {
+            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611528381726720/difficulty_05_btn_001.png";
+            break;
+        }
+        case 10: {
+            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611528608235590/difficulty_06_btn_001.png";
+            break;
+        }
+        default: {
+            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611526972457040/difficulty_00_btn_001.png";
+            break;
+        }
+    }
+
+    dpp::embed embed = dpp::embed().
+        set_color(uid(rd)).
+        set_title("New Level").
+        set_description(msg).
+        add_field(
+            "ID: ",
+            "**" + std::to_string(this->m_nLevelID) + "**",
+            true
+        ).
+        add_field(
+            "Name: ",
+            "**" + std::string(this->m_sLevelName->c_str()) + "**",
+            true
+        ).
+        add_field(
+            "Author: ",
+            "**" + std::string(this->m_sUsername->c_str()) + "**",
+            true
+        ).
+        add_field(
+            "**More Info: **",
+            "[Metadata](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")",
+            true
+        ).
+        set_thumbnail(thumbnail).
+        set_footer(dpp::embed_footer().set_text("LevelAPI " + m_sLinkedNode)).
+        set_timestamp(time(0)
+    );
+    
+    return embed;
 }

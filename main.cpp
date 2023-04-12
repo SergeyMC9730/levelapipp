@@ -4,6 +4,7 @@
 #include <iterator>
 #include "GDServer.h"
 #include "requests/v1.helloworld.h"
+#include "requests/v1.level.download.h"
 
 #include "gmd2pp/gmd2.h"
 
@@ -42,12 +43,11 @@ int main(int, char**) {
     ;
 
     ws.register_resource("/api/v1/hello", reinterpret_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
+    ws.register_resource("/api/v1/level/download", reinterpret_cast<http_resource *>(new LevelAPI::v1::LevelDownloadRequest()));
+
     std::cout << "[LevelAPI] Running on port " << HttpController::getPort() << std::endl;
 
     DatabaseController::database->save();
-
-    // auto servertest = new Backend::GDServer_BoomlingsLike21(new std::string("123"));
-    // servertest->getLevelsBySearch(GDSEARCH_RECENT);
 
     ws.start(true);
 
