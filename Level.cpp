@@ -221,38 +221,38 @@ dpp::embed Level::getAsEmbed() {
 
     switch(m_nStarsRequested) {
         case 1: {
-            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611551366524948/difficulty_auto_btn_001.png";
+            thumbnail = "https://gdbrowser.com/assets/difficulties/auto.png";
             break;
         }
         case 2: {
-            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611527320588308/difficulty_01_btn_001.png";
+            thumbnail = "https://gdbrowser.com/assets/difficulties/easy.png";
             break;
         }
         case 3: {
-            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611527597391872/difficulty_02_btn_001.png";
+            thumbnail = "https://gdbrowser.com/assets/difficulties/normal.png";
             break;
         }
         case 4:
         case 5: {
-            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611527849066536/difficulty_03_btn_001.png";
+            thumbnail = "https://gdbrowser.com/assets/difficulties/hard.png";
             break;
         }
         case 6:
         case 7: {
-            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611528117506209/difficulty_04_btn_001.png";
+            thumbnail = "https://gdbrowser.com/assets/difficulties/harder.png";
             break;
         }
         case 8:
         case 9: {
-            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611528381726720/difficulty_05_btn_001.png";
+            thumbnail = "https://gdbrowser.com/assets/difficulties/insane.png";
             break;
         }
         case 10: {
-            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611528608235590/difficulty_06_btn_001.png";
+            thumbnail = "https://gdbrowser.com/assets/difficulties/demon.png";
             break;
         }
         default: {
-            thumbnail = "https://media.discordapp.net/attachments/1095610192676265984/1095611526972457040/difficulty_00_btn_001.png";
+            thumbnail = "https://gdbrowser.com/assets/difficulties/unrated.png";
             break;
         }
     }
