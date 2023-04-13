@@ -152,6 +152,10 @@ namespace LevelAPI {
 
             nlohmann::json m_jLastDownloadedLevel;
 
+            bool m_bResolverIsActive;
+
+            int m_nWaitTime;
+
             bool m_bRateLimitApplied;
 
             void initLevel(Level *level);

@@ -76,7 +76,7 @@ Level *Node::getLevel(int id) {
 
     struct stat buffer;
     std::string *p1 = new std::string("database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(id));
-    std::string *p2 = new std::string("database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(id) + "/level.gmd2");
+    std::string *p2 = new std::string("database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(id) + "/data.gmd2");
     std::string *p3 = new std::string("database/nodes/" + *m_sInternalName + "/levels/Level_" + std::to_string(id) + "/meta.json");
     // TODO: comment registering
     
@@ -90,6 +90,8 @@ Level *Node::getLevel(int id) {
     l->levelJson = file;
     l->m_sLevelPath = p1;
     l->restore();
+
+    l->m_bHasLevelString = file_exists(p2->c_str());
 
     delete p1;
     p1 = nullptr;

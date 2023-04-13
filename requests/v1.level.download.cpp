@@ -15,6 +15,7 @@ LevelAPI::v1::LevelDownloadRequest::LevelDownloadRequest() {
 std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const http_request &req) {
     auto id = req.get_arg("id");
     auto node = req.get_arg("node");
+    auto isgmd2 = req.get_arg("gmd2");
 
     nlohmann::json response_fail;
 

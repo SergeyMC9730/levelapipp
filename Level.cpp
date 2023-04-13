@@ -278,7 +278,7 @@ dpp::embed Level::getAsEmbed() {
         ).
         add_field(
             "**More Info: **",
-            "[Metadata](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")",
+            "[Metadata](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")" + (m_bHasLevelString ? " | [GMD2](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&gmd2=true)" : ""),
             true
         ).
         set_thumbnail(thumbnail).

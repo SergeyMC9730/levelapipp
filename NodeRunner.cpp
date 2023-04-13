@@ -11,6 +11,7 @@
 #include "GDServer_BoomlingsLike19.h"
 #include "lapi_database.h"
 #include "message.h"
+#include "restresults.h"
 
 using namespace LevelAPI;
 using namespace std::chrono_literals;
@@ -39,6 +40,75 @@ void DatabaseController::node_runner_waitResolverRL(Node *nd, int rate_limit_len
     return;
 }
 
+void DatabaseController::node_runner_wait_level(Node *nd, dpp::message message, int id) {
+    return;
+    if(nd->m_bRateLimitApplied) return;
+    nd->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_ID, new std::string(std::to_string(id))));
+    while(1) {
+        if(nd->m_bRateLimitApplied) return;
+        auto level = nd->getLevel(id);
+        if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Waiting for " << id << " " << level->m_bHasLevelString << std::endl;
+        if(level->m_bHasLevelString) {
+            auto level = nd->getLevel(id);
+            message.embeds.clear();
+            message.add_embed(level->getAsEmbed());
+            DatabaseController::database->m_pLinkedBot->m_pBot->message_edit(
+                message
+            );
+            return;
+        }
+        // delete level;
+        std::this_thread::sleep_for(500ms);
+    }
+}
+
+void DatabaseController::node_runner_resolve_level(Node *nd, NodeCommandQueue *q, Backend::GDServer *server) {
+    nd->m_bResolverIsActive = true;
+
+    int id = std::stoi(std::string(q->m_sText->c_str()));
+    float time_to_wait = nd->m_pPolicy->m_nResolverInterval - nd->m_pPolicy->m_nQueueProcessingInterval;
+    if(time_to_wait < 0.f) time_to_wait = 0;
+    if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Sleeping " << time_to_wait << "s and then fetching level " << id << std::endl;
+            
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(
+            (int)(time_to_wait * 1000.f)
+        )
+    );
+
+    if(nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL) {
+        if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Impossible to fetch: Rate Limit" << id << std::endl;
+        return;
+    }
+    if(!nd->m_pPolicy->m_bEnableResolver) {
+        if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Impossible to fetch: Disabled" << id << std::endl;
+        return;
+    }
+
+    auto level = server->getLevelMetaByID(id, false);
+    if(level->m_nRetryAfter != 0) {
+        if(!nd->m_pPolicy->m_bWaitResolverRL || level->m_nRetryAfter < 0) return;
+        nd->m_nWaitTime = level->m_nRetryAfter;
+        if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << nd->m_nWaitTime << "s" << std::endl;
+        nd->m_bRateLimitApplied = true;
+        delete level;
+        level = nullptr;
+    } else {
+        nd->initLevel(level);
+        level->m_bHasLevelString = true;
+        level->save();
+        nd->m_jLastDownloadedLevel = level->levelJson;
+        if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Fetched level " << id << std::endl;
+        delete level;
+        level = nullptr;
+    }
+
+    delete q;
+    q = nullptr;
+
+    nd->m_bResolverIsActive = false;
+}
+
 void DatabaseController::node_runner(Node *nd) {
     std::cout << "[LevelAPI] Running node " << nd->m_sInternalName->c_str() << std::endl;
 
@@ -62,7 +132,6 @@ void DatabaseController::node_runner(Node *nd) {
     std::thread rcbt(DatabaseController::node_runner_recentBot, nd);
     rcbt.detach();
 
-    int waittime = 0;
     Level *llevel;
 
     goto start_linear;
@@ -80,7 +149,7 @@ loop_readonly:
 run_again:
     if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI " << *nd->m_sInternalName << "] run again" << std::endl;
     if(nd->m_bRateLimitApplied) {
-        std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, waittime);
+        std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, nd->m_nWaitTime);
         rlt.detach();
     }
 start_linear:
@@ -112,8 +181,8 @@ start_linear:
                 nd->m_jLastDownloadedLevel = llevel->levelJson;
                 if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] Fetched level " << nd->m_uQueue->m_nRuntimeState << std::endl;
             } else if (llevel->m_nRetryAfter > 0 && nd->m_pPolicy->m_bWaitResolverRL) {
-                waittime = llevel->m_nRetryAfter;
-                if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << waittime << "s" << std::endl;
+                nd->m_nWaitTime = llevel->m_nRetryAfter;
+                if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << nd->m_nWaitTime << "s" << std::endl;
                 nd->m_bRateLimitApplied = true;
             }
 
@@ -150,7 +219,7 @@ start:
 
             std::vector<int> new_levels;
 
-            if((nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL) || !nd->m_pPolicy->m_bEnableResolver) {
+            if(true) {
                 while(i < levels.size()) {
                     int levelid;
                     std::string levelname;
@@ -169,108 +238,31 @@ start:
                         if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady) {
                             DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
                                 dpp::snowflake(DatabaseController::database->m_sRegisteredCID), levels[i]->getAsEmbed()
-                            ));
+                            ), [&](const dpp::confirmation_callback_t &ct) {
+                                if(!ct.is_error() && !nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL && nd->m_pPolicy->m_bEnableResolver) {
+                                    std::thread wlt(DatabaseController::node_runner_wait_level, nd, std::get<dpp::message>(ct.value), levelid);
+                                    wlt.detach();
+                                }
+                            });
                         }
                     }
 
                     delete levels[i];
                     levels[i] = nullptr;
 
-                    if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Level saved without level string (RL state): " << levelid << " \"" << levelname << "\"" << std::endl; 
+                    if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Level saved without level string: " << levelid << " \"" << levelname << "\"" << std::endl; 
 
                     i++;
                 }
-            } else {
-                while(i < levels.size()) {
-                    if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Waiting " << (float)waittime + nd->m_pPolicy->m_nResolverInterval << "s" << std::endl; 
-                    std::this_thread::sleep_for(
-                        std::chrono::milliseconds((int)(waittime * 1000.f) + (int)(nd->m_pPolicy->m_nResolverInterval * 1000.f))
-                    );
-
-                    // if(!nd->m_pPolicy->m_bNoOutput) std::cout << "Level " << levels[i]->m_nLevelID << std::endl;
-
-                    auto level = server->resolveLevelData(levels[i]);
-                    waittime = level->m_nRetryAfter;
-                    int levelid;
-                    std::string levelname;
-                    if(waittime == 0) {
-                        levelid = level->m_nLevelID;
-                        levelname = std::string(level->m_sLevelName->c_str());
-                        nd->initLevel(level);
-                        level->m_bHasLevelString = true;
-                        level->save();
-                        level->m_sLinkedNode = std::string(nd->m_sInternalName->c_str());
-                        nd->m_jLastDownloadedLevel = level->levelJson;
-                        if(!std::count(recent_downloadedids.begin(), recent_downloadedids.end(), levels[i]->m_nLevelID)) {
-                            new_levels.push_back(levelid);
-                            recent_downloadedids.push_back(levelid);
-                            if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady) {
-                                DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
-                                    dpp::snowflake(DatabaseController::database->m_sRegisteredCID), levels[i]->getAsEmbed()
-                                ));
-                                if(levelid == 90000000) {
-                                    DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
-                                        dpp::snowflake(DatabaseController::database->m_sRegisteredCID), "@everyone WE DID IT LETS GO"
-                                    ));
-                                }
-                            }
-                        }
-                        delete level;
-                        level = nullptr;
-                        if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Resolved level " << levelid << " \"" << levelname << "\"" << std::endl; 
-                    } else {
-                        if(!nd->m_pPolicy->m_bWaitResolverRL || level->m_nRetryAfter < 0) break;
-                        if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << waittime << "s" << std::endl;
-                        nd->m_bRateLimitApplied = true;
-                        delete level;
-                        level = nullptr;
-                        break;
-                    }
-
-                    i++;
-                }
-            }
+            } 
             levels.clear();
 
             break;
         }
         case NC_ID: {
-            int id = std::stoi(std::string(q->m_sText->c_str()));
-            float time_to_wait = nd->m_pPolicy->m_nResolverInterval - nd->m_pPolicy->m_nQueueProcessingInterval;
-            if(time_to_wait < 0.f) time_to_wait = 0;
-            if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Sleeping " << time_to_wait << "s and then fetching level " << id << std::endl;
-            
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds(
-                    (int)(time_to_wait * 1000.f)
-                )
-            );
-
-            if(nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL) {
-                if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Impossible to fetch: Rate Limit" << id << std::endl;
-                break;
-            }
-            if(!nd->m_pPolicy->m_bEnableResolver) {
-                if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Impossible to fetch: Disabled" << id << std::endl;
-                break;
-            }
-
-            auto level = server->getLevelMetaByID(id, false);
-            if(level->m_nRetryAfter != 0) {
-                if(!nd->m_pPolicy->m_bWaitResolverRL || level->m_nRetryAfter < 0) break;
-                waittime = level->m_nRetryAfter;
-                if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << waittime << "s" << std::endl;
-                nd->m_bRateLimitApplied = true;
-                delete level;
-                level = nullptr;
-            } else {
-                nd->initLevel(level);
-                level->m_bHasLevelString = true;
-                level->save();
-                nd->m_jLastDownloadedLevel = level->levelJson;
-                if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Fetched level " << id << std::endl;
-                delete level;
-                level = nullptr;
+            if(!nd->m_bResolverIsActive) {
+                std::thread rlt(DatabaseController::node_runner_resolve_level, nd, q, server);
+                rlt.detach();
             }
 
             break;
@@ -279,8 +271,10 @@ start:
         case NC_NONE:
         case NC_IDLE: break;
     }
-    delete q;
-    q = nullptr;
+    if(q->m_nCommand != NC_ID) {
+        delete q;
+        q = nullptr;
+    }
     nd->m_uQueue->m_vCommandQueue->erase(nd->m_uQueue->m_vCommandQueue->begin());
     nd->m_uQueue->save();
 
