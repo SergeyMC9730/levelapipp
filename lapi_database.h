@@ -44,6 +44,8 @@ namespace LevelAPI {
             int m_nAccountID;
             std::string *m_sUsername;
 
+            std::string m_sCreatedTimestamp;
+
             std::string m_sLinkedNode;
 
             int m_nRetryAfter;

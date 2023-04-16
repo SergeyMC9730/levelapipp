@@ -61,6 +61,11 @@ Level::Level() {
     m_bGauntlet = false;
     m_b2P = false;
 
+    Frontend::Time *t = Frontend::Time::create();
+    m_sCreatedTimestamp = t->getAsString();
+    delete t;
+    t = nullptr;
+
     setupJSON();
 }
 
@@ -110,6 +115,7 @@ void Level::save() {
     fill_str("updateDate", m_sUpdateDate)
     fill_str("username", m_sUsername);
     fill_str("actualGameVersion", m_uRelease->m_fActualVersion)
+    fill("publicationDate", m_sCreatedTimestamp);
 
     std::string g = *m_sLevelPath + "/meta.json";
     std::string g2 = *m_sLevelPath + "/data.gmd2";
@@ -173,6 +179,7 @@ void Level::restore() {
     RSS(std::string, "updateDate", m_sUpdateDate)
     RSS(std::string, "username", m_sUsername)
     RSS(std::string, "actualGameVersion", m_uRelease->m_fActualVersion)
+    RS(std::string, "publicationDate", m_sCreatedTimestamp);
 
     return;
 }
@@ -205,14 +212,7 @@ Level::~Level() {
 }
 
 dpp::embed Level::getAsEmbed() {
-    Frontend::Time *t = Frontend::Time::create();
-
-    std::string msg = "**New level** appeared on the server at `";
-    msg += t->getAsString();
-    msg += "`!";
-
-    delete t;
-    t = nullptr;
+    std::string msg = "**New level** appeared on the server at `" + m_sCreatedTimestamp + "`!";
 
     std::string thumbnail;
 

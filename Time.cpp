@@ -3,7 +3,9 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <string>
 #include <sys/types.h>
+#include <vector>
 
 using namespace LevelAPI::Frontend;
 
@@ -29,10 +31,17 @@ Time::Time() {
 
     std::ostringstream oss;
 
+    std::vector<std::string> months = {
+        "Jan", "Feb", "Mar", "Apr",
+        "May", "Jun", "Jul", "Aug",
+        "Sep", "Oct", "Nov", "Dec" 
+    };
+    time_hms = months[bt.tm_mon - 1] + " " + std::to_string(bt.tm_mday) + "th " + std::to_string(bt.tm_year + 1900) + " at ";
+
     oss << std::put_time(&bt, "%H:%M:%S"); // HH:MM:SS
     oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
 
-    this->time_hms = oss.str();
+    this->time_hms += oss.str();
 }
 
 Time *Time::create() {
