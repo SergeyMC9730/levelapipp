@@ -212,7 +212,7 @@ Level::~Level() {
 }
 
 dpp::embed Level::getAsEmbed() {
-    std::string msg = "**New level** appeared on the server at `" + m_sCreatedTimestamp + "`!";
+    std::string msg = "**New level** appeared on the server on `" + m_sCreatedTimestamp + "`!";
 
     std::string thumbnail;
 
@@ -282,7 +282,7 @@ dpp::embed Level::getAsEmbed() {
             true
         ).
         set_thumbnail(thumbnail).
-        set_footer(dpp::embed_footer().set_text("LevelAPI " + m_sLinkedNode)).
+        set_footer(dpp::embed_footer().set_text("LevelAPI  •  " + m_sLinkedNode)).
         set_timestamp(time(0)
     );
     
