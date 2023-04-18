@@ -212,7 +212,11 @@ Level::~Level() {
 }
 
 dpp::embed Level::getAsEmbed() {
-    std::string msg = "**New level** appeared on the server on `" + m_sCreatedTimestamp + "`!";
+    std::string gv = std::to_string((float)m_nGameVersion / 10.f);
+    gv.erase(gv.find_last_not_of('0') + 1, std::string::npos);
+    gv.erase(gv.find_last_not_of('.') + 1, std::string::npos);
+
+    std::string msg = "**New " + gv + " level** appeared on the server on `" + m_sCreatedTimestamp + "`!";
 
     std::string thumbnail;
 
@@ -262,17 +266,17 @@ dpp::embed Level::getAsEmbed() {
         set_title("New Level").
         set_description(msg).
         add_field(
-            "ID: ",
+            "ID:",
             "**" + std::to_string(this->m_nLevelID) + "**",
             true
         ).
         add_field(
-            "Name: ",
+            "Name:",
             "**" + std::string(this->m_sLevelName->c_str()) + "**",
             true
         ).
         add_field(
-            "Author: ",
+            "Author:",
             "**" + std::string(this->m_sUsername->c_str()) + "**",
             true
         ).
@@ -285,6 +289,6 @@ dpp::embed Level::getAsEmbed() {
         set_footer(dpp::embed_footer().set_text("LevelAPI  •  " + m_sLinkedNode)).
         set_timestamp(time(0)
     );
-    
+
     return embed;
 }
