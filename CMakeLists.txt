@@ -52,6 +52,7 @@ install(TARGETS httpserver EXPORT levelapi_workarounds)
 add_subdirectory(gmd2pp)
 add_subdirectory(GDCrypto)
 add_subdirectory(DPP)
+add_subdirectory(tests)
 
 install(TARGETS gmd2 EXPORT levelapi_workarounds)
 
