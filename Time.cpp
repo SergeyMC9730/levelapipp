@@ -36,7 +36,7 @@ Time::Time() {
         "May", "Jun", "Jul", "Aug",
         "Sep", "Oct", "Nov", "Dec" 
     };
-    time_hms = months[bt.tm_mon - 1] + " " + std::to_string(bt.tm_mday) + "th " + std::to_string(bt.tm_year + 1900) + " at ";
+    time_hms = months[bt.tm_mon] + " " + std::to_string(bt.tm_mday) + "th " + std::to_string(bt.tm_year + 1900) + " at ";
 
     oss << std::put_time(&bt, "%H:%M:%S"); // HH:MM:SS
     oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
