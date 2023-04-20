@@ -152,6 +152,8 @@ namespace LevelAPI {
             NodeQueue *m_uQueue;
             NodePolicy *m_pPolicy;
 
+            std::vector<int> m_vCachedLevels;
+
             nlohmann::json m_jLastDownloadedLevel;
 
             bool m_bResolverIsActive;

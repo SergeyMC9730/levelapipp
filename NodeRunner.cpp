@@ -1,6 +1,7 @@
 #include "DatabaseControllerThreads.h"
 
 #include <chrono>
+#include <string>
 #include <thread>
 #include <iostream>
 #include <vector>
@@ -15,6 +16,19 @@
 
 using namespace LevelAPI;
 using namespace std::chrono_literals;
+
+void DatabaseController::node_runner_recount_task(Node *nd) {
+    std::string folder = "database/nodes/" + std::string(nd->m_sInternalName->c_str()) + "/levels";
+    nd->m_vCachedLevels.clear();
+    for (const auto & entry : std::filesystem::directory_iterator(folder)) {
+        std::string path = entry.path();
+        std::string filename = path.substr(path.find_last_of("/\\") + 1);
+        std::string levelid = filename.substr(filename.find_last_of("_") + 1);
+        nd->m_vCachedLevels.push_back(std::stoi(levelid));
+    }
+    if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI " << *nd->m_sInternalName << "] Recount task complete: " << nd->m_vCachedLevels.size() << " levels in total." << std::endl;
+    std::this_thread::sleep_for(10s);
+}
 
 void DatabaseController::node_runner_recentBot(Node *nd) {
     if(!nd->m_pPolicy->m_bEnableRecentTab) return;
@@ -132,6 +146,9 @@ void DatabaseController::node_runner(Node *nd) {
     std::thread rcbt(DatabaseController::node_runner_recentBot, nd);
     rcbt.detach();
 
+    std::thread rtt(DatabaseController::node_runner_recount_task, nd);
+    rtt.detach();
+
     Level *llevel;
 
     goto start_linear;
@@ -179,11 +196,15 @@ start_linear:
                 llevel->m_bHasLevelString = true;
                 llevel->save();
                 nd->m_jLastDownloadedLevel = llevel->levelJson;
+                delete llevel;
+                llevel = nullptr;
                 if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] Fetched level " << nd->m_uQueue->m_nRuntimeState << std::endl;
             } else if (llevel->m_nRetryAfter > 0 && nd->m_pPolicy->m_bWaitResolverRL) {
                 nd->m_nWaitTime = llevel->m_nRetryAfter;
                 if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << nd->m_nWaitTime << "s" << std::endl;
                 nd->m_bRateLimitApplied = true;
+                delete llevel;
+                llevel = nullptr;
             }
 
             nd->m_uQueue->m_nRuntimeState++;   

@@ -52,7 +52,6 @@ install(TARGETS httpserver EXPORT levelapi_workarounds)
 add_subdirectory(gmd2pp)
 add_subdirectory(GDCrypto)
 add_subdirectory(DPP)
-add_subdirectory(tests)
 
 install(TARGETS gmd2 EXPORT levelapi_workarounds)
 
@@ -61,6 +60,9 @@ install(EXPORT levelapi_workarounds DESTINATION "./")
 add_executable(levelapi_server 
     ${levelapi_base}
     ${levelapi_server_requests}
+)
+add_executable(levelapi_test_folders
+    "ExternalTest_Folders.cc"
 )
 
 target_link_libraries(levelapi_server httpserver gmd2 dpp)

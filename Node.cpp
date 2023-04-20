@@ -88,7 +88,9 @@ Level *Node::getLevel(int id) {
     
     Level *l = new Level();
     l->levelJson = file;
-    l->m_sLevelPath = p1;
+    delete l->m_sLevelPath;
+    l->m_sLevelPath = nullptr;
+    l->m_sLevelPath = new std::string(p1->c_str());
     l->restore();
 
     l->m_bHasLevelString = file_exists(p2->c_str());

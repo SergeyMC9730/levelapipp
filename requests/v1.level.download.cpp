@@ -36,9 +36,12 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
         return generateResponse(response_fail.dump());
     }
 
-    level->levelJson["response"] = 0U; 
+    level->levelJson["response"] = 0U;
     
     auto resp = generateResponse(level->levelJson.dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore), "application/json");
     
+    delete level;
+    level = nullptr;
+
     return resp;
 }
