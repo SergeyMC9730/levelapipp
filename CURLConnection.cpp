@@ -5,10 +5,12 @@
 #include <cstddef>
 #include <cstdlib>
 #include <curl/curl.h>
-#include <stdio.h>
+#include <iostream>
 #include <algorithm>
+#include "Translation.h"
 
 using namespace LevelAPI::Backend;
+using namespace LevelAPI::Frontend;
 
 CURLConnection::CURLConnection() {
     m_pCurl = curl_easy_init();
@@ -70,14 +72,17 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
     std::replace(generatedUserData.begin(), generatedUserData.end(), ' ', '+');
 
     if(generatedUserData.compare("") != 0) {
-        if(m_bDebug) printf("Parameters: %s\n", generatedUserData.c_str());
+        if(m_bDebug) {
+            std::cout << Translation::getByKey("curl.debug.parameters", generatedUserData) << std::endl;
+        }
         curl_easy_setopt(m_pCurl, CURLOPT_POSTFIELDS, generatedUserData.c_str());
     }
 
     int result = (int)curl_easy_perform(m_pCurl);
 
     if(result != CURLE_OK) {
-        printf("[CURL WARN] %s\n", curl_easy_strerror((CURLcode)result));
+        //printf("[CURL WARN] %s\n", curl_easy_strerror((CURLcode)result));
+        std::cout << Translation::getByKey("curl.event.warning.connection", std::string(curl_easy_strerror((CURLcode)(result)))) << std::endl;
         res->result = result;
         res->data = (const char *)settings->m_pData;
         res->maxSize = 1024;
@@ -135,14 +140,16 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method, FIL
     std::replace(generatedUserData.begin(), generatedUserData.end(), ' ', '+');
 
     if(generatedUserData.compare("") != 0) {
-        if(m_bDebug) printf("Parameters: %s\n", generatedUserData.c_str());
+        if(m_bDebug) {
+            std::cout << Translation::getByKey("curl.debug.parameters", generatedUserData) << std::endl;
+        }
         curl_easy_setopt(m_pCurl, CURLOPT_POSTFIELDS, generatedUserData.c_str());
     }
 
     int result = (int)curl_easy_perform(m_pCurl);
 
     if(result != CURLE_OK) {
-        printf("[CURL WARN] Couldn't connect to server: %s\n", curl_easy_strerror((CURLcode)result));
+        std::cout << Translation::getByKey("curl.event.warning.connection", std::string(curl_easy_strerror((CURLcode)(result)))) << std::endl;
         res->result = result;
         res->data = (const char *)settings->m_pData;
         res->maxSize = 1024;

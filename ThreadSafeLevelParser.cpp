@@ -2,9 +2,11 @@
 #include "StringSplit.h"
 #include "lapi_database.h"
 #include "gmd2pp/level-converter/base64.h"
+#include "Translation.h"
 #include <iostream>
 
 using namespace LevelAPI::Backend;
+using namespace LevelAPI::Frontend;
 
 #define PKSTRING 0
 #define PKINT 1
@@ -38,7 +40,7 @@ using namespace LevelAPI::Backend;
             } \
         } \
         catch (std::logic_error &e) { \
-            std::cout << "[LevelAPI WARN] Got logic_error exception!" << std::endl; \
+            std::cout << Translation::getByKey("lapi.tslp.logicerror") << std::endl; \
             member = new std::string(" "); \
         } \
         break; \

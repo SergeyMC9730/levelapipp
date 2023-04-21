@@ -19,11 +19,14 @@
 
 #include "tests.h"
 
+#include "Translation.h"
+
 using namespace LevelAPI;
+using namespace LevelAPI::Frontend::Translation;
 
 int main(int, char**) {
     std::cout << termcolor::bright_cyan << "LevelAPI " << LEVELAPI_VERSION << "\n" << termcolor::reset;
-    std::cout << termcolor::bright_cyan << "LevelAPI is in alpha state so please report any bugs to my GitHub repository!" << "\n\n" << termcolor::reset;
+    std::cout << termcolor::bright_cyan << getByKey("lapi.main.alpha") << "\n\n" << termcolor::reset;
 
     DatabaseController::setup();
     HttpController::setup();
@@ -45,7 +48,7 @@ int main(int, char**) {
     ws.register_resource("/api/v1/hello", reinterpret_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
     ws.register_resource("/api/v1/level/download", reinterpret_cast<http_resource *>(new LevelAPI::v1::LevelDownloadRequest()));
 
-    std::cout << "[LevelAPI] Running on port " << HttpController::getPort() << std::endl;
+    std::cout << getByKey("lapi.main.portstart", HttpController::getPort()) << std::endl;
 
     DatabaseController::database->save();
 

@@ -27,6 +27,8 @@ void NodeDatabase::save() {
 }
 
 void NodeDatabase::recover() {
+    delete m_sEndpoint;
+    m_sEndpoint = nullptr;
     m_sEndpoint = new std::string(ndJson["endpoint"].get<std::string>());
     m_nFeatureSet = ndJson["featureSet"].get<int>();
     m_bReadOnly = ndJson["readOnly"].get<bool>();

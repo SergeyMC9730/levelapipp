@@ -6,8 +6,10 @@
 #include <fstream>
 #include "Time.h"
 #include <random>
+#include "Translation.h"
 
 using namespace LevelAPI::DatabaseController;
+using namespace LevelAPI::Frontend;
 
 Level::Level() {
     m_uRelease = new LevelRelease();
@@ -216,7 +218,7 @@ dpp::embed Level::getAsEmbed() {
     gv.erase(gv.find_last_not_of('0') + 1, std::string::npos);
     gv.erase(gv.find_last_not_of('.') + 1, std::string::npos);
 
-    std::string msg = "**New " + gv + " level** appeared on the server on `" + m_sCreatedTimestamp + "`!";
+    std::string msg = Translation::getByKey("lapi.level.embed.description", gv, m_sCreatedTimestamp);
 
     std::string thumbnail;
 
@@ -263,26 +265,26 @@ dpp::embed Level::getAsEmbed() {
 
     dpp::embed embed = dpp::embed().
         set_color(uid(rd)).
-        set_title("New Level").
+        set_title(Translation::getByKey("lapi.level.embed.title")).
         set_description(msg).
         add_field(
-            "ID:",
+            Translation::getByKey("lapi.level.embed.field.id"),
             "**" + std::to_string(this->m_nLevelID) + "**",
             true
         ).
         add_field(
-            "Name:",
+            Translation::getByKey("lapi.level.embed.field.name"),
             "**" + std::string(this->m_sLevelName->c_str()) + "**",
             true
         ).
         add_field(
-            "Author:",
+            Translation::getByKey("lapi.level.embed.field.author"),
             "**" + std::string(this->m_sUsername->c_str()) + "**",
             true
         ).
         add_field(
-            "**More Info: **",
-            "[Metadata](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")" + (m_bHasLevelString ? " | [GMD2](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&gmd2=true)" : ""),
+            Translation::getByKey("lapi.level.embed.field.info"),
+            "[" + Translation::getByKey("lapi.level.embed.field.info.value.metadata") + "](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")" + (m_bHasLevelString ? " | [GMD2](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&gmd2=true)" : ""),
             true
         ).
         set_thumbnail(thumbnail).

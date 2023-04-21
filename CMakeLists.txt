@@ -38,6 +38,8 @@ include_directories(httpserver PRIVATE
     libhttpserver/src/httpserver/details
     DPP/include/dpp
     DPP/include/
+    fmt/inlcude
+    fmt/include/fmt
 )
 # include_directories(levelapi_server PRIVATE
 
@@ -47,6 +49,12 @@ add_compile_definitions(_HTTPSERVER_HPP_INSIDE_)
 add_library(httpserver ${httpserver_src})
 link_libraries(httpserver microhttpd)
 
+set(FMT_INSTALL OFF)
+
+add_subdirectory(fmt)
+
+# install(TARGETS fmt EXPORT levelapi_workarounds)
+
 install(TARGETS httpserver EXPORT levelapi_workarounds)
 
 add_subdirectory(gmd2pp)
@@ -54,7 +62,6 @@ add_subdirectory(GDCrypto)
 add_subdirectory(DPP)
 
 install(TARGETS gmd2 EXPORT levelapi_workarounds)
-
 install(EXPORT levelapi_workarounds DESTINATION "./")
 
 add_executable(levelapi_server 
@@ -65,4 +72,4 @@ add_executable(levelapi_test_folders
     "ExternalTest_Folders.cc"
 )
 
-target_link_libraries(levelapi_server httpserver gmd2 dpp)
+target_link_libraries(levelapi_server httpserver gmd2 dpp fmt)

@@ -2,7 +2,15 @@
 
 using namespace LevelAPI::Frontend::Color;
 
-std::string reset() {}
-std::string red() {}
-std::string cyan() {}
-std::string green() {}
+std::string reset() {
+    return "";
+}
+std::string red() {
+    return "";
+}
+std::string cyan() {
+    return "";
+}
+std::string green() {
+    return "";
+}
