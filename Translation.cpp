@@ -16,8 +16,8 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     {
         "lapi.main.portstart", {
-            "[LevelAPI] Running on port ",
-            "[LevelAPI] Запущен на порту "
+            "[LevelAPI] Running on port {}",
+            "[LevelAPI] Запущен на порту {}"
         }
     },
     // from Time.cpp
