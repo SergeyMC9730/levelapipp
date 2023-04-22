@@ -15,6 +15,8 @@
 #include <sys/stat.h>
 #include <thread>
 
+#include "Translation.h"
+
 using namespace LevelAPI::DatabaseController;
 
 bool Database::exists(){ 
@@ -90,6 +92,8 @@ Database::Database(std::string *path) {
     if (databaseJson.contains("registeredCID")) {
         m_sRegisteredCID = databaseJson["registeredCID"].get<std::string>();
     }
+    
+    translation_language = databaseJson["language"].get<std::string>();
 
     if(m_bEnableBot) {
         m_pLinkedBot = new LevelAPI::DiscordController::DiscordInstance(this);

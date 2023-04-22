@@ -1,11 +1,14 @@
-#include "GDServer_BoomlingsLike19.h"
+// stub until changes in api would appear
 
+#include "GDServer_BasementLike21.h"
+#include "CURLParameter.h"
 #include "GDServer.h"
 #include "curl_backend.h"
 #include "ThreadSafeLevelParser.h"
 #include "lapi_database.h"
 #include "Account20.h"
 #include "StringSplit.h"
+#include "UUID.h"
 
 #include <cstdint>
 #include <cstring>
@@ -13,10 +16,10 @@
 
 using namespace LevelAPI::Backend;
 
-GDServer_BoomlingsLike19::GDServer_BoomlingsLike19(std::string *endpoint) : GDServer() {
+GDServer_BasementLike21::GDServer_BasementLike21(std::string *endpoint) : GDServer() {
     m_sEndpointURL = endpoint;
 }
-LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(int id, bool resolveAccountInfo) {
+LevelAPI::DatabaseController::Level *GDServer_BasementLike21::getLevelMetaByID(int id, bool resolveAccountInfo) {
     LevelAPI::DatabaseController::Level *lvl;
     
     if (id <= 0) {
@@ -35,7 +38,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
 
     std::string uurl = "";
     uurl += *m_sEndpointURL;
-    uurl += "/downloadGJLevel19.php";
+    uurl += "/downloadGJLevel22.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     //printf("response 2: %s\n", res->data);
@@ -60,7 +63,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
         return lvl;
     }
 
-    lvl = LevelParser::parseFromResponse(res->data, true);
+    lvl = LevelParser::parseFromResponse(res->data);
     lvl->m_nRetryAfter = 0;
     
     free((void *)res->data);
@@ -70,18 +73,19 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
     return lvl;
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getLevelsBySearchType(int type) {
     m_pLinkedCURL->setDebug(getDebug());
 
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
         new CURLParameter("type", type),
+        new CURLParameter("page", 0),
         new CURLParameter("gameVersion", getGameVersion())
     });
 
     std::string uurl = "";
     uurl += *m_sEndpointURL;
-    uurl += "/getGJLevels19.php";
+    uurl += "/getGJLevels21.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     if(res->http_status != 200 || res->result != 0) return {};
@@ -114,7 +118,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
     vec4array = splitString(vec2[1].c_str(), '|');
     i = 0;
     while(i < vec5levels.size()) {
-        LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str(), true);
+        LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str());
         Account20 ac20 = playerMap[lvl->m_nPlayerID];
         lvl->m_nAccountID = ac20.accountID;
         delete lvl->m_sUsername;
@@ -133,7 +137,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
 
     return vec1;
 };
-LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
+LevelAPI::DatabaseController::Level *GDServer_BasementLike21::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
     m_pLinkedCURL->setDebug(getDebug());
 
     m_pLinkedCURL->setData({
@@ -144,7 +148,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
 
     std::string uurl = "";
     uurl += *m_sEndpointURL;
-    uurl += "/downloadGJLevel19.php";
+    uurl += "/downloadGJLevel22.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     //printf("response 2: %s\n", res->data);
@@ -161,7 +165,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
         return level;
     }
 
-    LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data, true);
+    LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data);
     delete level->m_sLevelString;
     level->m_sLevelString = nullptr;
     level->m_sLevelString = new std::string(lvl->m_sLevelString->c_str());
@@ -177,6 +181,50 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
     return level;
 }
 
-int GDServer_BoomlingsLike19::getGameVersion() {
-    return 19;
+GDServerUploadResult *GDServer_BasementLike21::uploadLevel(DatabaseController::Level *level) {
+    auto res = new GDServerUploadResult();
+    
+    res->successful = false;
+    res->id = 0;
+    
+    if (level == nullptr) return res;
+    if (res == nullptr) return res;
+    if (m_sUsername->empty() || m_sPassword->empty()) return res;
+
+    m_pLinkedCURL->setDebug(getDebug());
+
+    m_pLinkedCURL->setData({
+        new CURLParameter("secret", "Wmfd2893gb7"),
+        new CURLParameter("gameVersion", getGameVersion()),
+
+    });
+
+    return res;
+}
+
+int GDServer_BasementLike21::getGameVersion() {
+    return 21;
+}
+
+bool GDServer_BasementLike21::login() {
+    m_pLinkedCURL->setDebug(getDebug());
+
+    m_pLinkedCURL->setData({
+        new CURLParameter("secret", "Wmfv3899gc9"),
+        new CURLParameter("udid", ConnectionCrypt::createUUID()),
+        new CURLParameter("password", m_sPassword),
+        new CURLParameter("userName", m_sUsername)
+    });
+
+    std::string uurl = "";
+    uurl += *m_sEndpointURL;
+    uurl += "/accounts/loginGJAccount.php";
+
+    CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
+    printf("response login: %s\n", res->data);
+    printf("%d %d %d\n", res->http_status, res->result, res->retry_after);
+    int ra = res->retry_after;
+    if(res->http_status != 200 || res->result != 0 || ra != 0) return false;
+
+    return true;
 }

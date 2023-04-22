@@ -24,6 +24,7 @@ void NodeDatabase::save() {
     ndJson["endpoint"] = m_sEndpoint->c_str();
     ndJson["featureSet"] = m_nFeatureSet;
     ndJson["readOnly"] = m_bReadOnly;
+    if(!m_sModifications.empty()) ndJson["modifications"] = m_sModifications;
 }
 
 void NodeDatabase::recover() {
@@ -32,6 +33,7 @@ void NodeDatabase::recover() {
     m_sEndpoint = new std::string(ndJson["endpoint"].get<std::string>());
     m_nFeatureSet = ndJson["featureSet"].get<int>();
     m_bReadOnly = ndJson["readOnly"].get<bool>();
+    if(ndJson.contains("modifications")) m_sModifications = ndJson["modifications"].get<std::string>();
 }
 
 void NodeDatabase::setupJSON() {
@@ -41,4 +43,9 @@ void NodeDatabase::setupJSON() {
 NodeDatabase::~NodeDatabase() {
     delete m_sEndpoint;
     m_sEndpoint = nullptr;
+}
+
+std::vector<std::string> NodeDatabase::getModifications() {
+    // wip
+    return {m_sModifications};
 }

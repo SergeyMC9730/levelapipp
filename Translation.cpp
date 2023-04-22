@@ -230,6 +230,18 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         }
     },
     {
+        "lapi.noderunner.start.modification.basement", {
+            "[LevelAPI {}] Selected modification: Basement GDPS",
+            "[LevelAPI {}] Выбранная модификация: Подвал ГДшеров"
+        }
+    },
+    {
+        "lapi.noderunner.start.modification.notselected", {
+            "[LevelAPI {}] Selected modification: Not selected.",
+            "[LevelAPI {}] Выбранная модификация: Не выбрана."
+        }
+    },
+    {
         "lapi.noderunner.downloader.error.queue.empty", {
             "[LevelAPI downloader {}] Queue is empty. Skipping",
             "[LevelAPI downloader {}] Очередь пуста. Пропуск"

@@ -108,6 +108,7 @@ namespace LevelAPI {
 
             std::string *m_sEndpoint;
             uint8_t m_nFeatureSet;
+            std::string m_sModifications;
             bool m_bReadOnly;
 
             int m_nLevels;
@@ -116,6 +117,8 @@ namespace LevelAPI {
             void recover();
 
             void setupJSON();
+
+            std::vector<std::string> getModifications();
 
             ~NodeDatabase();
         };

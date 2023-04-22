@@ -1,5 +1,6 @@
 {
     "nodeSize": 1,
+    "language": "en",
     "nodes": [
         {
             "database": {
@@ -10,11 +11,13 @@
             "internalName": "boomlings",
             "levelDataPath": "levels",
             "policy": {
-                "enableRecentTab": false,
-                "waitResolverRateLimit": true,
-                "resolverInterval": 4,
-                "queueProcessingInterval": 2,
-                "enableLinearResolver": false
+                "enableLinearResolver": false,
+                "enableRecentTab": true,
+                "enableResolver": false,
+                "noOutput": false,
+                "queueProcessingInterval": 1.0,
+                "resolverInterval": 4.0,
+                "waitResolverRateLimit": true
             },
             "queue": {
                 "commandQueue": [

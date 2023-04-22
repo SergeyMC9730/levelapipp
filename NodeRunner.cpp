@@ -9,6 +9,7 @@
 #include "GDServer.h"
 #include "Tools.h"
 #include "GDServer_BoomlingsLike21.h"
+#include "GDServer_BasementLike21.h"
 #include "GDServer_BoomlingsLike19.h"
 #include "lapi_database.h"
 #include "message.h"
@@ -156,7 +157,13 @@ void DatabaseController::node_runner(Node *nd) {
     switch(nd->m_uDatabase->m_nFeatureSet) {
         default:
         case 21: {
-            server = static_cast<Backend::GDServer *>(new Backend::GDServer_BoomlingsLike21(nd->m_uDatabase->m_sEndpoint));
+            if (nd->m_uDatabase->m_sModifications == "basement-custom") {
+                server = static_cast<Backend::GDServer *>(new Backend::GDServer_BasementLike21(nd->m_uDatabase->m_sEndpoint));
+                std::cout << Translation::getByKey("lapi.noderunner.start.modification.basement", *nd->m_sInternalName) << std::endl;
+            } else {
+                std::cout << Translation::getByKey("lapi.noderunner.start.modification.notselected", *nd->m_sInternalName) << std::endl;
+                server = static_cast<Backend::GDServer *>(new Backend::GDServer_BoomlingsLike21(nd->m_uDatabase->m_sEndpoint));
+            }
             break;
         }
         case 19: {

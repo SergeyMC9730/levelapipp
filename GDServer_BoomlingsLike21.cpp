@@ -30,7 +30,8 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
 
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
-        new CURLParameter("levelID", id)
+        new CURLParameter("levelID", id),
+        new CURLParameter("gameVersion", getGameVersion())
     });
 
     std::string uurl = "";
@@ -75,7 +76,9 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
 
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
-        new CURLParameter("type", type)
+        new CURLParameter("type", type),
+        new CURLParameter("page", 0),
+        new CURLParameter("gameVersion", getGameVersion())
     });
 
     std::string uurl = "";
@@ -137,7 +140,8 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
 
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
-        new CURLParameter("levelID", level->m_nLevelID)
+        new CURLParameter("levelID", level->m_nLevelID),
+        new CURLParameter("gameVersion", getGameVersion())
     });
 
     std::string uurl = "";
@@ -207,7 +211,8 @@ bool GDServer_BoomlingsLike21::login() {
         new CURLParameter("secret", "Wmfv3899gc9"),
         new CURLParameter("udid", ConnectionCrypt::createUUID()),
         new CURLParameter("password", m_sPassword),
-        new CURLParameter("userName", m_sUsername)
+        new CURLParameter("userName", m_sUsername),
+        new CURLParameter("gameVersion", getGameVersion())
     });
 
     std::string uurl = "";
