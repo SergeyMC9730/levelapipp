@@ -298,13 +298,13 @@ start:
                 levelname = std::string(levels[i]->m_sLevelName->c_str());
                     
                 levels[i]->m_sLinkedNode = std::string(nd->m_sInternalName->c_str());
-                nd->initLevel(levels[i]);
-                levels[i]->m_bHasLevelString = false;
-                levels[i]->save();
-                nd->m_jLastDownloadedLevel = levels[i]->levelJson;
 
                 if(!std::count(recent_downloadedids.begin(), recent_downloadedids.end(), levels[i]->m_nLevelID)) {
                     new_levels.push_back(levelid);
+                    nd->initLevel(levels[i]);
+                    levels[i]->m_bHasLevelString = false;
+                    levels[i]->save();
+                    nd->m_jLastDownloadedLevel = levels[i]->levelJson;
                     recent_downloadedids.push_back(levelid);
                     if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady) {
                         DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
