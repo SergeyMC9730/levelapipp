@@ -1,4 +1,5 @@
 #include "DiscordInstance.h"
+#include "appcommand.h"
 #include "cluster.h"
 #include "lapi_database.h"
 #include "Translation.h"
@@ -23,9 +24,38 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
     auto dbA = reinterpret_cast<LevelAPI::DatabaseController::Database *>(instance->m_pDB);
     auto bot = instance->m_pBot;
     bot->on_ready([&](const dpp::ready_t& event) {
-        // bot->global_command_create(
-	    //     dpp::slashcommand("getlevel", "Ping pong!", bot->me.id)
-	    // );
+        auto cmd1 = dpp::slashcommand("lapiget", Translation::getByKey("lapi.bot.command.lapiget.info.base"), bot->me.id);
+        cmd1.add_option(
+            dpp::command_option(
+                dpp::co_string,
+                "type",
+                Translation::getByKey("lapi.bot.command.lapiget.option.type.info"),
+                true
+            ).add_choice(dpp::command_option_choice(
+                Translation::getByKey("lapi.bot.command.lapiget.option.type.v1"),
+                "by_id"
+            )).add_choice(dpp::command_option_choice(
+                Translation::getByKey("lapi.bot.command.lapiget.option.type.v2"),
+                "by_user"
+            )).add_choice(dpp::command_option_choice(
+                Translation::getByKey("lapi.bot.command.lapiget.option.type.v3"),
+                "by_name"
+            )).add_choice(dpp::command_option_choice(
+                Translation::getByKey("lapi.bot.command.lapiget.option.type.v4"),
+                "by_description"
+            ))
+        );
+        cmd1.add_option(
+            dpp::command_option(
+                dpp::co_string,
+                "str",
+                Translation::getByKey("lapi.bot.command.lapiget.option.str.info"),
+                true
+            )
+        );
+        bot->global_command_create( 
+	        cmd1
+	    );
 	    dbA->m_bBotReady = true;
         std::cout << Translation::getByKey("lapi.bot.ready") << std::endl;
 	});
@@ -40,6 +70,12 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
                 } 
             }
         }
+	});
+    bot->on_slashcommand([&bot](const dpp::slashcommand_t & event) {
+	    if (event.command.get_command_name() == "lapiget") {
+	        std::string animal = std::get<std::string>(event.get_parameter("type"));
+	        event.reply(Translation::getByKey("lapi.bot.command.lapiget.output.test", animal));
+	    }
 	});
     instance->m_pBot->start(dpp::st_wait);
 }

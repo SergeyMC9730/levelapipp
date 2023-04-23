@@ -357,6 +357,54 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "Данный канал будет использоваться для отправки уведомлений о новых выщенных уровнях."
         }
     },
+    {
+        "lapi.bot.command.lapiget.info.base", {
+            "Get metadata about any recorded level.",
+            "Получение метаданных о каком либо зарегистрированном уровне."
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.info", {
+            "Search Filter",
+            "Фильтр поиска"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v1", {
+            "By ID",
+            "По ID"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v2", {
+            "By User",
+            "По пользователю"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v3", {
+            "By Name",
+            "По названию"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v4", {
+            "By Description",
+            "По описанию"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.str.info", {
+            "Request string",
+            "Строка поиска"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.output.test", {
+            "test1123 {}",
+            "тест1123 {}"
+        }
+    },
     // from CURLConnection.cpp
     {
         "curl.event.warning.perform", {

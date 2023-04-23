@@ -5,6 +5,8 @@
 
 #include <thread>
 
+#include "DiscordController.h"
+
 namespace LevelAPI {
     namespace DiscordController {
         class DiscordInstance {
