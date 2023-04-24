@@ -371,24 +371,54 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     {
         "lapi.bot.command.lapiget.option.type.v1", {
-            "By ID",
-            "По ID"
+            "By Level ID",
+            "По айди уровня"
         }
     },
     {
         "lapi.bot.command.lapiget.option.type.v2", {
-            "By User",
-            "По пользователю"
+            "By User ID",
+            "По айди пользователя"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v2.field", {
+            "ID",
+            "ID"
         }
     },
     {
         "lapi.bot.command.lapiget.option.type.v3", {
+            "By Account ID",
+            "По айди аккаунта"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v3.field", {
+            "ID",
+            "ID"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v4", {
+            "By Nickname",
+            "По никнейнму"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v4.field", {
+            "ID",
+            "ID"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v4", {
             "By Name",
             "По названию"
         }
     },
     {
-        "lapi.bot.command.lapiget.option.type.v4", {
+        "lapi.bot.command.lapiget.option.type.v5", {
             "By Description",
             "По описанию"
         }
@@ -397,6 +427,66 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.bot.command.lapiget.option.str.info", {
             "Request string",
             "Строка поиска"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.sort.info", {
+            "Result sorting",
+            "Сортировка результатов"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.sort.v1", {
+            "Most Liked",
+            "Самый залайканный"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.filter.info", {
+            "Result filtering",
+            "Фильтрация результатов"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.filter.v1", {
+            "Stars",
+            "Звёзд"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.filter.v1.field", {
+            "Amount",
+            "Количество"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.sort.v2", {
+            "Most Downloaded",
+            "Самый популярный"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.ui.page", {
+            "Page {}",
+            "Страница {}"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.ui.nextpage", {
+            "Next page",
+            "Следующая страница"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.ui.prevpage", {
+            "Previous page",
+            "Предыдущая страница"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.ui.cell", {
+            "[**Level \"{}\"**]({}) by {} — {} downloads, {} likes",
+            "[**Уровень \"{}\"**]({}) от {} — {} скачиваний, {} лайков"
         }
     },
     {

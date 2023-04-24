@@ -104,6 +104,7 @@ void Level::save() {
     fill("editorTime", m_nEditorTime)
     fill("editorTimeTotal", m_nEditorTimeTotal)
     fill("songID", m_nSongID)
+    fill("objects", m_nObjects);
 
     fill("isAuto", m_bAuto)
     fill("isDemon", m_bDemon)
@@ -168,6 +169,7 @@ void Level::restore() {
     RS(int, "editorTimeTotal", m_nEditorTimeTotal)
     RS(int, "accountID", m_nAccountID)
     RS(int, "songID", m_nSongID)
+    RS(int, "objects", m_nObjects)
 
     RS(bool, "isAuto", m_bAuto)
     RS(bool, "isDemon", m_bDemon)
