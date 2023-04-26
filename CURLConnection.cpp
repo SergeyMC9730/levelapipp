@@ -1,7 +1,4 @@
 #include "curl_backend.h"
-#include "gmd2pp/curl/include/curl/curl.h"
-#include "gmd2pp/curl/include/curl/easy.h"
-#include "gmd2pp/curl/include/curl/system.h"
 #include <cstddef>
 #include <cstdlib>
 #include <curl/curl.h>

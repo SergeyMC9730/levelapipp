@@ -4,18 +4,14 @@
 using namespace LevelAPI::Backend;
 
 GDServer::GDServer() {
-    m_pLinkedCURL = new CURLConnection();
-
     m_sUsername = new std::string("");
     m_sPassword = new std::string("");
 }
 GDServer::~GDServer() {
-    delete m_pLinkedCURL;
     delete m_sEndpointURL;
     delete m_sUsername;
     delete m_sPassword;
 
-    m_pLinkedCURL = nullptr;
     m_sEndpointURL = nullptr;
     m_sUsername = nullptr;
     m_sPassword = nullptr;

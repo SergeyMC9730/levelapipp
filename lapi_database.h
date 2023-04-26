@@ -16,6 +16,8 @@
 
 #include "DiscordInstance.h"
 
+#include "SearchFilter.h"
+
 #pragma pack(push, 1)
 
 namespace LevelAPI {
@@ -155,6 +157,7 @@ namespace LevelAPI {
             NodeQueue *m_uQueue;
             NodePolicy *m_pPolicy;
 
+            bool m_bCacheInProcess;
             std::vector<int> m_vCachedLevels;
 
             nlohmann::json m_jLastDownloadedLevel;
@@ -175,6 +178,8 @@ namespace LevelAPI {
             void createLevelFolder();
 
             Level *getLevel(int id);
+
+            std::vector<Level *> getLevels(SearchFilter *filter);
 
             Node *getSelf();
 

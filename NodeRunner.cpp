@@ -69,7 +69,6 @@ void DatabaseController::node_runner_waitResolverRL(Node *nd, int rate_limit_len
 void DatabaseController::node_runner_wait_level(Node *nd, dpp::message message, int id) {
     return;
     if(nd->m_bRateLimitApplied) return;
-    nd->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_ID, new std::string(std::to_string(id))));
     while(1) {
         if(nd->m_bRateLimitApplied) return;
         auto level = nd->getLevel(id);
@@ -306,15 +305,13 @@ start:
                     levels[i]->save();
                     nd->m_jLastDownloadedLevel = levels[i]->levelJson;
                     recent_downloadedids.push_back(levelid);
+                    if(!nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL && nd->m_pPolicy->m_bEnableResolver) {
+                        nd->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_ID, new std::string(std::to_string(levels[i]->m_nLevelID))));
+                    }
                     if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady) {
                         DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
                             dpp::snowflake(DatabaseController::database->m_sRegisteredCID), levels[i]->getAsEmbed()
-                        ), [&](const dpp::confirmation_callback_t &ct) {
-                            if(!ct.is_error() && !nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL && nd->m_pPolicy->m_bEnableResolver) {
-                                std::thread wlt(DatabaseController::node_runner_wait_level, nd, std::get<dpp::message>(ct.value), levelid);
-                                wlt.detach();
-                            }
-                        });
+                        ));
                     }
                 }
 

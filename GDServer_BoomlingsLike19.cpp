@@ -17,6 +17,8 @@ GDServer_BoomlingsLike19::GDServer_BoomlingsLike19(std::string *endpoint) : GDSe
     m_sEndpointURL = endpoint;
 }
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(int id, bool resolveAccountInfo) {
+    auto m_pLinkedCURL = new CURLConnection();
+    
     LevelAPI::DatabaseController::Level *lvl;
     
     if (id <= 0) {
@@ -65,12 +67,16 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
     
     free((void *)res->data);
     delete res;
+    delete m_pLinkedCURL;
     res = nullptr;
+    m_pLinkedCURL = nullptr;
 
     return lvl;
 }
 
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type) {
+    auto m_pLinkedCURL = new CURLConnection();
+    
     m_pLinkedCURL->setDebug(getDebug());
 
     m_pLinkedCURL->setData({
@@ -129,11 +135,15 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
 
     free((void *)res->data);
     delete res;
+    delete m_pLinkedCURL;
     res = nullptr;
+    m_pLinkedCURL = nullptr;
 
     return vec1;
 };
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
+    auto m_pLinkedCURL = new CURLConnection();
+    
     m_pLinkedCURL->setDebug(getDebug());
 
     m_pLinkedCURL->setData({
@@ -171,8 +181,10 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
     free((void *)res->data);
     delete lvl;
     delete res;
+    delete m_pLinkedCURL;
     lvl = nullptr;
     res = nullptr;
+    m_pLinkedCURL = nullptr;
 
     return level;
 }

@@ -37,6 +37,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
     }
 
     level->levelJson["response"] = 0U;
+    level->levelJson["hasLevelString"] = level->m_bHasLevelString;
     
     auto resp = generateResponse(level->levelJson.dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore), "application/json");
     

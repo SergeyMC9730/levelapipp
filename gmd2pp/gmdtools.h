@@ -2,7 +2,8 @@
 
 #include <string>
 
-#include "curl/include/curl/curl.h"
+//#include "curl/include/curl/curl.h"
+#include <curl/curl.h>
 
 class GMDTools {
 protected:

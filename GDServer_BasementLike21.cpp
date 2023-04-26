@@ -20,6 +20,8 @@ GDServer_BasementLike21::GDServer_BasementLike21(std::string *endpoint) : GDServ
     m_sEndpointURL = endpoint;
 }
 LevelAPI::DatabaseController::Level *GDServer_BasementLike21::getLevelMetaByID(int id, bool resolveAccountInfo) {
+    auto m_pLinkedCURL = new CURLConnection();
+    
     LevelAPI::DatabaseController::Level *lvl;
     
     if (id <= 0) {
@@ -68,12 +70,16 @@ LevelAPI::DatabaseController::Level *GDServer_BasementLike21::getLevelMetaByID(i
     
     free((void *)res->data);
     delete res;
+    delete m_pLinkedCURL;
     res = nullptr;
+    m_pLinkedCURL = nullptr;
 
     return lvl;
 }
 
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getLevelsBySearchType(int type) {
+    auto m_pLinkedCURL = new CURLConnection();
+    
     m_pLinkedCURL->setDebug(getDebug());
 
     m_pLinkedCURL->setData({
@@ -133,11 +139,14 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getL
 
     free((void *)res->data);
     delete res;
+    delete m_pLinkedCURL;
     res = nullptr;
 
     return vec1;
 };
 LevelAPI::DatabaseController::Level *GDServer_BasementLike21::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
+    auto m_pLinkedCURL = new CURLConnection();
+    
     m_pLinkedCURL->setDebug(getDebug());
 
     m_pLinkedCURL->setData({
@@ -175,13 +184,17 @@ LevelAPI::DatabaseController::Level *GDServer_BasementLike21::resolveLevelData(L
     free((void *)res->data);
     delete lvl;
     delete res;
+    delete m_pLinkedCURL;
     lvl = nullptr;
     res = nullptr;
+    m_pLinkedCURL = nullptr;
 
     return level;
 }
 
 GDServerUploadResult *GDServer_BasementLike21::uploadLevel(DatabaseController::Level *level) {
+    auto m_pLinkedCURL = new CURLConnection();
+    
     auto res = new GDServerUploadResult();
     
     res->successful = false;
@@ -198,6 +211,9 @@ GDServerUploadResult *GDServer_BasementLike21::uploadLevel(DatabaseController::L
         new CURLParameter("gameVersion", getGameVersion()),
 
     });
+    
+    delete m_pLinkedCURL;
+    m_pLinkedCURL = nullptr;
 
     return res;
 }
@@ -207,6 +223,8 @@ int GDServer_BasementLike21::getGameVersion() {
 }
 
 bool GDServer_BasementLike21::login() {
+    auto m_pLinkedCURL = new CURLConnection();
+    
     m_pLinkedCURL->setDebug(getDebug());
 
     m_pLinkedCURL->setData({
@@ -225,6 +243,9 @@ bool GDServer_BasementLike21::login() {
     printf("%d %d %d\n", res->http_status, res->result, res->retry_after);
     int ra = res->retry_after;
     if(res->http_status != 200 || res->result != 0 || ra != 0) return false;
+
+    delete m_pLinkedCURL;
+    m_pLinkedCURL = nullptr;
 
     return true;
 }

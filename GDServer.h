@@ -20,7 +20,6 @@ namespace LevelAPI {
         class GDServer {
         protected:
             std::string *m_sEndpointURL;
-            CURLConnection *m_pLinkedCURL;
             
             std::string *m_sUsername;
             std::string *m_sPassword;

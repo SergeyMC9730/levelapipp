@@ -359,7 +359,7 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     {
         "lapi.bot.command.lapiget.info.base", {
-            "Get metadata about any recorded level.",
+            "Getting metadata about any recorded level.",
             "Получение метаданных о каком либо зарегистрированном уровне."
         }
     },
@@ -370,9 +370,21 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         }
     },
     {
+        "lapi.bot.command.lapiget.option.type.field", {
+            "Filter String",
+            "Строка фильтра"
+        }
+    },
+    {
         "lapi.bot.command.lapiget.option.type.v1", {
             "By Level ID",
             "По айди уровня"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v1.field", {
+            "ID",
+            "ID"
         }
     },
     {
@@ -407,25 +419,37 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     {
         "lapi.bot.command.lapiget.option.type.v4.field", {
-            "ID",
-            "ID"
+            "Nickname",
+            "Никнейм"
         }
     },
     {
-        "lapi.bot.command.lapiget.option.type.v4", {
+        "lapi.bot.command.lapiget.option.type.v5", {
             "By Name",
             "По названию"
         }
     },
     {
-        "lapi.bot.command.lapiget.option.type.v5", {
+        "lapi.bot.command.lapiget.option.type.v5.field", {
+            "Name",
+            "Название"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.type.v6", {
             "By Description",
             "По описанию"
         }
     },
     {
+        "lapi.bot.command.lapiget.option.type.v6.field", {
+            "Description",
+            "Описание"
+        }
+    },
+    {
         "lapi.bot.command.lapiget.option.str.info", {
-            "Request string",
+            "Search string",
             "Строка поиска"
         }
     },
@@ -463,6 +487,12 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.bot.command.lapiget.option.sort.v2", {
             "Most Downloaded",
             "Самый популярный"
+        }
+    },
+    {
+        "lapi.bot.command.lapiget.option.node.info", {
+            "Node",
+            "Узел"
         }
     },
     {

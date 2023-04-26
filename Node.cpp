@@ -1,7 +1,10 @@
+#include "SearchFilter.h"
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
 #include <string>
 #include <sys/stat.h>
+#include <vector>
+#include <algorithm>
 
 using namespace LevelAPI::DatabaseController;
 
@@ -47,6 +50,7 @@ void Node::save() {
     nodeJson["levelDataPath"] = *m_sLevelDataPath;
     nodeJson["queue"] = m_uQueue->queueJson;
     nodeJson["policy"] = m_pPolicy->policyJson;
+    nodeJson["levels"] = m_vCachedLevels.size();
 }
 
 void Node::recover() {
@@ -128,4 +132,110 @@ void Node::initLevel(Level *level) {
     level->m_sLevelPath = nullptr;
     level->m_sLevelPath = new std::string(p);
     mkdir(p.c_str(), 0777);
+}
+
+std::vector<Level *> Node::getLevels(SearchFilter *filter) {
+    std::vector<Level *> res = {};
+    int i = 0;
+    while(i < m_vCachedLevels.size() && i < 8192) {
+        bool filter_successful = true;
+        auto lvl = getLevel(m_vCachedLevels[i]);
+        if(lvl != nullptr) {
+            if (filter->m_eFilter != FENone) {
+                switch(filter->m_eFilter) {
+                    case FEByAccountID: {
+                        if(lvl->m_nAccountID == std::stoi(filter->m_sFilterStr)) {
+                            if(filter_successful) filter_successful = true;
+                        } else {
+                            filter_successful = false;
+                        }
+                        break;
+                    }
+                    case FEByLevelID: {
+                        if(lvl->m_nLevelID == std::stoi(filter->m_sFilterStr)) {
+                            if(filter_successful) filter_successful = true;
+                        } else {
+                            filter_successful = false;
+                        }
+                        break;
+                    }
+                    case FEByName: {
+                        if(lvl->m_sLevelName->find(filter->m_sFilterStr) != std::string::npos) {
+                            filter_successful = true;
+                        } else {
+                            filter_successful = false;
+                        }
+                        break;
+                    }
+                    case FEByDescription: {
+                        if(lvl->m_sDescription->find(filter->m_sFilterStr) != std::string::npos) {
+                            if(filter_successful) filter_successful = true;
+                        } else {
+                            filter_successful = false;
+                        }
+                        break;
+                    }
+                    case FEByUserID: {
+                        if(lvl->m_nPlayerID == std::stoi(filter->m_sFilterStr)) {
+                            if(filter_successful) filter_successful = true;
+                        } else {
+                            filter_successful = false;
+                        }
+                        break;
+                    }
+                    case FEByNickname: {
+                        if(lvl->m_sUsername->find(filter->m_sFilterStr) != std::string::npos) {
+                            if(filter_successful) filter_successful = true;
+                        } else {
+                            filter_successful = false;
+                        }
+                        break;
+                    }
+                    default: {
+                        filter_successful = false;
+                        break;
+                    }
+                }
+            } else {
+                if(filter_successful) filter_successful = true;
+            }
+
+            if (filter->m_nDifficulty != -1 && (lvl->m_nDifficultyDenominator == filter->m_nDifficulty)) {
+                if(filter_successful) filter_successful = true;
+            } else {
+                filter_successful = false;
+            }
+            
+            if (filter->m_nStars != -1 && (lvl->m_nStars == filter->m_nStars || lvl->m_nStarsRequested == filter->m_nStars)) {
+                if(filter_successful) filter_successful = true;
+            } else {
+                filter_successful = false;
+            }
+
+            if(filter_successful == false) {
+                delete lvl;
+            } else {
+                res.push_back(lvl);
+            }
+        }
+        i++;
+    }
+
+    if (filter->m_eSort != SSNone) {
+        std::sort(res.begin(), res.end(), [=](Level *lhs, Level *rhs) {
+            switch(filter->m_eSort) {
+                default:
+                case SSMostDownloaded: {
+                    return lhs->m_nDownloads > rhs->m_nDownloads;
+                    break;
+                }
+                case SSMostLiked: {
+                    return (lhs->m_nLikes + lhs->m_nDislikes) > (rhs->m_nLikes + rhs->m_nDislikes);
+                    break;
+                }
+            }
+        });
+    }
+
+    return res;
 }

@@ -25,26 +25,170 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
     auto bot = instance->m_pBot;
     bot->on_ready([&](const dpp::ready_t& event) {
         auto cmd1 = dpp::slashcommand("lapiget", Translation::getByKey("lapi.bot.command.lapiget.info.base"), bot->me.id);
-        cmd1.add_option(
-            dpp::command_option(
-                dpp::co_string,
-                "type",
-                Translation::getByKey("lapi.bot.command.lapiget.option.type.info"),
-                true
-            ).add_choice(dpp::command_option_choice(
-                Translation::getByKey("lapi.bot.command.lapiget.option.type.v1"),
-                "by_id"
-            )).add_choice(dpp::command_option_choice(
-                Translation::getByKey("lapi.bot.command.lapiget.option.type.v2"),
-                "by_user"
-            )).add_choice(dpp::command_option_choice(
-                Translation::getByKey("lapi.bot.command.lapiget.option.type.v3"),
-                "by_name"
-            )).add_choice(dpp::command_option_choice(
-                Translation::getByKey("lapi.bot.command.lapiget.option.type.v4"),
-                "by_description"
-            ))
+        // cmd1.add_option(
+        //     dpp::command_option(
+        //         dpp::co_string,
+        //         "type",
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.info"),
+        //         true
+        //     ).add_choice(dpp::command_option_choice(
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v1"),
+        //         "by_id"
+        //     )).add_choice(dpp::command_option_choice(
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v2"),
+        //         "by_user"
+        //     )).add_choice(dpp::command_option_choice(
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v3"),
+        //         "by_name"
+        //     )).add_choice(dpp::command_option_choice(
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v4"),
+        //         "by_description"
+        //     ))
+        // );
+        // cmd1.add_option(
+        //     dpp::command_option(
+        //         dpp::co_string,
+        //         "str",
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.str.info"),
+        //         true
+        //     )
+        // );
+
+        
+
+        // auto grp1 = dpp::command_option(
+        //     dpp::co_sub_command_group,
+        //     "type",
+        //     Translation::getByKey("lapi.bot.command.lapiget.option.type.info"),
+        //     false
+        // );
+        // auto grp2 = dpp::command_option(
+        //     dpp::co_sub_command_group,
+        //     "filter",
+        //     Translation::getByKey("lapi.bot.command.lapiget.option.filter.info"),
+        //     false
+        // );
+        // grp1.add_option(
+        //     dpp::command_option(
+        //         dpp::co_sub_command,
+        //         "levelid",
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v1"),
+        //         false
+        //     ).add_option(
+        //         dpp::command_option(
+        //             dpp::co_integer,
+        //             "levelid_field",
+        //             Translation::getByKey("lapi.bot.command.lapiget.option.type.v1.field"),
+        //             true
+        //         )
+        //     )
+        // );
+        // grp1.add_option(
+        //     dpp::command_option(
+        //         dpp::co_sub_command,
+        //         "userid",
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v2"),
+        //         false
+        //     ).add_option(
+        //         dpp::command_option(
+        //             dpp::co_integer,
+        //             "userid_field",
+        //             Translation::getByKey("lapi.bot.command.lapiget.option.type.v2.field"),
+        //             true
+        //         )
+        //     )
+        // );
+        // grp1.add_option(
+        //     dpp::command_option(
+        //         dpp::co_sub_command,
+        //         "accountid",
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v3"),
+        //         false
+        //     ).add_option(
+        //         dpp::command_option(
+        //             dpp::co_integer,
+        //             "accountid_field",
+        //             Translation::getByKey("lapi.bot.command.lapiget.option.type.v3.field"),
+        //             true
+        //         )
+        //     )
+        // );
+        // grp1.add_option(
+        //     dpp::command_option(
+        //         dpp::co_sub_command,
+        //         "nickname",
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v4"),
+        //         false
+        //     ).add_option(
+        //         dpp::command_option(
+        //             dpp::co_string,
+        //             "nickname_field",
+        //             Translation::getByKey("lapi.bot.command.lapiget.option.type.v4.field"),
+        //             true
+        //         )
+        //     )
+        // );
+        // grp1.add_option(
+        //     dpp::command_option(
+        //         dpp::co_sub_command,
+        //         "name",
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v5"),
+        //         false
+        //     ).add_option(
+        //         dpp::command_option(
+        //             dpp::co_string,
+        //             "name_field",
+        //             Translation::getByKey("lapi.bot.command.lapiget.option.type.v5.field"),
+        //             true
+        //         )
+        //     )
+        // );
+        // grp1.add_option(
+        //     dpp::command_option(
+        //         dpp::co_sub_command,
+        //         "description",
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.type.v6"),
+        //         false
+        //     ).add_option(
+        //         dpp::command_option(
+        //             dpp::co_integer,
+        //             "description_field",
+        //             Translation::getByKey("lapi.bot.command.lapiget.option.type.v6.field"),
+        //             true
+        //         )
+        //     )
+        // );
+        // grp2.add_option(
+        //     dpp::command_option(
+        //         dpp::co_sub_command,
+        //         "stars",
+        //         Translation::getByKey("lapi.bot.command.lapiget.option.filter.v1"),
+        //         false
+        //     ).add_option(
+        //         dpp::command_option(
+        //             dpp::co_integer,
+        //             "stars_field",
+        //             Translation::getByKey("lapi.bot.command.lapiget.option.filter.v1.field"),
+        //             true
+        //         )
+        //     )
+        // );
+
+        auto co2 = dpp::command_option(
+            dpp::co_string,
+            "node",
+            Translation::getByKey("lapi.bot.command.lapiget.option.node.info"),
+            true
         );
+
+        int i = 0;
+        while(i < DatabaseController::database->m_vNodes->size()) {
+            auto nd = std::string(DatabaseController::database->m_vNodes->at(i)->m_sInternalName->c_str());
+            auto nd2 = nd;
+            nd2[0] = std::toupper(nd2[0]);
+            i++;
+        }
+
         cmd1.add_option(
             dpp::command_option(
                 dpp::co_string,
@@ -53,6 +197,77 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
                 true
             )
         );
+        cmd1.add_option(
+            dpp::command_option(
+                dpp::co_string,
+                "sort",
+                Translation::getByKey("lapi.bot.command.lapiget.option.sort.info"),
+                false
+            ).add_choice(
+                dpp::command_option_choice(
+                    Translation::getByKey("lapi.bot.command.lapiget.option.sort.v1"),
+                    "mostliked"
+                )
+            ).add_choice(
+                dpp::command_option_choice(
+                    Translation::getByKey("lapi.bot.command.lapiget.option.sort.v2"),
+                    "mostdownloaded"
+                )
+            )
+        );
+        cmd1.add_option(
+            dpp::command_option(
+                dpp::co_string,
+                "searchfilter",
+                Translation::getByKey("lapi.bot.command.lapiget.option.type.info"),
+                false
+            ).add_choice(
+                dpp::command_option_choice(
+                    Translation::getByKey("lapi.bot.command.lapiget.option.type.v1"),
+                    "levelid"
+                )
+            ).add_choice(
+                dpp::command_option_choice(
+                    Translation::getByKey("lapi.bot.command.lapiget.option.type.v2"),
+                    "userid"
+                )
+            ).add_choice(
+                dpp::command_option_choice(
+                    Translation::getByKey("lapi.bot.command.lapiget.option.type.v3"),
+                    "accountid"
+                )
+            ).add_choice(
+                dpp::command_option_choice(
+                    Translation::getByKey("lapi.bot.command.lapiget.option.type.v4"),
+                    "nickname"
+                )
+            ).add_choice(
+                dpp::command_option_choice(
+                    Translation::getByKey("lapi.bot.command.lapiget.option.type.v5"),
+                    "name"
+                )
+            ).add_choice(
+                dpp::command_option_choice(
+                    Translation::getByKey("lapi.bot.command.lapiget.option.type.v6"),
+                    "description"
+                )
+            )
+        );
+        cmd1.add_option(
+            dpp::command_option(
+                dpp::co_string,
+                "sfstr",
+                Translation::getByKey("lapi.bot.command.lapiget.option.type.field"),
+                false
+            )
+        );
+        // cmd1.add_option(
+        //     grp1
+        // );
+        // cmd1.add_option(
+        //     grp2
+        // );
+        
         bot->global_command_create( 
 	        cmd1
 	    );
@@ -73,7 +288,7 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
 	});
     bot->on_slashcommand([&bot](const dpp::slashcommand_t & event) {
 	    if (event.command.get_command_name() == "lapiget") {
-	        std::string animal = std::get<std::string>(event.get_parameter("type"));
+	        std::string animal = std::get<std::string>(event.get_parameter("str"));
 	        event.reply(Translation::getByKey("lapi.bot.command.lapiget.output.test", animal));
 	    }
 	});
