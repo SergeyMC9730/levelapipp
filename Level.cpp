@@ -75,7 +75,7 @@ void Level::setupJSON() {
     levelJson = nlohmann::json();
 }
 
-void Level::save() {
+void Level::save(bool onlyLevelString) {
     #define fill(str, val) levelJson[str] = val;
     #define fill_str(str, val) fill(str, val->c_str());
 
@@ -123,8 +123,11 @@ void Level::save() {
     std::string g = *m_sLevelPath + "/meta.json";
     std::string g2 = *m_sLevelPath + "/data.gmd2";
     
-    std::ofstream file(g);
-    file << levelJson.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
+    if (!onlyLevelString) {
+	std::ofstream file(g);
+    	file << levelJson.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
+	file.close();
+    }
 
     if(m_bHasLevelString) {
         auto gmd2file = new GMD2();
@@ -136,8 +139,6 @@ void Level::save() {
         delete gmd2file;
         gmd2file = nullptr;
     }
-
-    file.close();
 
     return;
 }

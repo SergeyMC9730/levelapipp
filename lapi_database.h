@@ -56,7 +56,7 @@ namespace LevelAPI {
             void setupJSON();
             Level();
             void restore();
-            void save();
+            void save(bool onlyLevelString = false);
 
             dpp::embed getAsEmbed();
 
