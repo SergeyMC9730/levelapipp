@@ -309,7 +309,9 @@ start:
                 levelname = std::string(levels[i]->m_sLevelName->c_str());
                 levels[i]->m_sLinkedNode = std::string(nd->m_sInternalName->c_str());
 
-                if(!std::count(nd->m_vCachedLevels.begin(), nd->m_vCachedLevels.end(), levels[i]->m_nLevelID)) {
+                auto level_from_node = nd->getLevel(levelid);
+
+                if(level_from_node == nullptr) {
                     new_levels.push_back(levelid);
                     nd->initLevel(levels[i]);
                     levels[i]->m_bHasLevelString = false;
@@ -325,10 +327,11 @@ start:
                         ));
                     }
                 } else {
-			if(!nd->m_bRateLimitApplied && nd->m_pPolicy->m_bEnableResolver && !levels[i]->m_bHasLevelString) {
-                        	nd->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_ID, new std::string(std::to_string(levels[i]->m_nLevelID))));
-                    	}
-		}
+                    if(!nd->m_bRateLimitApplied && nd->m_pPolicy->m_bEnableResolver && !levels[i]->m_bHasLevelString) {
+                        nd->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_ID, new std::string(std::to_string(levels[i]->m_nLevelID))));
+                    }
+                    delete level_from_node;
+		        }
 
                 delete levels[i];
                 levels[i] = nullptr;
