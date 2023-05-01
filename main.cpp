@@ -3,6 +3,7 @@
 #include <httpserver.hpp>
 #include <iterator>
 #include "GDServer.h"
+#include "Tools.h"
 #include "requests/v1.helloworld.h"
 #include "requests/v1.level.download.h"
 

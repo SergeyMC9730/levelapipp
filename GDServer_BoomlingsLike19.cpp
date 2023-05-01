@@ -4,7 +4,7 @@
 #include "curl_backend.h"
 #include "ThreadSafeLevelParser.h"
 #include "lapi_database.h"
-#include "Account20.h"
+#include "Account19.h"
 #include "StringSplit.h"
 
 #include <cstdint>
@@ -64,6 +64,11 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
 
     lvl = LevelParser::parseFromResponse(res->data, true);
     lvl->m_nRetryAfter = 0;
+
+    lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
+    delete lvl->m_uRelease->m_fActualVersion;
+    lvl->m_uRelease->m_fActualVersion = nullptr;
+    lvl->m_uRelease->m_fActualVersion = new std::string(determineGVFromID(lvl->m_nLevelID));
     
     free((void *)res->data);
     delete res;
@@ -98,7 +103,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
     // parse players
     std::string plList = vec2[1];
     std::string lvlList = vec2[0];
-    std::map<int, Account20> playerMap;
+    std::map<int, Account19 *> playerMap;
 
     std::vector<std::string> vec4array = splitString(plList.c_str(), '|');
     std::vector<std::string> vec5levels = splitString(lvlList.c_str(), '|');
@@ -109,10 +114,10 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
         int userID = std::stoi(vec5player[0]);
         std::string username = vec5player[1];
         int accountID = std::stoi(vec5player[2]);
-        Account20 ac20 = Account20();
-        ac20.accountID = accountID;
-        ac20.username = username;
-        playerMap.insert(std::pair<int, Account20>(userID, ac20));
+        Account19 *ac20 = new Account19();
+        ac20->accountID = accountID;
+        ac20->username = username;
+        playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
         vec5player.clear();
         i++;
     }
@@ -121,11 +126,16 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
     i = 0;
     while(i < vec5levels.size()) {
         LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str(), true);
-        Account20 ac20 = playerMap[lvl->m_nPlayerID];
-        lvl->m_nAccountID = ac20.accountID;
+        Account19 *ac20 = playerMap[lvl->m_nPlayerID];
+        lvl->m_nAccountID = ac20->accountID;
         delete lvl->m_sUsername;
         lvl->m_sUsername = nullptr;
-        lvl->m_sUsername = new std::string(ac20.username);
+        lvl->m_sUsername = new std::string(ac20->username);
+        lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
+        delete lvl->m_uRelease->m_fActualVersion;
+        lvl->m_uRelease->m_fActualVersion = nullptr;
+        lvl->m_uRelease->m_fActualVersion = new std::string(determineGVFromID(lvl->m_nLevelID));
+        delete ac20;
         vec1.push_back(lvl);
         i++;
     }
@@ -177,6 +187,10 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
     level->m_sLevelString = new std::string(lvl->m_sLevelString->c_str());
     level->m_nMusicID = lvl->m_nMusicID;
     level->m_nSongID = lvl->m_nSongID;
+    level->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
+    delete lvl->m_uRelease->m_fActualVersion;
+    level->m_uRelease->m_fActualVersion = nullptr;
+    level->m_uRelease->m_fActualVersion = new std::string(determineGVFromID(lvl->m_nLevelID));
 
     free((void *)res->data);
     delete lvl;

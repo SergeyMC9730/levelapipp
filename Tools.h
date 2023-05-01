@@ -13,8 +13,6 @@ namespace LevelAPI {
             std::string *m_sGDVer;
 
             LevelRange(int min, int max, std::string *ver);
-
-            static void setup();
         };
 
         extern std::vector<LevelRange *> rangeList;

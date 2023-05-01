@@ -57,3 +57,14 @@ bool GDServer::login() {
 int GDServer::getGameVersion() {
     return 0;
 }
+
+std::string GDServer::determineGVFromID(int id) {
+    int i = 0;
+    while(i < m_vRanges.size()) {
+        if((id >= m_vRanges[i]->m_nMin) && (id <= m_vRanges[i]->m_nMax)) {
+            return std::string(*m_vRanges[i]->m_sGDVer);
+        }
+        i++;
+    }
+    return "unknown";
+}

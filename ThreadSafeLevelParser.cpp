@@ -112,10 +112,5 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *
         i++;
     }
 
-    delete level->m_uRelease->m_fActualVersion;
-    level->m_uRelease->m_fActualVersion = nullptr;
-    level->m_uRelease->m_fActualVersion = new std::string(DatabaseController::LevelRelease::determineFromID(level->m_nLevelID));
-    level->m_uRelease->m_nGameVersion = level->m_nGameVersion;
-
     return level;
 }

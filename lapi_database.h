@@ -35,8 +35,6 @@ namespace LevelAPI {
 
             int m_nGameVersion;
             std::string *m_fActualVersion;
-
-            static std::string determineFromID(int id);
         };
         class Level : public GJGameLevel {
         public:

@@ -13,7 +13,6 @@ using namespace LevelAPI::Frontend;
 
 Level::Level() {
     m_uRelease = new LevelRelease();
-    m_uRelease->m_fActualVersion = new std::string(m_uRelease->determineFromID(m_nLevelID));
 
     m_sLevelPath = new std::string(".");
     m_sUsername = new std::string("");
@@ -78,8 +77,6 @@ void Level::setupJSON() {
 void Level::save(bool onlyLevelString) {
     #define fill(str, val) levelJson[str] = val;
     #define fill_str(str, val) fill(str, val->c_str());
-
-    m_uRelease->m_fActualVersion = new std::string(m_uRelease->determineFromID(m_nLevelID));
 
     fill("levelID", m_nLevelID)
     fill("version", m_nVersion)
