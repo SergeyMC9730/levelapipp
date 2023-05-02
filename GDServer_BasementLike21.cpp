@@ -116,6 +116,8 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getL
     std::vector<std::string> vec4array = splitString(plList.c_str(), '|');
     std::vector<std::string> vec5levels = splitString(lvlList.c_str(), '|');
     int i = 0;
+
+    std::vector<Account19 *> accounts;
     
     while(i < vec4array.size()) {
         std::vector<std::string> vec5player = splitString(vec4array[i].c_str(), ':');
@@ -126,6 +128,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getL
         ac20->accountID = accountID;
         ac20->username = username;
         playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
+        accounts.push_back(ac20);
         vec5player.clear();
         i++;
     }
@@ -144,10 +147,16 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getL
         lvl->m_uRelease->m_fActualVersion = nullptr;
         lvl->m_uRelease->m_fActualVersion = new std::string(determineGVFromID(lvl->m_nLevelID));
         vec1.push_back(lvl);
-        delete ac20;
         i++;
     }
 
+    i = 0;
+    while(i < accounts.size()) {
+        delete accounts[i];
+        i++;
+    }
+
+    accounts.clear();
     vec4array.clear();
     vec5levels.clear();
 
