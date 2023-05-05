@@ -8,9 +8,6 @@
 
 #include "GDServer.h"
 #include "Tools.h"
-#include "GDServer_BoomlingsLike21.h"
-#include "GDServer_BasementLike21.h"
-#include "GDServer_BoomlingsLike19.h"
 #include "lapi_database.h"
 #include "message.h"
 #include "restresults.h"
@@ -24,7 +21,7 @@ using namespace std::chrono_literals;
 void DatabaseController::node_runner_recount_task(Node *nd) {
     goto lp;
     lp:
-    std::string folder = "database/nodes/" + std::string(nd->m_sInternalName->c_str()) + "/levels";
+    std::string folder = "database/nodes/" + nd->m_sInternalName + "/levels";
     nd->m_vCachedLevels.clear();
     for (const auto & entry : std::filesystem::directory_iterator(folder)) {
         std::string path = entry.path();
@@ -33,7 +30,7 @@ void DatabaseController::node_runner_recount_task(Node *nd) {
         nd->m_vCachedLevels.push_back(std::stoi(levelid));
     }
     if(!nd->m_pPolicy->m_bNoOutput) {
-        std::cout << Translation::getByKey("lapi.noderunner.recount.complete", *nd->m_sInternalName, nd->m_vCachedLevels.size()) << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.recount.complete", nd->m_sInternalName, nd->m_vCachedLevels.size()) << std::endl;
     }
     std::this_thread::sleep_for(5s);
     goto lp;
@@ -43,8 +40,8 @@ void DatabaseController::node_runner_recentBot(Node *nd) {
     if(!nd->m_pPolicy->m_bEnableRecentTab) return;
 start:
     std::this_thread::sleep_for(std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000)));
-    if(nd->m_uQueue->m_vCommandQueue->size() == 0) {
-        nd->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_RECENT, new std::string("-")));
+    if(nd->m_uQueue->m_vCommandQueue.size() == 0) {
+        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_RECENT, "-"));
         nd->m_uQueue->save();
     }
     goto start;
@@ -56,13 +53,13 @@ void DatabaseController::node_runner_waitResolverRL(Node *nd, int rate_limit_len
     nd->m_bRateLimitApplied = true;
     
     if(!nd->m_pPolicy->m_bNoOutput) {
-        //std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Waiting " << rate_limit_length << "s" << std::endl;
-        std::cout << Translation::getByKey("lapi.noderunner.resolver.wait.start", *nd->m_sInternalName, rate_limit_length) << std::endl;
+        //std::cout << "[LevelAPI resolver " << nd->m_sInternalName << "] Waiting " << rate_limit_length << "s" << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.resolver.wait.start", nd->m_sInternalName, rate_limit_length) << std::endl;
     }
     std::this_thread::sleep_for(std::chrono::seconds(rate_limit_length + (int)nd->m_pPolicy->m_nResolverInterval));
     if(!nd->m_pPolicy->m_bNoOutput) {
-        //std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Rate limit end!" << std::endl;
-        std::cout << Translation::getByKey("lapi.noderunner.resolver.wait.end", *nd->m_sInternalName) << std::endl;
+        //std::cout << "[LevelAPI resolver " << nd->m_sInternalName << "] Rate limit end!" << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.resolver.wait.end", nd->m_sInternalName) << std::endl;
     }
 
     nd->m_bRateLimitApplied = false;
@@ -76,8 +73,8 @@ void DatabaseController::node_runner_wait_level(Node *nd, dpp::message message, 
         if(nd->m_bRateLimitApplied) return;
         auto level = nd->getLevel(id);
         if(!nd->m_pPolicy->m_bNoOutput) {
-            //std::cout << "[LevelAPI resolver " << *nd->m_sInternalName << "] Waiting for " << id << " " << level->m_bHasLevelString << std::endl;
-            std::cout << Translation::getByKey("lapi.curltest.lvlwait.start", *nd->m_sInternalName, id, level->m_bHasLevelString) << std::endl;
+            //std::cout << "[LevelAPI resolver " << nd->m_sInternalName << "] Waiting for " << id << " " << level->m_bHasLevelString << std::endl;
+            std::cout << Translation::getByKey("lapi.curltest.lvlwait.start", nd->m_sInternalName, id, level->m_bHasLevelString) << std::endl;
         }
         if(level->m_bHasLevelString) {
             auto level = nd->getLevel(id);
@@ -96,11 +93,11 @@ void DatabaseController::node_runner_wait_level(Node *nd, dpp::message message, 
 void DatabaseController::node_runner_resolve_level(Node *nd, NodeCommandQueue *q, Backend::GDServer *server) {
     nd->m_bResolverIsActive = true;
 
-    int id = std::stoi(std::string(q->m_sText->c_str()));
+    int id = std::stoi(q->m_sText);
     float time_to_wait = nd->m_pPolicy->m_nResolverInterval - nd->m_pPolicy->m_nQueueProcessingInterval;
     if(time_to_wait < 0.f) time_to_wait = 0;
     if(!nd->m_pPolicy->m_bNoOutput) {
-        std::cout << Translation::getByKey("lapi.noderunner.downloader.sleeping.fetch", *nd->m_sInternalName, time_to_wait, id) << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.downloader.sleeping.fetch", nd->m_sInternalName, time_to_wait, id) << std::endl;
     }
             
     std::this_thread::sleep_for(
@@ -111,23 +108,32 @@ void DatabaseController::node_runner_resolve_level(Node *nd, NodeCommandQueue *q
 
     if(nd->m_bRateLimitApplied && nd->m_pPolicy->m_bWaitResolverRL) {
         if(!nd->m_pPolicy->m_bNoOutput) {
-            std::cout << Translation::getByKey("lapi.noderunner.resolver.error.ratelimit", *nd->m_sInternalName) << std::endl;
+            std::cout << Translation::getByKey("lapi.noderunner.resolver.error.ratelimit", nd->m_sInternalName) << std::endl;
         }
         return;
     }
     if(!nd->m_pPolicy->m_bEnableResolver) {
         if(!nd->m_pPolicy->m_bNoOutput) {
-            std::cout << Translation::getByKey("lapi.noderunner.resolver.error.disabled", *nd->m_sInternalName) << std::endl;
+            std::cout << Translation::getByKey("lapi.noderunner.resolver.error.disabled", nd->m_sInternalName) << std::endl;
         }
         return;
     }
 
     auto level = server->getLevelMetaByID(id, false);
+    if(server->m_eStatus == GSS_PERMANENT_BAN) {
+        int i = 0;
+        while(i < 32) {
+            std::cout << Translation::getByKey("lapi.noderunner.error.pban", nd->m_sInternalName) << std::endl;
+            i++;
+        }
+        std::cout << Translation::getByKey("lapi.noderunner.error.pban.halt", nd->m_sInternalName) << std::endl;
+        while(1);
+    }
     if(level->m_nRetryAfter != 0) {
         if(!nd->m_pPolicy->m_bWaitResolverRL || level->m_nRetryAfter < 0) return;
         nd->m_nWaitTime = level->m_nRetryAfter;
         if(!nd->m_pPolicy->m_bNoOutput) {
-            std::cout << Translation::getByKey("lapi.noderunner.resolver.event.ratelimit", *nd->m_sInternalName, nd->m_nWaitTime) << std::endl;
+            std::cout << Translation::getByKey("lapi.noderunner.resolver.event.ratelimit", nd->m_sInternalName, nd->m_nWaitTime) << std::endl;
         }
         nd->m_bRateLimitApplied = true;
         delete level;
@@ -143,7 +149,7 @@ void DatabaseController::node_runner_resolve_level(Node *nd, NodeCommandQueue *q
 	}
         nd->m_jLastDownloadedLevel = level->levelJson;
         if(!nd->m_pPolicy->m_bNoOutput) {
-            std::cout << Translation::getByKey("lapi.noderunner.downloader.event.levelfetched", *nd->m_sInternalName, id) << std::endl;
+            std::cout << Translation::getByKey("lapi.noderunner.downloader.event.levelfetched", nd->m_sInternalName, id) << std::endl;
         }
         delete level;
         level = nullptr;
@@ -157,28 +163,11 @@ void DatabaseController::node_runner_resolve_level(Node *nd, NodeCommandQueue *q
 
 void DatabaseController::node_runner(Node *nd) {
     int prev_q = NC_NONE;
-    std::cout << Translation::getByKey("lapi.noderunner.start", *nd->m_sInternalName) << std::endl;
+    std::cout << Translation::getByKey("lapi.noderunner.start", nd->m_sInternalName) << std::endl;
 
     std::vector<int> recent_downloadedids;
 
-    Backend::GDServer *server;
-    switch(nd->m_uDatabase->m_nFeatureSet) {
-        default:
-        case 21: {
-            if (nd->m_uDatabase->m_sModifications == "basement-custom") {
-                server = static_cast<Backend::GDServer *>(new Backend::GDServer_BasementLike21(nd->m_uDatabase->m_sEndpoint));
-                std::cout << Translation::getByKey("lapi.noderunner.start.modification.basement", *nd->m_sInternalName) << std::endl;
-            } else {
-                std::cout << Translation::getByKey("lapi.noderunner.start.modification.notselected", *nd->m_sInternalName) << std::endl;
-                server = static_cast<Backend::GDServer *>(new Backend::GDServer_BoomlingsLike21(nd->m_uDatabase->m_sEndpoint));
-            }
-            break;
-        }
-        case 19: {
-            server = static_cast<Backend::GDServer *>(new Backend::GDServer_BoomlingsLike19(nd->m_uDatabase->m_sEndpoint));
-            break;
-        }
-    }
+    Backend::GDServer *server = nd->createServer();
 
     server->setDebug(false);
 
@@ -195,17 +184,17 @@ void DatabaseController::node_runner(Node *nd) {
 error_ignore:
     if(!nd->m_pPolicy->m_bNoOutput) {
 	    prev_q = NC_NONE;
-        //std::cout << Translation::getByKey("lapi.noderunner.downloader.error.queue.empty", *nd->m_sInternalName) << std::endl;
+        //std::cout << Translation::getByKey("lapi.noderunner.downloader.error.queue.empty", nd->m_sInternalName) << std::endl;
     }
     goto run_again;
 loop_readonly2:
     if(!nd->m_pPolicy->m_bNoOutput) {
-        std::cout << Translation::getByKey("lapi.noderunner.readonly", *nd->m_sInternalName) << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.readonly", nd->m_sInternalName) << std::endl;
     }
     //delete server;
 loop_readonly:
     if(!nd->m_pPolicy->m_bNoOutput) {
-        std::cout << Translation::getByKey("lapi.noderunner.readonly", *nd->m_sInternalName) << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.readonly", nd->m_sInternalName) << std::endl;
     }
     while(true) {
         std::this_thread::sleep_for(std::chrono::seconds(2s));
@@ -225,7 +214,7 @@ start_linear:
     else {
         if(nd->m_pPolicy->m_bEnableResolver) {
             if(!nd->m_pPolicy->m_bNoOutput) {
-                std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.wait", *nd->m_sInternalName, nd->m_pPolicy->m_nResolverInterval) << std::endl;
+                std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.wait", nd->m_sInternalName, nd->m_pPolicy->m_nResolverInterval) << std::endl;
             }
 
             std::this_thread::sleep_for(
@@ -235,10 +224,20 @@ start_linear:
             );
 
             if(!nd->m_pPolicy->m_bNoOutput) {
-                std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.fetch", *nd->m_sInternalName, nd->m_uQueue->m_nRuntimeState) << std::endl;
+                std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.fetch", nd->m_sInternalName, nd->m_uQueue->m_nRuntimeState) << std::endl;
             }
 
             llevel = server->getLevelMetaByID(nd->m_uQueue->m_nRuntimeState, false);
+
+            if(server->m_eStatus == GSS_PERMANENT_BAN) {
+                int i = 0;
+                while(i < 32) {
+                    std::cout << Translation::getByKey("lapi.noderunner.error.pban", nd->m_sInternalName) << std::endl;
+                    i++;
+                }
+                std::cout << Translation::getByKey("lapi.noderunner.error.pban.halt", nd->m_sInternalName) << std::endl;
+                while(1);
+            }
 
             if (llevel->m_nRetryAfter == 0) {
                 nd->initLevel(llevel);
@@ -247,15 +246,15 @@ start_linear:
                 nd->m_jLastDownloadedLevel = llevel->levelJson;
                 delete llevel;
                 llevel = nullptr;
-                //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] Fetched level " << nd->m_uQueue->m_nRuntimeState << std::endl;
+                //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << nd->m_sInternalName << "] Fetched level " << nd->m_uQueue->m_nRuntimeState << std::endl;
                 if(!nd->m_pPolicy->m_bNoOutput) {
-                    std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.event.fetch.end", *nd->m_sInternalName, nd->m_uQueue->m_nRuntimeState) << std::endl;
+                    std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.event.fetch.end", nd->m_sInternalName, nd->m_uQueue->m_nRuntimeState) << std::endl;
                 }
             } else if (llevel->m_nRetryAfter > 0 && nd->m_pPolicy->m_bWaitResolverRL) {
                 nd->m_nWaitTime = llevel->m_nRetryAfter;
-                //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << *nd->m_sInternalName << "] RATE LIMIT for " << nd->m_nWaitTime << "s" << std::endl;
+                //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << nd->m_sInternalName << "] RATE LIMIT for " << nd->m_nWaitTime << "s" << std::endl;
                 if(!nd->m_pPolicy->m_bNoOutput) {
-                    std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.event.ratelimit", *nd->m_sInternalName, nd->m_nWaitTime) << std::endl;
+                    std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.event.ratelimit", nd->m_sInternalName, nd->m_nWaitTime) << std::endl;
                 }
                 nd->m_bRateLimitApplied = true;
                 delete llevel;
@@ -265,7 +264,7 @@ start_linear:
             nd->m_uQueue->m_nRuntimeState++;   
         } else {
             if(!nd->m_pPolicy->m_bNoOutput) {
-                std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.error.disabled", *nd->m_sInternalName) << std::endl;
+                std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.error.disabled", nd->m_sInternalName) << std::endl;
             }
         }
         goto run_again;
@@ -273,9 +272,9 @@ start_linear:
 start:
     if(!nd->m_pPolicy->m_bEnableLinearResolver) {
 	float t = (prev_q != NC_ID && prev_q != NC_NONE) ? nd->m_pPolicy->m_nQueueProcessingInterval : 0.0f; 
-        //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Waiting " << nd->m_pPolicy->m_nQueueProcessingInterval << "s" << std::endl;
+        //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << nd->m_sInternalName << "] Waiting " << nd->m_pPolicy->m_nQueueProcessingInterval << "s" << std::endl;
 	if(!nd->m_pPolicy->m_bNoOutput) {
-            //std::cout << Translation::getByKey("lapi.noderunner.downloader.wait", *nd->m_sInternalName, t) << std::endl;
+            //std::cout << Translation::getByKey("lapi.noderunner.downloader.wait", nd->m_sInternalName, t) << std::endl;
         }
 	
         std::this_thread::sleep_for(
@@ -283,9 +282,9 @@ start:
         );
     }
 
-    if(nd->m_uQueue->m_vCommandQueue->size() == 0) goto error_ignore;
+    if(nd->m_uQueue->m_vCommandQueue.size() == 0) goto error_ignore;
 
-    auto q = nd->m_uQueue->m_vCommandQueue->at(0);
+    auto q = nd->m_uQueue->m_vCommandQueue.at(0);
 
     nd->m_uQueue->currentState = q->m_nCommand;
     prev_q = q->m_nCommand;
@@ -295,10 +294,19 @@ start:
             if(!nd->m_pPolicy->m_bEnableRecentTab) break;
 
             if(!nd->m_pPolicy->m_bNoOutput) {
-                std::cout << Translation::getByKey("lapi.noderunner.downloader.recenttab.fetch", *nd->m_sInternalName) << std::endl;
+                std::cout << Translation::getByKey("lapi.noderunner.downloader.recenttab.fetch", nd->m_sInternalName) << std::endl;
             }
             auto levels = server->getLevelsBySearchType(4);
             int i = 0;
+            if(server->m_eStatus == GSS_PERMANENT_BAN) {
+                while(i < 32) {
+                    std::cout << Translation::getByKey("lapi.noderunner.error.pban", nd->m_sInternalName) << std::endl;
+                    i++;
+                }
+                std::cout << Translation::getByKey("lapi.noderunner.error.pban.halt", nd->m_sInternalName) << std::endl;
+                // rcbt.
+                for(;;);
+            }
 
             std::vector<int> new_levels;
 
@@ -306,8 +314,8 @@ start:
                 int levelid;
                 std::string levelname;
                 levelid = levels[i]->m_nLevelID;
-                levelname = std::string(levels[i]->m_sLevelName->c_str());
-                levels[i]->m_sLinkedNode = std::string(nd->m_sInternalName->c_str());
+                levelname = levels[i]->m_sLevelName;
+                levels[i]->m_sLinkedNode = nd->m_sInternalName;
 
                 auto level_from_node = nd->getLevel(levelid);
 
@@ -319,7 +327,7 @@ start:
                     nd->m_jLastDownloadedLevel = levels[i]->levelJson;
                     recent_downloadedids.push_back(levelid);
                     if(!nd->m_bRateLimitApplied && nd->m_pPolicy->m_bEnableResolver) {
-                        nd->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_ID, new std::string(std::to_string(levels[i]->m_nLevelID))));
+                        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));
                     }
                     if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady) {
                         DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
@@ -328,7 +336,7 @@ start:
                     }
                 } else {
                     if(nd->m_pPolicy->m_bEnableResolver && !levels[i]->m_bHasLevelString) {
-                        nd->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_ID, new std::string(std::to_string(levels[i]->m_nLevelID))));
+                        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));
                     }
                     delete level_from_node;
 		        }
@@ -336,9 +344,9 @@ start:
                 delete levels[i];
                 levels[i] = nullptr;
 
-                // if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << *nd->m_sInternalName << "] Level saved without level string: " << levelid << " \"" << levelname << "\"" << std::endl; 
+                // if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << nd->m_sInternalName << "] Level saved without level string: " << levelid << " \"" << levelname << "\"" << std::endl; 
                 if(!nd->m_pPolicy->m_bNoOutput) {
-                    std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", *nd->m_sInternalName, levelid, levelname) << std::endl;
+                    std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
                 }
                 i++;
             }
@@ -362,7 +370,7 @@ start:
         delete q;
         q = nullptr;
     }
-    nd->m_uQueue->m_vCommandQueue->erase(nd->m_uQueue->m_vCommandQueue->begin());
+    nd->m_uQueue->m_vCommandQueue.erase(nd->m_uQueue->m_vCommandQueue.begin());
     nd->m_uQueue->save();
 
     nd->m_uQueue->currentState = NC_NONE;

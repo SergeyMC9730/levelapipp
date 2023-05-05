@@ -7,7 +7,7 @@ namespace LevelAPI {
     namespace Backend {
         class GDServer_BoomlingsLike21 : public GDServer {
         public:
-            GDServer_BoomlingsLike21(std::string *endpoint);
+            GDServer_BoomlingsLike21(std::string endpoint);
 
             LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo) override;
             std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type) override;
@@ -19,6 +19,7 @@ namespace LevelAPI {
             bool login() override;
 
             int getGameVersion() override;
+            std::string getServerName() override;
         };
     }
 }

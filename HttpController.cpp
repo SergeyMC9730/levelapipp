@@ -26,7 +26,7 @@ void HttpController::setup() {
     if(!h.good()) {
         nlohmann::json j;
         j["port"] = 8000;
-        j["threads"] = 16;
+        j["threads"] = 4;
 
         std::string j2 = j.dump();
 

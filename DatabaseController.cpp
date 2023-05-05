@@ -14,10 +14,12 @@ LevelAPI::DatabaseController::Database *LevelAPI::DatabaseController::database;
 void LevelAPI::DatabaseController::setup() {
     #define db LevelAPI::DatabaseController::database
 
+    std::string prefix = "database";
+
     std::vector<std::string> fpaths = {
-        "database", 
-        "database/configuration", 
-        "database/nodes"
+        prefix, 
+        prefix + "/configuration", 
+        prefix + "/nodes"
     };
 
     int i = 0;
@@ -26,7 +28,7 @@ void LevelAPI::DatabaseController::setup() {
         i++;
     }
     
-    db = new Database(new std::string("database"));    
+    db = new Database(fpaths[0]);    
 
     return;
 }

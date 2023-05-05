@@ -4,8 +4,7 @@
 using namespace LevelAPI::DatabaseController;
 
 NodeQueue::NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState) {
-    m_vCommandQueue = new std::vector<NodeCommandQueue *>();
-    m_vCommandQueue->push_back(q);
+    m_vCommandQueue.push_back(q);
     m_bExecuteQueue = executeQueue;
     m_nRuntimeState = runtimeState;
     currentState = NC_IDLE;
@@ -13,14 +12,14 @@ NodeQueue::NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState) {
     setupJSON();
 
     int i = 0;
-    while(i < m_vCommandQueue->size()) {
-        queueJson["commandQueue"].push_back(m_vCommandQueue->at(i)->commandJson);
+    while(i < m_vCommandQueue.size()) {
+        queueJson["commandQueue"].push_back(m_vCommandQueue.at(i)->commandJson);
         i++;
     }
     queueJson["executeQueue"] = executeQueue;
     queueJson["runtimeState"] = runtimeState;
 }
-NodeQueue::NodeQueue(std::vector<NodeCommandQueue *> *vec, bool executeQueue, int runtimeState) {
+NodeQueue::NodeQueue(std::vector<NodeCommandQueue *> vec, bool executeQueue, int runtimeState) {
     m_vCommandQueue = vec;
     m_bExecuteQueue = executeQueue;
     m_nRuntimeState = runtimeState;
@@ -31,15 +30,14 @@ NodeQueue::NodeQueue(std::vector<NodeCommandQueue *> *vec, bool executeQueue, in
     queueJson["commandQueue"] = nlohmann::json::array();
 
     int i = 0;
-    while(i < m_vCommandQueue->size()) {
-        queueJson["commandQueue"].push_back(m_vCommandQueue->at(i)->commandJson);
+    while(i < m_vCommandQueue.size()) {
+        queueJson["commandQueue"].push_back(m_vCommandQueue.at(i)->commandJson);
         i++;
     }
     queueJson["executeQueue"] = executeQueue;
     queueJson["runtimeState"] = runtimeState;
 }
 NodeQueue::NodeQueue(bool executeQueue, int runtimeState) {
-    m_vCommandQueue = new std::vector<NodeCommandQueue *>();
     m_bExecuteQueue = executeQueue;
     m_nRuntimeState = runtimeState;
     currentState = NC_IDLE;
@@ -49,7 +47,6 @@ NodeQueue::NodeQueue(bool executeQueue, int runtimeState) {
     save();
 }
 NodeQueue::NodeQueue() {
-    m_vCommandQueue = new std::vector<NodeCommandQueue *>();
     m_bExecuteQueue = false;
     m_nRuntimeState = 0;
     currentState = NC_IDLE;
@@ -66,9 +63,9 @@ void NodeQueue::save() {
     queueJson["runtimeState"] = m_nRuntimeState;
 
     int i = 0;
-    while(i < m_vCommandQueue->size()) {
-        m_vCommandQueue->at(i)->save();
-        queueJson["commandQueue"].push_back(m_vCommandQueue->at(i)->commandJson);
+    while(i < m_vCommandQueue.size()) {
+        m_vCommandQueue.at(i)->save();
+        queueJson["commandQueue"].push_back(m_vCommandQueue.at(i)->commandJson);
         i++;
     }
 }
@@ -79,9 +76,9 @@ void NodeQueue::recover() {
 
     int i = 0;
     while(i < queueJson["commandQueue"].size()) {
-        m_vCommandQueue->push_back(new NodeCommandQueue());
-        m_vCommandQueue->at(i)->commandJson = queueJson["commandQueue"].at(i);
-        m_vCommandQueue->at(i)->recover();
+        m_vCommandQueue.push_back(new NodeCommandQueue());
+        m_vCommandQueue.at(i)->commandJson = queueJson["commandQueue"].at(i);
+        m_vCommandQueue.at(i)->recover();
         i++;
     }
 }
@@ -92,10 +89,9 @@ void NodeQueue::setupJSON() {
 
 NodeQueue::~NodeQueue() {
     int i = 0;
-    while(i < m_vCommandQueue->size()) {
-        delete m_vCommandQueue->at(i);
+    while(i < m_vCommandQueue.size()) {
+        delete m_vCommandQueue.at(i);
         i++;
     }
-    delete m_vCommandQueue;
-    m_vCommandQueue = nullptr;
+
 }

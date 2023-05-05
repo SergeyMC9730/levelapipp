@@ -118,6 +118,62 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "[LevelAPI ПРЕД] Получена логическая ошибка!"
         }
     },
+    // from GDServer.cpp
+    {
+        "lapi.gdserver.name", {
+            "Basic GD server component",
+            "Базовый компонент ГД сервера"
+        }
+    },
+    // from GDServer_19GDPS.cpp
+    {
+        "lapi.gdserver_19gdps.name", {
+            "1.9 GDPS server",
+            "1.9 GDPS сервер"
+        }
+    },
+    // from GDServer_BasementGDPS.cpp
+    {
+        "lapi.gdserver_basementgdps.name", {
+            "Basement GDPS server",
+            "Сервер \"Подвал ГДшеров\""
+        }
+    },
+    // from GDServer_BasementLike21.cpp
+    {
+        "lapi.gdserver_basementlike21.name", {
+            "Standard Basement server",
+            "Стандартный сервер Подвала"
+        }
+    },
+    // from GDServer_Boomlings.cpp
+    {
+        "lapi.gdserver_boomlings.name", {
+            "Boomlings (official) server",
+            "Бумлингс (официальный) сервер"
+        }
+    },
+    // from GDServer_BoomlingsLike19.cpp
+    {
+        "lapi.gdserver_boomlingslike19.name", {
+            "Standard 1.9 server",
+            "Стандартный 1.9 сервер"
+        }
+    },
+    // from GDServer_BoomlingsLike21.cpp
+    {
+        "lapi.gdserver_boomlingslike21.name", {
+            "Standard 2.1 server",
+            "Стандартный 2.1 сервер"
+        }
+    },
+    // from GDServer_BoomlingsLike22.cpp
+    {
+        "lapi.gdserver_boomlingslike22.name", {
+            "Standard 2.2 server",
+            "Стандартный 2.2 сервер"
+        }
+    },
     // from test_gd_parsers.cpp
     {
         "lapi.gdparsertests.start", {
@@ -230,15 +286,9 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         }
     },
     {
-        "lapi.noderunner.start.modification.basement", {
-            "[LevelAPI {}] Selected modification: Basement GDPS",
-            "[LevelAPI {}] Выбранная модификация: Подвал ГДшеров"
-        }
-    },
-    {
-        "lapi.noderunner.start.modification.notselected", {
-            "[LevelAPI {}] Selected modification: Not selected.",
-            "[LevelAPI {}] Выбранная модификация: Не выбрана."
+        "lapi.node.selected_server", {
+            "[LevelAPI {}] Selected server: {}",
+            "[LevelAPI {}] Выбранный сервер: {}"
         }
     },
     {
@@ -281,6 +331,18 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.noderunner.downloader.wait", {
             "[LevelAPI downloader {}] Waiting {}s",
             "[LevelAPI downloader {}] Ожидание {} сек."
+        }
+    },
+    {
+        "lapi.noderunner.error.pban", {
+            "[LevelAPI {}] ATTENTION! THIS IS NOT A WARNING! HOST'S IP WAS PERMANENTLY BANNED!",
+            "[LevelAPI {}] ВНИМАНИЕ! ЭТО НЕ ПРЕДУПРЕЖДЕНИЕ! АЙПИ ХОСТА БЫЛ НАВСЕГДА ЗАБЛОКИРОВАН!"
+        }
+    },
+    {
+        "lapi.noderunner.error.pban.halt", {
+            "[LevelAPI {}] FRONTEND IS GONNA HALT!",
+            "[LevelAPI {}] ФРОНТЕНД БУДЕТ ЗАМОРОЖЕН!"
         }
     },
     {

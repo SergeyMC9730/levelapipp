@@ -14,18 +14,6 @@ using namespace LevelAPI::Frontend;
 Level::Level() {
     m_uRelease = new LevelRelease();
 
-    m_sLevelPath = new std::string(".");
-    m_sUsername = new std::string("");
-    m_sLevelName = new std::string("");
-    m_sDescription = new std::string("");
-    m_sUploadDate = new std::string("");
-    m_sUpdateDate = new std::string("");
-    m_sLevelString = new std::string("");
-    m_sSettings = new std::string("");
-    m_sExtraString = new std::string("");
-    m_sXORPassword = new std::string("");
-    m_sRecordString = new std::string("");
-
     m_nRetryAfter = 0;
     m_bHasLevelString = false;
     m_nAccountID = 0;
@@ -76,7 +64,6 @@ void Level::setupJSON() {
 
 void Level::save(bool onlyLevelString) {
     #define fill(str, val) levelJson[str] = val;
-    #define fill_str(str, val) fill(str, val->c_str());
 
     fill("levelID", m_nLevelID)
     fill("version", m_nVersion)
@@ -109,16 +96,16 @@ void Level::save(bool onlyLevelString) {
     fill("ldmAvailable", m_bLDM)
     fill("is2P", m_b2P)
 
-    fill_str("levelName", m_sLevelName)
-    fill_str("levelDescription", m_sDescription)
-    fill_str("uploadDate", m_sUploadDate)
-    fill_str("updateDate", m_sUpdateDate)
-    fill_str("username", m_sUsername);
-    fill_str("actualGameVersion", m_uRelease->m_fActualVersion)
+    fill("levelName", m_sLevelName)
+    fill("levelDescription", m_sDescription)
+    fill("uploadDate", m_sUploadDate)
+    fill("updateDate", m_sUpdateDate)
+    fill("username", m_sUsername);
+    fill("actualGameVersion", m_uRelease->m_fActualVersion)
     fill("publicationDate", m_sCreatedTimestamp);
 
-    std::string g = *m_sLevelPath + "/meta.json";
-    std::string g2 = *m_sLevelPath + "/data.gmd2";
+    std::string g = m_sLevelPath + "/meta.json";
+    std::string g2 = m_sLevelPath + "/data.gmd2";
     
     if (!onlyLevelString) {
 	std::ofstream file(g);
@@ -142,7 +129,6 @@ void Level::save(bool onlyLevelString) {
 
 void Level::restore() {
     #define RS(t, str, val) val = levelJson[str].get<t>();
-    #define RSS(t, str, val) delete val; val = nullptr; val = new t (levelJson[str].get<t>());
     
     RS(int, "levelID", m_nLevelID)
     RS(int, "version", m_nVersion)
@@ -175,12 +161,12 @@ void Level::restore() {
     RS(bool, "ldmAvailable", m_bLDM)
     RS(bool, "is2P", m_b2P)
 
-    RSS(std::string, "levelName", m_sLevelName)
-    RSS(std::string, "levelDescription", m_sDescription)
-    RSS(std::string, "uploadDate", m_sUploadDate)
-    RSS(std::string, "updateDate", m_sUpdateDate)
-    RSS(std::string, "username", m_sUsername)
-    RSS(std::string, "actualGameVersion", m_uRelease->m_fActualVersion)
+    RS(std::string, "levelName", m_sLevelName)
+    RS(std::string, "levelDescription", m_sDescription)
+    RS(std::string, "uploadDate", m_sUploadDate)
+    RS(std::string, "updateDate", m_sUpdateDate)
+    RS(std::string, "username", m_sUsername)
+    RS(std::string, "actualGameVersion", m_uRelease->m_fActualVersion)
     RS(std::string, "publicationDate", m_sCreatedTimestamp);
 
     return;
@@ -189,28 +175,6 @@ void Level::restore() {
 Level::~Level() {
     delete m_uRelease;
     m_uRelease = nullptr;
-    delete m_sLevelPath;
-    m_sLevelPath = nullptr;
-    delete m_sUsername;
-    m_sUsername = nullptr;
-    delete m_sLevelName;
-    m_sLevelName = nullptr;
-    delete m_sDescription;
-    m_sDescription = nullptr;
-    delete m_sUploadDate;
-    m_sUploadDate = nullptr;
-    delete m_sUpdateDate;
-    m_sUpdateDate = nullptr;
-    delete m_sLevelString;
-    m_sLevelString = nullptr;
-    delete m_sSettings;
-    m_sSettings = nullptr;
-    delete m_sExtraString;
-    m_sExtraString = nullptr;
-    delete m_sXORPassword;
-    m_sXORPassword = nullptr;
-    delete m_sRecordString;
-    m_sRecordString = nullptr;
 }
 
 dpp::embed Level::getAsEmbed() {
@@ -274,12 +238,12 @@ dpp::embed Level::getAsEmbed() {
         ).
         add_field(
             Translation::getByKey("lapi.level.embed.field.name"),
-            "**" + std::string(this->m_sLevelName->c_str()) + "**",
+            "**" + this->m_sLevelName + "**",
             true
         ).
         add_field(
             Translation::getByKey("lapi.level.embed.field.author"),
-            "**" + std::string(this->m_sUsername->c_str()) + "**",
+            "**" + this->m_sUsername + "**",
             true
         ).
         add_field(

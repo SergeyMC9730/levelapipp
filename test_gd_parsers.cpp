@@ -23,7 +23,7 @@ void Tests::testGDParsers() {
     return;
 }
 void Tests::testGDParsersThread() {
-    auto gd = new Backend::GDServer_BoomlingsLike21(new std::string("https://www.boomlings.com/database"));
+    auto gd = new Backend::GDServer_BoomlingsLike21("https://www.boomlings.com/database");
     auto levels = gd->getLevelsBySearchType(4);
     
     std::cout << termcolor::magenta << Translation::getByKey("lapi.gdpastertests.test1result", levels.size()) << termcolor::reset;

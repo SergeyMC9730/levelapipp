@@ -7,9 +7,6 @@
 [submodule "gmd2pp/ziplib"]
 	path = gmd2pp/ziplib
 	url = https://bitbucket.org/wbenny/ziplib.git
-[submodule "gmd2pp/level-converter"]
-	path = gmd2pp/level-converter
-	url = https://github.com/SergeyMC9730/level-converter.git
 [submodule "gmd2pp/cJSON"]
 	path = gmd2pp/cJSON
 	url = https://github.com/DaveGamble/cJSON.git

@@ -27,7 +27,7 @@ using namespace std::chrono_literals;
 void NodeRunner::errorEmptyQueue() {
     if(!m_pLinkedNode->m_pPolicy->m_bNoOutput) {
         m_nPreviousRequest = NC_NONE;
-        std::cout << Translation::getByKey("lapi.noderunner.downloader.error.queue.empty", *m_pLinkedNode->m_sInternalName) << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.downloader.error.queue.empty", m_pLinkedNode->m_sInternalName) << std::endl;
     }
     while(true) {
         std::this_thread::sleep_for(std::chrono::seconds(2s));
@@ -35,13 +35,13 @@ void NodeRunner::errorEmptyQueue() {
 }
 void NodeRunner::errorReadOnly() {
     if(!m_pLinkedNode->m_pPolicy->m_bNoOutput) {
-        std::cout << Translation::getByKey("lapi.noderunner.readonly", *m_pLinkedNode->m_sInternalName) << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.readonly", m_pLinkedNode->m_sInternalName) << std::endl;
     }
 }
 
 void NodeRunner::thread_cacheLevels(NodeRunner *self) {
     while(true) {
-        std::string folder = "database/nodes/" + std::string(self->m_pLinkedNode->m_sInternalName->c_str()) + "/levels";
+        std::string folder = "database/nodes/" + self->m_pLinkedNode->m_sInternalName + "/levels";
         self->m_pLinkedNode->m_vCachedLevels.clear();
         for (const auto & entry : std::filesystem::directory_iterator(folder)) {
             std::string path = entry.path();
@@ -50,7 +50,7 @@ void NodeRunner::thread_cacheLevels(NodeRunner *self) {
             self->m_pLinkedNode->m_vCachedLevels.push_back(std::stoi(levelid));
         }
         if(!self->m_pLinkedNode->m_pPolicy->m_bNoOutput) {
-            std::cout << Translation::getByKey("lapi.noderunner.recount.complete", *self->m_pLinkedNode->m_sInternalName, self->m_pLinkedNode->m_vCachedLevels.size()) << std::endl;
+            std::cout << Translation::getByKey("lapi.noderunner.recount.complete", self->m_pLinkedNode->m_sInternalName, self->m_pLinkedNode->m_vCachedLevels.size()) << std::endl;
         }
         std::this_thread::sleep_for(5s);
     }
@@ -62,13 +62,13 @@ void NodeRunner::task_waitRatelimit(NodeRunner *self, int rate_limit_length) {
     self->m_pLinkedNode->m_bRateLimitApplied = true;
     
     if(!self->m_pLinkedNode->m_pPolicy->m_bNoOutput) {
-        std::cout << "[LevelAPI resolver " << *self->m_pLinkedNode->m_sInternalName << "] Waiting " << rate_limit_length << "s" << std::endl;
-        std::cout << Translation::getByKey("lapi.noderunner.resolver.wait.start", *self->m_pLinkedNode->m_sInternalName, rate_limit_length) << std::endl;
+        std::cout << "[LevelAPI resolver " << self->m_pLinkedNode->m_sInternalName << "] Waiting " << rate_limit_length << "s" << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.resolver.wait.start", self->m_pLinkedNode->m_sInternalName, rate_limit_length) << std::endl;
     }
     std::this_thread::sleep_for(std::chrono::seconds(rate_limit_length + (int)self->m_pLinkedNode->m_pPolicy->m_nResolverInterval));
     if(!self->m_pLinkedNode->m_pPolicy->m_bNoOutput) {
-        std::cout << "[LevelAPI resolver " << *self->m_pLinkedNode->m_sInternalName << "] Rate limit end!" << std::endl;
-        std::cout << Translation::getByKey("lapi.noderunner.resolver.wait.end", *self->m_pLinkedNode->m_sInternalName) << std::endl;
+        std::cout << "[LevelAPI resolver " << self->m_pLinkedNode->m_sInternalName << "] Rate limit end!" << std::endl;
+        std::cout << Translation::getByKey("lapi.noderunner.resolver.wait.end", self->m_pLinkedNode->m_sInternalName) << std::endl;
     }
 
     self->m_pLinkedNode->m_bRateLimitApplied = false;
@@ -80,7 +80,7 @@ void NodeRunner::thread_pushRecentTab(NodeRunner *self) {
     while(true) {
         std::this_thread::sleep_for(std::chrono::milliseconds((int)(self->m_pLinkedNode->m_pPolicy->m_nQueueProcessingInterval * 1000)));
         if(true) { // self->m_pLinkedNode->m_uQueue->m_vCommandQueue->size() == 0
-            self->m_pLinkedNode->m_uQueue->m_vCommandQueue->push_back(new NodeCommandQueue(NC_RECENT, new std::string("-")));
+            self->m_pLinkedNode->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_RECENT, "-"));
             self->m_pLinkedNode->m_uQueue->save();
         }
     }

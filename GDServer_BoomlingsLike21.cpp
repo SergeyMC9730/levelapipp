@@ -7,6 +7,7 @@
 #include "Account19.h"
 #include "StringSplit.h"
 #include "UUID.h"
+#include "Translation.h"
 
 #include <cstdint>
 #include <cstring>
@@ -14,22 +15,8 @@
 
 using namespace LevelAPI::Backend;
 
-GDServer_BoomlingsLike21::GDServer_BoomlingsLike21(std::string *endpoint) : GDServer() {
+GDServer_BoomlingsLike21::GDServer_BoomlingsLike21(std::string endpoint) : GDServer() {
     m_sEndpointURL = endpoint;
-
-    m_vRanges.push_back(new Tools::LevelRange(91, 1941, new std::string("1.0")));
-    m_vRanges.push_back(new Tools::LevelRange(1942, 10043, new std::string("1.1")));
-    m_vRanges.push_back(new Tools::LevelRange(10044, 63415, new std::string("1.2")));
-    m_vRanges.push_back(new Tools::LevelRange(63416, 121068, new std::string("1.3")));
-    m_vRanges.push_back(new Tools::LevelRange(121069, 184425, new std::string("1.4")));
-    m_vRanges.push_back(new Tools::LevelRange(184426, 420780, new std::string("1.5")));
-    m_vRanges.push_back(new Tools::LevelRange(420781, 827308, new std::string("1.6")));
-    m_vRanges.push_back(new Tools::LevelRange(827309, 1627362, new std::string("1.7")));
-    m_vRanges.push_back(new Tools::LevelRange(1627363, 2810918, new std::string("1.8")));
-    m_vRanges.push_back(new Tools::LevelRange(2810919, 11020426, new std::string("1.9")));
-    m_vRanges.push_back(new Tools::LevelRange(11020427, 28356225, new std::string("2.0")));
-    m_vRanges.push_back(new Tools::LevelRange(28356226, 100000000, new std::string("2.1")));
-    m_vRanges.push_back(new Tools::LevelRange(100000001, 108000002, new std::string("2.2")));
 }
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(int id, bool resolveAccountInfo) {
     auto m_pLinkedCURL = new CURLConnection();
@@ -50,15 +37,17 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
         new CURLParameter("gameVersion", getGameVersion())
     });
 
-    std::string uurl = "";
-    uurl += *m_sEndpointURL;
-    uurl += "/downloadGJLevel22.php";
+    std::string uurl = m_sEndpointURL + "/downloadGJLevel22.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     //printf("response 2: %s\n", res->data);
     // level->m_nRetryAfter = res->retry_after;
 
     if(res->http_status != 200 || res->result != 0) {
+        std::string ddd = res->data;
+        if(ddd.find("<h1 data-translate=\"block_headline\">Sorry, you have been blocked</h1>") != std::string::npos) {
+            m_eStatus = GSS_PERMANENT_BAN;
+        } 
         lvl = new DatabaseController::Level();
         lvl->m_nRetryAfter = res->retry_after;
         delete res;
@@ -88,14 +77,15 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
     m_pLinkedCURL = nullptr;
 
     lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
-    delete lvl->m_uRelease->m_fActualVersion;
-    lvl->m_uRelease->m_fActualVersion = nullptr;
-    lvl->m_uRelease->m_fActualVersion = new std::string(determineGVFromID(lvl->m_nLevelID));
+    lvl->m_uRelease->m_fActualVersion = determineGVFromID(lvl->m_nLevelID);
 
     return lvl;
 }
 
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::getLevelsBySearchType(int type) {
+    //.m_eStatus = GSS_PERMANENT_BAN;
+    // return {};
+    
     auto m_pLinkedCURL = new CURLConnection();
     
     m_pLinkedCURL->setDebug(getDebug());
@@ -107,12 +97,31 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
         new CURLParameter("gameVersion", getGameVersion())
     });
 
-    std::string uurl = "";
-    uurl += *m_sEndpointURL;
-    uurl += "/getGJLevels21.php";
+    std::string uurl = m_sEndpointURL + "/getGJLevels21.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
-    if(res->http_status != 200 || res->result != 0) return {};
+    if(res->http_status != 200 || res->result != 0) {
+        std::string ddd = res->data;
+        std::vector<std::string> pban_responses {
+            "error code: 1005",
+            "error code: 1006",
+            "error code: 1007",
+            "error code: 1008",
+            "error code: 1009",
+            "error code: 1012",
+            "error code: 1106"
+        };
+        int q = 0;
+        while(q < pban_responses.size()) {
+            if(ddd.find(pban_responses[q]) != std::string::npos) {
+                m_eStatus = GSS_PERMANENT_BAN;
+            }
+            q++;
+        }
+        delete res;
+        res = nullptr;
+        return {};
+    }
 
     std::vector<LevelAPI::DatabaseController::Level *> vec1;
     std::vector<std::string> vec2 = splitString(res->data, '#');
@@ -125,6 +134,8 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     std::vector<std::string> vec4array = splitString(plList.c_str(), '|');
     std::vector<std::string> vec5levels = splitString(lvlList.c_str(), '|');
     int i = 0;
+
+    std::vector<Account19 *> accounts;
     
     while(i < vec4array.size()) {
         std::vector<std::string> vec5player = splitString(vec4array[i].c_str(), ':');
@@ -135,6 +146,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
         ac20->accountID = accountID;
         ac20->username = username;
         playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
+        accounts.push_back(ac20);
         vec5player.clear();
         i++;
     }
@@ -145,18 +157,20 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
         LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str());
         Account19 *ac20 = playerMap[lvl->m_nPlayerID];
         lvl->m_nAccountID = ac20->accountID;
-        delete lvl->m_sUsername;
-        lvl->m_sUsername = nullptr;
-        lvl->m_sUsername = new std::string(ac20->username);
+        lvl->m_sUsername = ac20->username;
         lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
-        delete lvl->m_uRelease->m_fActualVersion;
-        lvl->m_uRelease->m_fActualVersion = nullptr;
-        lvl->m_uRelease->m_fActualVersion = new std::string(determineGVFromID(lvl->m_nLevelID));
+        lvl->m_uRelease->m_fActualVersion = determineGVFromID(lvl->m_nLevelID);
         vec1.push_back(lvl);
-        delete ac20;
         i++;
     }
 
+    i = 0;
+    while(i < accounts.size()) {
+        delete accounts[i];
+        i++;
+    }
+
+    accounts.clear();
     vec4array.clear();
     vec5levels.clear();
 
@@ -180,14 +194,33 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
         new CURLParameter("gameVersion", getGameVersion())
     });
 
-    std::string uurl = "";
-    uurl += *m_sEndpointURL;
-    uurl += "/downloadGJLevel22.php";
+    std::string uurl = m_sEndpointURL + "/downloadGJLevel22.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     //printf("response 2: %s\n", res->data);
     level->m_nRetryAfter = res->retry_after;
-    if(res->http_status != 200 || res->result != 0) return level;
+    if(res->http_status != 200 || res->result != 0) {
+        std::string ddd = res->data;
+        std::vector<std::string> pban_responses {
+            "error code: 1005",
+            "error code: 1006",
+            "error code: 1007",
+            "error code: 1008",
+            "error code: 1009",
+            "error code: 1012",
+            "error code: 1106"
+        };
+        int q = 0;
+        while(q < pban_responses.size()) {
+            if(ddd.find(pban_responses[q]) != std::string::npos) {
+                m_eStatus = GSS_PERMANENT_BAN;
+            }
+            q++;
+        }
+        delete res;
+        res = nullptr;
+        return level;
+    }
 
     std::string strtest = "";
     strtest += res->data;
@@ -200,15 +233,11 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
     }
 
     LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data);
-    delete level->m_sLevelString;
-    level->m_sLevelString = nullptr;
-    level->m_sLevelString = new std::string(lvl->m_sLevelString->c_str());
+    level->m_sLevelString = lvl->m_sLevelString;
     level->m_nMusicID = lvl->m_nMusicID;
     level->m_nSongID = lvl->m_nSongID;
-    lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
-    delete level->m_uRelease->m_fActualVersion;
-    level->m_uRelease->m_fActualVersion = nullptr;
-    level->m_uRelease->m_fActualVersion = new std::string(determineGVFromID(lvl->m_nLevelID));
+    level->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
+    level->m_uRelease->m_fActualVersion = determineGVFromID(lvl->m_nLevelID);
 
     free((void *)res->data);
     delete lvl;
@@ -230,7 +259,7 @@ GDServerUploadResult *GDServer_BoomlingsLike21::uploadLevel(DatabaseController::
     
     if (level == nullptr) return res;
     if (res == nullptr) return res;
-    if (m_sUsername->empty() || m_sPassword->empty()) return res;
+    if (m_sUsername.empty() || m_sPassword.empty()) return res;
 
     m_pLinkedCURL->setDebug(getDebug());
 
@@ -263,18 +292,41 @@ bool GDServer_BoomlingsLike21::login() {
         new CURLParameter("gameVersion", getGameVersion())
     });
 
-    std::string uurl = "";
-    uurl += *m_sEndpointURL;
-    uurl += "/accounts/loginGJAccount.php";
+    std::string uurl = m_sEndpointURL + "/accounts/loginGJAccount.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
     printf("response login: %s\n", res->data);
     printf("%d %d %d\n", res->http_status, res->result, res->retry_after);
     int ra = res->retry_after;
-    if(res->http_status != 200 || res->result != 0 || ra != 0) return false;
+    if(res->http_status != 200 || res->result != 0) {
+        std::string ddd = res->data;
+        std::vector<std::string> pban_responses {
+            "error code: 1005",
+            "error code: 1006",
+            "error code: 1007",
+            "error code: 1008",
+            "error code: 1009",
+            "error code: 1012",
+            "error code: 1106"
+        };
+        int q = 0;
+        while(q < pban_responses.size()) {
+            if(ddd.find(pban_responses[q]) != std::string::npos) {
+                m_eStatus = GSS_PERMANENT_BAN;
+            }
+            q++;
+        }
+        delete res;
+        res = nullptr;
+        return false;
+    }
 
     delete m_pLinkedCURL;
     m_pLinkedCURL = nullptr;
 
     return true;
+}
+
+std::string GDServer_BoomlingsLike21::getServerName() {
+    return Frontend::Translation::getByKey("lapi.gdserver_boomlingslike21.name");
 }

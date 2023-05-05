@@ -1,7 +1,7 @@
 #include "ThreadSafeLevelParser.h"
 #include "StringSplit.h"
 #include "lapi_database.h"
-#include "gmd2pp/level-converter/base64.h"
+#include "gmd2pp/base64.h"
 #include "Translation.h"
 #include <iostream>
 
@@ -15,9 +15,7 @@ using namespace LevelAPI::Frontend;
 
 #define PARSE_KEY_PKSTRING(keyN, member) \
     case keyN: {\
-        delete member;\
-        member = nullptr;\
-        member = new std::string(info[i].c_str()); \
+        member = info[i]; \
         break; \
     }
 #define PARSE_KEY_PKINT(keyN, member) \
@@ -34,14 +32,14 @@ using namespace LevelAPI::Frontend;
     case keyN: {\
         try { \
             if(decrypt_description) { \
-                if(info[i].compare("")) member = new std::string((char *)base64_decode(info[i]).data()); \
+                if(info[i].compare("")) member = (char *)(base64_decode(info[i]).data()); \
             } else { \
-                delete member; member = nullptr; member = new std::string(info[i].c_str()); \
+                member = info[i]; \
             } \
         } \
         catch (std::logic_error &e) { \
             std::cout << Translation::getByKey("lapi.tslp.logicerror") << std::endl; \
-            member = new std::string(" "); \
+            member = "ERROR"; \
         } \
         break; \
     }

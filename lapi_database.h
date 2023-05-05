@@ -1,14 +1,13 @@
 #pragma once
 
 #include "cluster.h"
-#include "gmd2pp/level-converter/GJGameLevel.h"
 #include <array>
 #include <cstdint>
 #include <string>
 #include <thread>
 #include <vector>
 
-#include "gmd2pp/level-converter/GJGameLevel.h"
+#include "gmd2pp/GJGameLevel.h"
 
 #include "json/single_include/nlohmann/json.hpp"
 
@@ -17,6 +16,8 @@
 #include "DiscordInstance.h"
 
 #include "SearchFilter.h"
+
+#include "GDServer.h"
 
 #pragma pack(push, 1)
 
@@ -29,46 +30,16 @@ namespace LevelAPI {
             NC_NONE = 3,
             NC_IDLE = 4
         };
-        class LevelRelease {
-        public:
-            ~LevelRelease();
 
-            int m_nGameVersion;
-            std::string *m_fActualVersion;
-        };
-        class Level : public GJGameLevel {
-        public:
-            nlohmann::json levelJson;
-            LevelRelease *m_uRelease;
-            std::string *m_sLevelPath;
-            int m_nAccountID;
-            std::string *m_sUsername;
-
-            std::string m_sCreatedTimestamp;
-
-            std::string m_sLinkedNode;
-
-            int m_nRetryAfter;
-            bool m_bHasLevelString;
-
-            void setupJSON();
-            Level();
-            void restore();
-            void save(bool onlyLevelString = false);
-
-            dpp::embed getAsEmbed();
-
-            ~Level();
-        };
         class NodeCommandQueue {
         public:
             nlohmann::json commandJson;
         public:
-            NodeCommandQueue(int command, std::string *text);
+            NodeCommandQueue(int command, std::string text);
             NodeCommandQueue();
 
             uint8_t m_nCommand;
-            std::string *m_sText;
+            std::string m_sText;
 
             void save();
             void recover();
@@ -82,11 +53,11 @@ namespace LevelAPI {
             nlohmann::json queueJson;
         public:
             NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState);
-            NodeQueue(std::vector<NodeCommandQueue *> *vec, bool executeQueue, int runtimeState);
+            NodeQueue(std::vector<NodeCommandQueue *> vec, bool executeQueue, int runtimeState);
             NodeQueue(bool executeQueue, int runtimeState);
             NodeQueue();
 
-            std::vector<NodeCommandQueue *> *m_vCommandQueue;
+            std::vector<NodeCommandQueue *> m_vCommandQueue;
             bool m_bExecuteQueue;
             int m_nRuntimeState;
 
@@ -104,9 +75,9 @@ namespace LevelAPI {
             nlohmann::json ndJson;
         public:
             NodeDatabase();
-            NodeDatabase(std::string *endpoint, uint8_t featureSet, bool readOnly);
+            NodeDatabase(std::string endpoint, uint8_t featureSet, bool readOnly);
 
-            std::string *m_sEndpoint;
+            std::string m_sEndpoint;
             uint8_t m_nFeatureSet;
             std::string m_sModifications;
             bool m_bReadOnly;
@@ -145,13 +116,13 @@ namespace LevelAPI {
         public:
             nlohmann::json nodeJson;
 
-            Node(NodeDatabase *database, std::string *internalName, std::string *levelDataPath, NodeQueue *queue);
-            Node(NodeDatabase *database, std::string *internalName, std::string *levelDataPath);
+            Node(NodeDatabase *database, std::string internalName, std::string levelDataPath, NodeQueue *queue);
+            Node(NodeDatabase *database, std::string internalName, std::string levelDataPath);
             Node();
 
             NodeDatabase *m_uDatabase;
-            std::string *m_sInternalName;
-            std::string *m_sLevelDataPath;
+            std::string m_sInternalName;
+            std::string m_sLevelDataPath;
             NodeQueue *m_uQueue;
             NodePolicy *m_pPolicy;
 
@@ -177,6 +148,8 @@ namespace LevelAPI {
 
             Level *getLevel(int id);
 
+            LevelAPI::Backend::GDServer *createServer();
+
             std::vector<Level *> getLevels(SearchFilter *filter);
 
             Node *getSelf();
@@ -186,7 +159,7 @@ namespace LevelAPI {
         class Database {
         public:
             nlohmann::json databaseJson;
-            std::string *databasePath;
+            std::string databasePath;
             LevelAPI::DiscordController::DiscordInstance *m_pLinkedBot;
             bool m_bEnableBot;
             std::vector<std::thread *> m_vThreads;
@@ -198,9 +171,9 @@ namespace LevelAPI {
 
             bool exists();
 
-            Database(std::vector<Node *> *nodes);
+            Database(std::vector<Node *> nodes);
             Database(Node *node);
-            Database(std::string *path);
+            Database(std::string path);
             Database();
 
             void recalculate();
@@ -208,7 +181,7 @@ namespace LevelAPI {
             void save();
 
             int m_nNodeSize;
-            std::vector<Node *> *m_vNodes;
+            std::vector<Node *> m_vNodes;
 
             void setupJSON();
 

@@ -3,7 +3,4 @@
 
 using namespace LevelAPI::DatabaseController;
 
-LevelRelease::~LevelRelease() {
-    delete m_fActualVersion;
-    m_fActualVersion = nullptr;
-}
+LevelRelease::~LevelRelease() {}

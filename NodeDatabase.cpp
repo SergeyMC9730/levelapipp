@@ -2,7 +2,7 @@
 
 using namespace LevelAPI::DatabaseController;
 
-NodeDatabase::NodeDatabase(std::string *endpoint, uint8_t featureSet, bool readOnly) {
+NodeDatabase::NodeDatabase(std::string endpoint, uint8_t featureSet, bool readOnly) {
     m_sEndpoint = endpoint;
     m_nFeatureSet = featureSet;
     m_bReadOnly = readOnly;
@@ -12,7 +12,6 @@ NodeDatabase::NodeDatabase(std::string *endpoint, uint8_t featureSet, bool readO
     save();
 }
 NodeDatabase::NodeDatabase() {
-    m_sEndpoint = new std::string("");
     m_nFeatureSet = 21;
     m_bReadOnly = true;
 
@@ -21,16 +20,14 @@ NodeDatabase::NodeDatabase() {
 }
 
 void NodeDatabase::save() {
-    ndJson["endpoint"] = m_sEndpoint->c_str();
+    ndJson["endpoint"] = m_sEndpoint;
     ndJson["featureSet"] = m_nFeatureSet;
     ndJson["readOnly"] = m_bReadOnly;
     if(!m_sModifications.empty()) ndJson["modifications"] = m_sModifications;
 }
 
 void NodeDatabase::recover() {
-    delete m_sEndpoint;
-    m_sEndpoint = nullptr;
-    m_sEndpoint = new std::string(ndJson["endpoint"].get<std::string>());
+    m_sEndpoint = ndJson["endpoint"].get<std::string>();
     m_nFeatureSet = ndJson["featureSet"].get<int>();
     m_bReadOnly = ndJson["readOnly"].get<bool>();
     if(ndJson.contains("modifications")) m_sModifications = ndJson["modifications"].get<std::string>();
@@ -40,10 +37,7 @@ void NodeDatabase::setupJSON() {
     ndJson = nlohmann::json();
 }
 
-NodeDatabase::~NodeDatabase() {
-    delete m_sEndpoint;
-    m_sEndpoint = nullptr;
-}
+NodeDatabase::~NodeDatabase() {}
 
 std::vector<std::string> NodeDatabase::getModifications() {
     // wip

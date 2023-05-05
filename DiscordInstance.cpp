@@ -182,8 +182,8 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
         );
 
         int i = 0;
-        while(i < DatabaseController::database->m_vNodes->size()) {
-            auto nd = std::string(DatabaseController::database->m_vNodes->at(i)->m_sInternalName->c_str());
+        while(i < DatabaseController::database->m_vNodes.size()) {
+            auto nd = DatabaseController::database->m_vNodes.at(i)->m_sInternalName;
             auto nd2 = nd;
             nd2[0] = std::toupper(nd2[0]);
             i++;

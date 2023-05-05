@@ -1,20 +1,15 @@
 #include "GDServer.h"
 #include "curl_backend.h"
 
+#include "Translation.h"
+
 using namespace LevelAPI::Backend;
 
 GDServer::GDServer() {
-    m_sUsername = new std::string("");
-    m_sPassword = new std::string("");
+    m_eStatus = GSS_ONLINE;
 }
 GDServer::~GDServer() {
-    delete m_sEndpointURL;
-    delete m_sUsername;
-    delete m_sPassword;
-
-    m_sEndpointURL = nullptr;
-    m_sUsername = nullptr;
-    m_sPassword = nullptr;
+    m_eStatus = GSS_OFFLINE;
 }
 LevelAPI::DatabaseController::Level *GDServer::getLevelMetaByID(int id, bool resolveAccountInfo) {
     return nullptr;
@@ -36,14 +31,8 @@ bool GDServer::getDebug() {
 }
 
 void GDServer::setCredintials(std::string u, std::string p) {
-    delete m_sUsername;
-    delete m_sPassword;
-
-    m_sUsername = nullptr;
-    m_sPassword = nullptr;
-
-    m_sUsername = new std::string(u);
-    m_sPassword = new std::string(p);
+    m_sUsername = u;
+    m_sPassword = p;
 }
 
 GDServerUploadResult *GDServer::uploadLevel(DatabaseController::Level *level) {
@@ -62,9 +51,13 @@ std::string GDServer::determineGVFromID(int id) {
     int i = 0;
     while(i < m_vRanges.size()) {
         if((id >= m_vRanges[i]->m_nMin) && (id <= m_vRanges[i]->m_nMax)) {
-            return std::string(*m_vRanges[i]->m_sGDVer);
+            return m_vRanges[i]->m_sGDVer;
         }
         i++;
     }
     return "unknown";
+}
+
+std::string GDServer::getServerName() {
+    return Frontend::Translation::getByKey("lapi.gdserver.name");
 }

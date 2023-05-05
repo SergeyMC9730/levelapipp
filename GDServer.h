@@ -6,12 +6,18 @@
 #include <string>
 #include <vector>
 
-#include "lapi_database.h"
 
+#include "Level.h"
 
 #include "Tools.h"
 
 #define GDSEARCH_RECENT "4"
+
+enum GDServerStatus {
+    GSS_ONLINE = 0,
+    GSS_OFFLINE = 1,
+    GSS_PERMANENT_BAN = 2
+};
 
 namespace LevelAPI {
     namespace Backend {
@@ -22,10 +28,10 @@ namespace LevelAPI {
         };
         class GDServer {
         protected:
-            std::string *m_sEndpointURL;
+            std::string m_sEndpointURL;
             
-            std::string *m_sUsername;
-            std::string *m_sPassword;
+            std::string m_sUsername;
+            std::string m_sPassword;
 
             Account19 *m_pAccount;
 
@@ -35,6 +41,8 @@ namespace LevelAPI {
         public:
             GDServer();
             ~GDServer();
+
+            GDServerStatus m_eStatus;
 
             virtual void setDebug(bool d);
             virtual bool getDebug();
@@ -48,6 +56,7 @@ namespace LevelAPI {
             virtual bool login();
 
             virtual int getGameVersion();
+            virtual std::string getServerName();
 
             virtual std::string determineGVFromID(int id);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "level-converter/GJGameLevel.h"
+#include "GJGameLevel.h"
 #include "gmdtools.h"
 
 class GMD2 {
