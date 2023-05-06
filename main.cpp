@@ -51,7 +51,7 @@ int main(int, char**) {
 
     std::cout << getByKey("lapi.main.portstart", HttpController::getPort()) << std::endl;
 
-    DatabaseController::database->save();
+    DatabaseController::database->getNode("boomlings")->importLevelMetaFromLAPIold("test.json");
 
     ws.start(true);
 

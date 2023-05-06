@@ -1,6 +1,7 @@
 #include "GDServer.h"
 #include "GDServer_BoomlingsLike19.h"
 #include "GDServer_BoomlingsLike21.h"
+#include "Level.h"
 #include "SearchFilter.h"
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
@@ -123,6 +124,7 @@ Node::~Node() {
 void Node::initLevel(Level *level) {
     std::string p = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(level->m_nLevelID);
     level->m_sLevelPath = p;
+    level->m_sLinkedNode = m_sInternalName;
     mkdir(p.c_str(), 0777);
 }
 
@@ -233,6 +235,8 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
 }
 
 LevelAPI::Backend::GDServer *Node::createServer() {
+    if(m_pCachedGDInstance != nullptr) return m_pCachedGDInstance;
+
     LevelAPI::Backend::GDServer *serv;
 
     switch(m_uDatabase->m_nFeatureSet) {
@@ -262,5 +266,96 @@ LevelAPI::Backend::GDServer *Node::createServer() {
 
     std::cout << Frontend::Translation::getByKey("lapi.node.selected_server", m_sInternalName, serv->getServerName()) << std::endl;
 
+    m_pCachedGDInstance = serv;
+
     return serv;
+}
+
+void Node::importLevelMetaFromLAPIold(std::string p) {
+    std::thread thrd ([=](Node *self, std::string path){
+        #define file_exists(cstr) (stat(cstr, &buffer) == 0)
+
+        struct stat buffer;
+
+        if(!file_exists(path.c_str())) return;
+        std::cout << "opening " << path << std::endl;
+
+        std::ifstream i(path);
+        std::cout << "created ifstream for " << path << std::endl;
+        nlohmann::json file = nlohmann::json::parse(i);
+        std::cout << "opened " << path << std::endl;
+
+        auto j1 = file.at(2);
+        auto j2 = j1["data"];
+        if(!j2.is_array()) {
+            i.close();
+            return;
+        }
+
+        int levels = 0;
+        int levels_from_f = 0;
+        
+        int q = 0;
+        while(q < j2.size()) {
+            auto obj = j2.at(q);
+            std::string nd = obj["node"].get<std::string>();
+            if(nd == m_sInternalName) {
+                levels++;
+                int id = std::stoi(obj["id"].get<std::string>());
+                int gv = std::stoi(obj["gameVersion"].get<std::string>());
+                std::string lname = obj["name"].get<std::string>();
+                std::string ldesc = obj["description"].get<std::string>();
+                int downloads = std::stoi(obj["levelDownloads"].get<std::string>());
+                int likes = std::stoi(obj["levelLikes"].get<std::string>());
+                std::string nickname = "-";
+                int accountID = 0;
+                if(!obj["authorNickname"].is_null()) {
+                    nickname = obj["authorNickname"].get<std::string>();
+                }
+                if(!obj["authorAccountID"].is_null()) {
+                    accountID = std::stoi(obj["authorAccountID"].get<std::string>());
+                }
+                int userID = std::stoi(obj["authorUserID"].get<std::string>());
+                bool musicIsOfficial = std::stoi(obj["musicIsOfficial"].get<std::string>());
+                int musicID = std::stoi(obj["musicID"].get<std::string>());
+                int rating = std::stoi(obj["difficultyRating"].get<std::string>());
+                bool isDemon = std::stoi(obj["isDemon"].get<std::string>());
+                bool commentSectionAvailable = std::stoi(obj["commentSectionAvailable"].get<std::string>());
+                auto level = new Level();
+                
+                if(accountID == -1) accountID = 0;
+                
+                level->m_bHasLevelString = false;
+                level->m_nAccountID = accountID;
+                level->m_sLinkedNode = nd;
+                level->m_sUsername = nickname;
+                level->m_uRelease->m_nGameVersion = gv;
+                level->m_uRelease->m_fActualVersion = createServer()->determineGVFromID(id);
+                level->m_nGameVersion = gv;
+                level->m_nLevelID = id;
+                level->m_sLevelName = lname;
+                level->m_nDifficultyDenominator = rating;
+                level->m_nLikes = likes;
+                level->m_nDownloads = downloads;
+                level->m_nVersion = 1;
+                if(musicIsOfficial) level->m_nMusicID = musicID;
+                else {
+                    level->m_nSongID = musicID;
+                }
+                initLevel(level);
+                level->save();
+                std::cout << "Imported level " << id << " \"" << lname << "\"" << std::endl;
+                delete level;
+            } else {
+                levels_from_f++;
+            }
+            q++;
+        }
+
+        std::cout << levels << " levels were imported." << std::endl;
+        std::cout << levels_from_f << " levels are from different nodes, so they are were not exported." << std::endl;
+
+        i.close();
+    }, this, p);
+    thrd.detach();
 }

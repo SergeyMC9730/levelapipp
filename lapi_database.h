@@ -113,6 +113,8 @@ namespace LevelAPI {
             void setupJSON();
         };
         class Node {
+        protected:
+            Backend::GDServer *m_pCachedGDInstance = nullptr;
         public:
             nlohmann::json nodeJson;
 
@@ -153,6 +155,7 @@ namespace LevelAPI {
             std::vector<Level *> getLevels(SearchFilter *filter);
 
             Node *getSelf();
+            void importLevelMetaFromLAPIold(std::string path);
 
             ~Node();
         };
