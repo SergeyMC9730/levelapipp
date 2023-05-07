@@ -1,6 +1,7 @@
 #include "DatabaseControllerThreads.h"
 
 #include <chrono>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <iostream>
@@ -26,8 +27,11 @@ void DatabaseController::node_runner_recount_task(Node *nd) {
     for (const auto & entry : std::filesystem::directory_iterator(folder)) {
         std::string path = entry.path();
         std::string filename = path.substr(path.find_last_of("/\\") + 1);
+        //std::cout << filename << std::endl;
         std::string levelid = filename.substr(filename.find_last_of("_") + 1);
-        nd->m_vCachedLevels.push_back(std::stoi(levelid));
+        try {
+            nd->m_vCachedLevels.push_back(std::stoi(levelid));
+        } catch (std::invalid_argument &e) {}
     }
     if(!nd->m_pPolicy->m_bNoOutput) {
         std::cout << Translation::getByKey("lapi.noderunner.recount.complete", nd->m_sInternalName, nd->m_vCachedLevels.size()) << std::endl;
@@ -271,15 +275,15 @@ start_linear:
     }
 start:
     if(!nd->m_pPolicy->m_bEnableLinearResolver) {
-	float t = (prev_q != NC_ID && prev_q != NC_NONE) ? nd->m_pPolicy->m_nQueueProcessingInterval : 0.0f; 
-        //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << nd->m_sInternalName << "] Waiting " << nd->m_pPolicy->m_nQueueProcessingInterval << "s" << std::endl;
-	if(!nd->m_pPolicy->m_bNoOutput) {
-            //std::cout << Translation::getByKey("lapi.noderunner.downloader.wait", nd->m_sInternalName, t) << std::endl;
-        }
-	
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds((int)(t * 1000.f))
-        );
+        float t = (prev_q != NC_ID && prev_q != NC_NONE) ? nd->m_pPolicy->m_nQueueProcessingInterval : 0.0f; 
+        // if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << nd->m_sInternalName << "] Waiting " << nd->m_pPolicy->m_nQueueProcessingInterval << "s" << std::endl;
+        if(!nd->m_pPolicy->m_bNoOutput) {
+                //std::cout << Translation::getByKey("lapi.noderunner.downloader.wait", nd->m_sInternalName, t) << std::endl;
+            }
+        
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds((int)(t * 1000.f))
+            );
     }
 
     if(nd->m_uQueue->m_vCommandQueue.size() == 0) goto error_ignore;
@@ -290,6 +294,61 @@ start:
     prev_q = q->m_nCommand;
 
     switch(q->m_nCommand) {
+        case NC_USER: {
+            if(server->m_eStatus == GSS_PERMANENT_BAN) break;
+
+            if(!nd->m_pPolicy->m_bNoOutput) {
+                std::cout << Translation::getByKey("lapi.noderunner.downloader.user.fetch", nd->m_sInternalName) << std::endl;
+            }
+
+            int pages = 6553; //65530 levels max
+            int i = 0;
+            std::string uid = q->m_sText;
+
+            while(i < pages) {
+                auto levels = server->getLevelsBySearchType(5, uid, i);
+                if(levels.size() == 0) {
+                    i = pages + 1;
+                } else {
+                    int q = 0;
+                    while(q < levels.size()) {
+                        int levelid;
+                        std::string levelname;
+                        levelid = levels[q]->m_nLevelID;
+                        levelname = levels[q]->m_sLevelName;
+                        levels[q]->m_sLinkedNode = nd->m_sInternalName;
+
+                        auto level_from_node = nd->getLevel(levelid);
+
+                        if(level_from_node == nullptr) {
+                            nd->initLevel(levels[q]);
+                            levels[q]->m_bHasLevelString = false;
+                            levels[q]->save();
+                            nd->m_jLastDownloadedLevel = levels[q]->levelJson;
+                        } else {
+                            delete level_from_node;
+                        }
+
+                        delete levels[q];
+                        levels[q] = nullptr;
+
+                        if(!nd->m_pPolicy->m_bNoOutput) {
+                            std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
+                        }
+                        q++;
+                    }
+                    levels.clear();
+                }
+
+                std::this_thread::sleep_for(
+                    std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000.f))
+                );
+
+                i++;
+            }
+
+            break;
+        }
         case NC_RECENT: {
             if(!nd->m_pPolicy->m_bEnableRecentTab) break;
 

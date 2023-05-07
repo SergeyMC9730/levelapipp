@@ -51,6 +51,7 @@ namespace LevelAPI {
             // returns self
             virtual LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level);
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type);
+            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page);
         
             virtual void setCredintials(std::string u, std::string p);
             virtual bool login();

@@ -15,8 +15,11 @@ LevelAPI::DatabaseController::Level *GDServer::getLevelMetaByID(int id, bool res
     return nullptr;
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchType(int type) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchType(int type, std::string str, int page) {
     return {};
+}
+std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchType(int type) {
+    return getLevelsBySearchType(type, "", 0);
 }
 
 LevelAPI::DatabaseController::Level *GDServer::resolveLevelData(LevelAPI::DatabaseController::Level *level) {

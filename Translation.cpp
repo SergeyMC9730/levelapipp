@@ -224,7 +224,50 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "[LevelAPI] Тестирование подключения cURL ПРОВАЛЕНО\n[LevelAPI] Не ожидайте работу внутреннего бакенда!\n"
         }
     },
-    // from NodeRunner.cpp
+    // from Node.cpp
+    {
+        "lapi.node.selected_server", {
+            "[LevelAPI {}] Selected server: {}",
+            "[LevelAPI {}] Выбранный сервер: {}"
+        }
+    },
+    {
+        "lapi.node.import.open.start", {
+            "opening {}",
+            "открытие {}"
+        }
+    },
+    {
+        "lapi.node.import.ifstream", {
+            "created ifstream for {}",
+            "создан ifstream для {}"
+        }
+    },
+    {
+        "lapi.node.import.open.end", {
+            "opened {}",
+            "открыт {}"
+        }
+    },
+    {
+        "lapi.node.import.level", {
+            "Imported level {} \"{}\"",
+            "Импортирован уровень {} \"{}\""
+        }
+    },
+    {
+        "lapi.node.import.end1", {
+            "{} levels were imported.",
+            "{} уровней были импортированы."
+        }
+    },
+    {
+        "lapi.node.import.open.end2", {
+            "{} levels are from different nodes, they were not imported.",
+            "{} уровней из других узлов, они не были импортированы."
+        }
+    },
+    // from NodeRunnerLegacy.cpp (and shared with NodeRunner.cpp)
     {
         "lapi.noderunner.recount.complete", {
             "[LevelAPI {}] Recount task complete: {} levels in total.",
@@ -283,12 +326,6 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.noderunner.start", {
             "[LevelAPI] Running node {}",
             "[LevelAPI] Запускается узел {}"
-        }
-    },
-    {
-        "lapi.node.selected_server", {
-            "[LevelAPI {}] Selected server: {}",
-            "[LevelAPI {}] Выбранный сервер: {}"
         }
     },
     {
@@ -355,6 +392,12 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.noderunner.downloader.recenttab.fetch", {
             "[LevelAPI downloader {}] Fetching recent levels...",
             "[LevelAPI downloader {}] Получение последних уровней..."
+        }
+    },
+    {
+        "lapi.noderunner.downloader.user.fetch", {
+            "[LevelAPI downloader {}] Fetching user levels...",
+            "[LevelAPI downloader {}] Получение уровней пользователя..."
         }
     },
     {

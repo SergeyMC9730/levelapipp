@@ -3,6 +3,7 @@
 #include "GDServer_BoomlingsLike21.h"
 #include "Level.h"
 #include "SearchFilter.h"
+#include "gmd2pp/gmd2.h"
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
 #include <string>
@@ -86,26 +87,54 @@ Level *Node::getLevel(int id) {
     
     #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
+    bool use_gmd2 = false;
+    bool nometa = false;
+
     struct stat buffer;
     std::string p1 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
     std::string p2 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id) + "/data.gmd2";
     std::string p3 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id) + "/meta.json";
     // TODO: comment registering
-    
-    if(!file_exists(p1.c_str())) return nullptr;
-    if(!file_exists(p3.c_str())) return nullptr;
 
-    std::ifstream i(p3);
-    nlohmann::json file = nlohmann::json::parse(i);
-    
-    Level *l = new Level();
-    l->levelJson = file;
-    l->m_sLevelPath = p1;
-    l->restore();
+    use_gmd2 = file_exists(p2.c_str());
 
-    l->m_bHasLevelString = file_exists(p2.c_str());
+    if(!file_exists(p1.c_str()) && !use_gmd2) return nullptr;
+    if(!file_exists(p3.c_str()) && !use_gmd2) return nullptr;
 
-    return l;
+    nometa = !file_exists(p3.c_str());
+
+    if (use_gmd2 && nometa) {
+        auto ref = new GMD2();
+        auto level = new Level();
+        ref->setFileName(p2);
+        ref->setLevel(level);
+        ref->parse();
+        level->m_bHasLevelString = true;
+        level->m_sLevelPath = p1;
+        level->m_nLevelID = id;
+        level->m_nVersion = 1;
+        level->m_sUsername = "-";
+        level->m_uRelease->m_fActualVersion = createServer()->determineGVFromID(id);
+        int gv = (int)(std::stof(level->m_uRelease->m_fActualVersion) * 10.f);
+        level->m_nGameVersion = gv;
+        level->m_uRelease->m_nGameVersion = gv;
+        level->save();
+        delete ref;
+        ref = nullptr;
+        return level;
+    } else {
+        std::ifstream i(p3);
+        nlohmann::json file = nlohmann::json::parse(i);
+        
+        Level *l = new Level();
+        l->levelJson = file;
+        l->m_sLevelPath = p1;
+        l->restore();
+
+        l->m_bHasLevelString = file_exists(p2.c_str());
+
+        return l;
+    }
 }
 
 Node *Node::getSelf() {
@@ -278,12 +307,12 @@ void Node::importLevelMetaFromLAPIold(std::string p) {
         struct stat buffer;
 
         if(!file_exists(path.c_str())) return;
-        std::cout << "opening " << path << std::endl;
+        std::cout << Frontend::Translation::getByKey("lapi.node.import.open.start", path) << std::endl;
 
         std::ifstream i(path);
-        std::cout << "created ifstream for " << path << std::endl;
+        std::cout << Frontend::Translation::getByKey("lapi.node.import.ifstream", path) << std::endl;
         nlohmann::json file = nlohmann::json::parse(i);
-        std::cout << "opened " << path << std::endl;
+        std::cout << Frontend::Translation::getByKey("lapi.node.import.open.end", path) << std::endl;
 
         auto j1 = file.at(2);
         auto j2 = j1["data"];
@@ -344,7 +373,7 @@ void Node::importLevelMetaFromLAPIold(std::string p) {
                 }
                 initLevel(level);
                 level->save();
-                std::cout << "Imported level " << id << " \"" << lname << "\"" << std::endl;
+                std::cout << Frontend::Translation::getByKey("lapi.node.import.level", id, lname) << std::endl;
                 delete level;
             } else {
                 levels_from_f++;
@@ -352,8 +381,8 @@ void Node::importLevelMetaFromLAPIold(std::string p) {
             q++;
         }
 
-        std::cout << levels << " levels were imported." << std::endl;
-        std::cout << levels_from_f << " levels are from different nodes, so they are were not exported." << std::endl;
+        std::cout << Frontend::Translation::getByKey("lapi.node.import.end1", levels) << std::endl;
+        std::cout << Frontend::Translation::getByKey("lapi.node.import.end2", levels_from_f) << std::endl;
 
         i.close();
     }, this, p);

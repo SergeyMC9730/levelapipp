@@ -1,5 +1,6 @@
 #include "GDServer_BoomlingsLike19.h"
 
+#include "CURLParameter.h"
 #include "GDServer.h"
 #include "curl_backend.h"
 #include "ThreadSafeLevelParser.h"
@@ -11,6 +12,7 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <algorithm>
 
 using namespace LevelAPI::Backend;
 
@@ -25,6 +27,8 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
     if (id <= 0) {
         lvl = new DatabaseController::Level();
         lvl->m_nRetryAfter = id - 1;
+        delete m_pLinkedCURL;
+        m_pLinkedCURL = nullptr;
         return lvl;
     }
 
@@ -61,15 +65,18 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
             q++;
         }
         delete res;
+        delete m_pLinkedCURL;
+        m_pLinkedCURL = nullptr;
         res = nullptr;
         return lvl;
     }
 
-    std::string strtest = "";
-    strtest += res->data;
+    std::string strtest = res->data;
     if(!strtest.compare("-1")) {
         delete res;
+        delete m_pLinkedCURL;
         res = nullptr;
+        m_pLinkedCURL = nullptr;
 
         lvl = new DatabaseController::Level();
         lvl->m_nRetryAfter = -128;
@@ -92,7 +99,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
     return lvl;
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type, std::string str, int page) {
     auto m_pLinkedCURL = new CURLConnection();
     
     m_pLinkedCURL->setDebug(getDebug());
@@ -101,7 +108,8 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
         new CURLParameter("secret", "Wmfd2893gb7"),
         new CURLParameter("type", type),
         new CURLParameter("page", 0),
-        new CURLParameter("gameVersion", getGameVersion())
+        new CURLParameter("gameVersion", getGameVersion()),
+        new CURLParameter("str", str)
     });
 
     std::string uurl = m_sEndpointURL + "/getGJLevels19.php";
@@ -126,7 +134,16 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
             q++;
         }
         delete res;
+        delete m_pLinkedCURL;
+        m_pLinkedCURL = nullptr;
         res = nullptr;
+        return {};
+    }
+    if(res->data[0] == '-') {
+        delete res;
+        delete m_pLinkedCURL;
+        res = nullptr;
+        m_pLinkedCURL = nullptr;
         return {};
     }
 
@@ -188,6 +205,8 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
     delete m_pLinkedCURL;
     m_pLinkedCURL = nullptr;
 
+    std::reverse(vec1.begin(), vec1.end());
+
     return vec1;
 };
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
@@ -225,12 +244,13 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
             q++;
         }
         delete res;
+        delete m_pLinkedCURL;
         res = nullptr;
+        m_pLinkedCURL = nullptr;
         return level;
     }
 
-    std::string strtest = "";
-    strtest += res->data;
+    std::string strtest = res->data;
     if(!strtest.compare("-1")) {
         delete res;
         res = nullptr;

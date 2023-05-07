@@ -1,10 +1,8 @@
 #pragma once
 
-#include <string>
+#include "Account10.h"
 
-class Account19 {
+class Account19 : public Account10 {
 public:
     int accountID;
-    int userID;
-    std::string username;
 };

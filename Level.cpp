@@ -7,6 +7,7 @@
 #include "Time.h"
 #include <random>
 #include "Translation.h"
+#include <sys/stat.h>
 
 using namespace LevelAPI::DatabaseController;
 using namespace LevelAPI::Frontend;
@@ -64,6 +65,7 @@ void Level::setupJSON() {
 
 void Level::save(bool onlyLevelString) {
     #define fill(str, val) levelJson[str] = val;
+    #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
     fill("levelID", m_nLevelID)
     fill("version", m_nVersion)
@@ -108,20 +110,23 @@ void Level::save(bool onlyLevelString) {
     std::string g2 = m_sLevelPath + "/data.gmd2";
     
     if (!onlyLevelString) {
-	std::ofstream file(g);
+	    std::ofstream file(g);
     	file << levelJson.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
-	file.close();
+	    file.close();
     }
 
     if(m_bHasLevelString) {
-        auto gmd2file = new GMD2();
-        gmd2file->setFileName(g2);
-        gmd2file->setDebug(false);
-        gmd2file->setLevel(this);
-        gmd2file->generate();
+        struct stat buffer;
+        if(!file_exists(g2.c_str())) {
+            auto gmd2file = new GMD2();
+            gmd2file->setFileName(g2);
+            gmd2file->setDebug(false);
+            gmd2file->setLevel(this);
+            gmd2file->generate();
 
-        delete gmd2file;
-        gmd2file = nullptr;
+            delete gmd2file;
+            gmd2file = nullptr;
+        }
     }
 
     return;

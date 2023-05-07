@@ -10,7 +10,7 @@ namespace LevelAPI {
             GDServer_BoomlingsLike21(std::string endpoint);
 
             LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo) override;
-            std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type) override;
+            std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page) override;
             // returns self
             LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level) override;
         

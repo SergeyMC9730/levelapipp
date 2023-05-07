@@ -58,7 +58,7 @@ add_subdirectory(fmt)
 install(TARGETS httpserver EXPORT levelapi_workarounds)
 
 add_subdirectory(gmd2pp)
-add_subdirectory(GDCrypto)
+add_subdirectory(GDCrypto-patched)
 add_subdirectory(DPP)
 
 install(TARGETS gmd2 EXPORT levelapi_workarounds)

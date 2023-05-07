@@ -19,12 +19,12 @@
 [submodule "termcolor"]
 	path = termcolor
 	url = https://github.com/ikalnytskyi/termcolor.git
-[submodule "GDCrypto"]
-	path = GDCrypto
-	url = https://github.com/cos8oih/GDCrypto.git
 [submodule "DPP"]
 	path = DPP
 	url = https://github.com/brainboxdotcc/DPP.git
 [submodule "fmt"]
 	path = fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "GDCrypto-patched"]
+	path = GDCrypto-patched
+	url = https://github.com/SergeyMC9730/GDCrypto-patched
