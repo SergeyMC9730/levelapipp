@@ -32,6 +32,7 @@ namespace LevelAPI {
             
             std::string m_sUsername;
             std::string m_sPassword;
+            std::string m_sGJPPassword;
 
             Account19 *m_pAccount;
 
@@ -53,7 +54,7 @@ namespace LevelAPI {
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type);
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page);
         
-            virtual void setCredintials(std::string u, std::string p);
+            virtual void setCredentials(std::string u, std::string p);
             virtual bool login();
 
             virtual int getGameVersion();

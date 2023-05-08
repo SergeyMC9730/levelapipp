@@ -74,9 +74,11 @@ void Node::recover() {
 
     std::string p1 = "database/nodes/" + m_sInternalName;
     std::string p2 = "database/nodes/" + m_sInternalName + "/levels";
+    std::string p3 = "database/nodes/" + m_sInternalName + "/users";
 
     mkdir(p1.c_str(), 0777);
     mkdir(p2.c_str(), 0777);
+    mkdir(p3.c_str(), 0777);
 }
 
 void Node::setupJSON() {
@@ -152,9 +154,22 @@ Node::~Node() {
 
 void Node::initLevel(Level *level) {
     std::string p = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(level->m_nLevelID);
+    std::string p2 = "database/nodes/" + m_sInternalName + "/users/" + std::to_string(level->m_nPlayerID) + ".txt";
+    std::string p3 = "database/nodes/" + m_sInternalName + "/users";
     level->m_sLevelPath = p;
     level->m_sLinkedNode = m_sInternalName;
     mkdir(p.c_str(), 0777);
+    //mkdir(p3.c_str(), 0777);
+    int fd = open(p2.c_str(), O_CREAT | S_IRUSR | S_IWUSR);
+    close(fd);
+}
+bool Node::userIDExists(int uid) {
+    #define file_exists(cstr) (stat(cstr, &buffer) == 0)
+
+    struct stat buffer;
+    std::string p = "database/nodes/" + m_sInternalName + "/users/" + std::to_string(uid) + ".txt";
+
+    return file_exists(p.c_str());
 }
 
 std::vector<Level *> Node::getLevels(SearchFilter *filter) {
@@ -272,7 +287,7 @@ LevelAPI::Backend::GDServer *Node::createServer() {
         case 21: {
             if(m_uDatabase->m_sModifications == "basement-custom") {
                 serv = new Backend::GDServer_BasementGDPS(m_uDatabase->m_sEndpoint);
-            } else if (m_uDatabase->m_sModifications == "") {
+            } else if (m_uDatabase->m_sModifications.empty()) {
                 serv = new Backend::GDServer_Boomlings(m_uDatabase->m_sEndpoint);
             } else {
                 serv = new Backend::GDServer_BoomlingsLike21(m_uDatabase->m_sEndpoint);
@@ -293,9 +308,13 @@ LevelAPI::Backend::GDServer *Node::createServer() {
         }
     }
 
-    std::cout << Frontend::Translation::getByKey("lapi.node.selected_server", m_sInternalName, serv->getServerName()) << std::endl;
-
+    if(!m_uDatabase->m_sPlayerPassword.empty()) {
+        serv->setCredentials(m_uDatabase->m_sPlayerLogin, m_uDatabase->m_sPlayerPassword);
+    }
+    serv->setDebug(true);
     m_pCachedGDInstance = serv;
+
+    std::cout << Frontend::Translation::getByKey("lapi.node.selected_server", m_sInternalName, serv->getServerName()) << std::endl;
 
     return serv;
 }

@@ -82,6 +82,9 @@ namespace LevelAPI {
             std::string m_sModifications;
             bool m_bReadOnly;
 
+            std::string m_sPlayerLogin;
+            std::string m_sPlayerPassword;
+
             int m_nLevels;
 
             void save();
@@ -149,6 +152,7 @@ namespace LevelAPI {
             void createLevelFolder();
 
             Level *getLevel(int id);
+            bool userIDExists(int uid);
 
             LevelAPI::Backend::GDServer *createServer();
 
@@ -171,6 +175,7 @@ namespace LevelAPI {
             bool m_bBotReady;
 
             std::string m_sRegisteredCID;
+            std::string m_sRegisteredCID2;
 
             bool exists();
 

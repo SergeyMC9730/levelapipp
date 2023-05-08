@@ -54,13 +54,13 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
     std::string generatedUserData = "";
     int i = 0;
     while(i < m_mUserData.size()) {
-        if(m_bDebug) {
-            printf("key addr at %p, val addr at %p\n", m_mUserData[i]->key, m_mUserData[i]->value);
-            printf("param %d: %s=%s\n", i, m_mUserData[i]->key, m_mUserData[i]->value);
+        if(true) {
+            printf("key addr at %p, val addr at %p\n", m_mUserData[i]->key.c_str(), m_mUserData[i]->value.c_str());
+            printf("param %d: %s=%s\n", i, m_mUserData[i]->key.c_str(), m_mUserData[i]->value.c_str());
         }
-        generatedUserData += m_mUserData[i]->key;
+        generatedUserData += m_mUserData[i]->key.c_str();
         generatedUserData += "=";
-        generatedUserData += m_mUserData[i]->value;
+        generatedUserData += m_mUserData[i]->value.c_str();
         if(i + 1 != m_mUserData.size()) {
             generatedUserData += "&";
         }
@@ -69,7 +69,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
     std::replace(generatedUserData.begin(), generatedUserData.end(), ' ', '+');
 
     if(generatedUserData.compare("") != 0) {
-        if(m_bDebug) {
+        if(true) {
             std::cout << Translation::getByKey("curl.debug.parameters", generatedUserData) << std::endl;
         }
         curl_easy_setopt(m_pCurl, CURLOPT_POSTFIELDS, generatedUserData.c_str());
@@ -125,10 +125,10 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method, FIL
     std::string generatedUserData = "";
     int i = 0;
     while(i < m_mUserData.size()) {
-        if(m_bDebug) printf("param %d: %s=%s\n", i, m_mUserData[i]->key, m_mUserData[i]->value);
-        generatedUserData += m_mUserData[i]->key;
+        if(true) printf("param %d: %s=%s\n", i, m_mUserData[i]->key.c_str(), m_mUserData[i]->value.c_str());
+        generatedUserData += m_mUserData[i]->key.c_str();
         generatedUserData += "=";
-        generatedUserData += m_mUserData[i]->value;
+        generatedUserData += m_mUserData[i]->value.c_str();
         if(i + 1 != m_mUserData.size()) {
             generatedUserData += "&";
         }
@@ -137,7 +137,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method, FIL
     std::replace(generatedUserData.begin(), generatedUserData.end(), ' ', '+');
 
     if(generatedUserData.compare("") != 0) {
-        if(m_bDebug) {
+        if(true) {
             std::cout << Translation::getByKey("curl.debug.parameters", generatedUserData) << std::endl;
         }
         curl_easy_setopt(m_pCurl, CURLOPT_POSTFIELDS, generatedUserData.c_str());

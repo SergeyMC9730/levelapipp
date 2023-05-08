@@ -269,6 +269,18 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     // from NodeRunnerLegacy.cpp (and shared with NodeRunner.cpp)
     {
+        "lapi.noderunner.logger.leveladded", {
+            "[OK] Added level \"{}\" by {} ({})",
+            "[OK] Добавлен уровень \"{}\" от {} ({})"
+        }
+    },
+    {
+        "lapi.noderunner.logger.init", {
+            "[OK] Created GD client",
+            "[OK] Создан ГД клиент"
+        }
+    },
+    {
         "lapi.noderunner.recount.complete", {
             "[LevelAPI {}] Recount task complete: {} levels in total.",
             "[LevelAPI {}] Задача пересчёта завершена: {} уровней вместе взятых."
@@ -417,6 +429,18 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.level.embed.description", {
             "**New {} level** appeared on the server on `{}`!",
             "**Новый {} уровень** появился на сервере: опубликован `{}`."
+        }
+    },
+    {
+        "lapi.level.register.embed.description", {
+            "**This {} level** was registered by LevelAPI on `{}`.",
+            "**Данный {} уровень** был зарегистрирован с помощью LevelAPI `{}`."
+        }
+    },
+    {
+        "lapi.level.rate.embed.description", {
+            "**This {} level** was rated on `{}`.",
+            "**Данный {} уровень** был рейтнут `{}`."
         }
     },
     {

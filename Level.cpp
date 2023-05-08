@@ -1,3 +1,4 @@
+#include "Level.h"
 #include "lapi_database.h"
 #include "Tools.h"
 #include "json/single_include/nlohmann/json.hpp"
@@ -5,9 +6,17 @@
 #include "message.h"
 #include <fstream>
 #include "Time.h"
+#include <opencv4/opencv2/core.hpp>
+#include <opencv4/opencv2/core/hal/interface.h>
+#include <opencv4/opencv2/core/mat.hpp>
 #include <random>
 #include "Translation.h"
+#include <string>
 #include <sys/stat.h>
+#include <vector>
+
+#include <opencv2/imgproc.hpp>
+#include <opencv4/opencv2/imgcodecs.hpp>
 
 using namespace LevelAPI::DatabaseController;
 using namespace LevelAPI::Frontend;
@@ -133,8 +142,8 @@ void Level::save(bool onlyLevelString) {
 }
 
 void Level::restore() {
-    #define RS(t, str, val) val = levelJson[str].get<t>();
-    
+    #define RS(t, str, val) if (levelJson.contains(str)) {if(!levelJson[str].is_null()) val = levelJson[str].get<t>();}
+
     RS(int, "levelID", m_nLevelID)
     RS(int, "version", m_nVersion)
     RS(int, "playerID", m_nPlayerID)
@@ -182,55 +191,176 @@ Level::~Level() {
     m_uRelease = nullptr;
 }
 
-dpp::embed Level::getAsEmbed() {
-    std::string gv = std::to_string((float)m_nGameVersion / 10.f);
-    gv.erase(gv.find_last_not_of('0') + 1, std::string::npos);
-    gv.erase(gv.find_last_not_of('.') + 1, std::string::npos);
+void merge_images(cv::Mat* background, cv::Mat* upcoming, int x, int y)
+{
+    auto handle_cv_8uc4 = [=](int i, int j)
+            {
 
-    std::string msg = Translation::getByKey("lapi.level.embed.description", gv, m_sCreatedTimestamp);
+                if(upcoming->at<cv::Vec4b>(j, i)[3] > 10)//10 is only epsilon for trash hold, you can put also 0 or anything else.
+                {
+                    background->at<cv::Vec4b>(y+j, x+i) = upcoming->at<cv::Vec4b>(j, i);
+                }
+            };
 
-    std::string thumbnail;
+    auto handle_cv_8uc3 = [=](int i, int j)
+    {
+        background->at<cv::Vec4b>(y+j, x+i)[0] = upcoming->at<cv::Vec3b>(j, i)[0];
+        background->at<cv::Vec4b>(y+j, x+i)[1] = upcoming->at<cv::Vec3b>(j, i)[1];
+        background->at<cv::Vec4b>(y+j, x+i)[2] = upcoming->at<cv::Vec3b>(j, i)[2];
+        background->at<cv::Vec4b>(y+j, x+i)[3] = 255;
+    };
 
-    std::random_device rd;
-    std::uniform_int_distribution<int> uid(0, m_nLevelID);
+    for(int i = 0; i < upcoming->cols; i++)
+    {
+        for(int j = 0; j < upcoming->rows; j++)
+        {
+            if(j + y >= background->rows)
+            {
+                break;
+            }
 
-    switch(m_nStarsRequested) {
-        case 1: {
-            thumbnail = "https://gdbrowser.com/assets/difficulties/auto.png";
-            break;
+            if(x + i >= background->cols)
+            {
+                return;
+            }
+
+            switch(upcoming->channels())
+            {
+                case 3:
+                {
+                    handle_cv_8uc3(i, j);
+                    break;
+                }
+
+                case 4:
+                {
+                    handle_cv_8uc4(i, j);
+                    break;
+                }
+
+                default:
+                {
+                    //maybe error?
+                }
+            }
+
         }
+    }
+}
+
+std::string Level::generateDifficultyImage(std::string folder_prefix) {
+    std::string path;
+    std::string file = "rating_";
+    std::string diffimage;
+    int stars;
+    std::vector<bool> parameters;
+    std::vector<cv::Mat> mats;
+
+    parameters.push_back(m_nFeatureScore > 0);
+    parameters.push_back(m_nEpic);
+    if(parameters[1]) parameters[0] = false;
+
+    if(parameters[0]) {
+        //auto m1 = cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED);
+        
+        mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));
+    
+    };
+    if(parameters[1]) {
+        mats.push_back(cv::imread(folder_prefix + "/epic.png", cv::IMREAD_UNCHANGED));
+    };
+
+    switch(m_nStars == 0 ? m_nStarsRequested : m_nStars) {
+        case 1:
         case 2: {
-            thumbnail = "https://gdbrowser.com/assets/difficulties/easy.png";
+            diffimage = "easy";
             break;
         }
         case 3: {
-            thumbnail = "https://gdbrowser.com/assets/difficulties/normal.png";
+            diffimage = "normal";
             break;
         }
         case 4:
         case 5: {
-            thumbnail = "https://gdbrowser.com/assets/difficulties/hard.png";
+            diffimage = "hard";
             break;
         }
         case 6:
         case 7: {
-            thumbnail = "https://gdbrowser.com/assets/difficulties/harder.png";
+            diffimage = "harder";
             break;
         }
         case 8:
         case 9: {
-            thumbnail = "https://gdbrowser.com/assets/difficulties/insane.png";
+            diffimage = "insane";
             break;
         }
         case 10: {
-            thumbnail = "https://gdbrowser.com/assets/difficulties/demon.png";
+            diffimage = "demon";
             break;
         }
         default: {
-            thumbnail = "https://gdbrowser.com/assets/difficulties/unrated.png";
+            diffimage = "na";
             break;
         }
     }
+
+    stars = m_nStars;
+    if(stars <= 10) mats.push_back(cv::imread(folder_prefix + "/star" + std::to_string(stars) + ".png", cv::IMREAD_UNCHANGED));
+
+    if(m_bAuto) diffimage = "auto";
+    if(m_bDemon) diffimage = "demon";
+    mats.push_back(cv::imread(folder_prefix + "/" + diffimage + ".png", cv::IMREAD_UNCHANGED));
+
+    file += diffimage + std::to_string(stars) + "_";
+    int i = 0;
+    while(i < parameters.size()) {
+        file += (parameters[i]) ? "y" : "n";
+        i++;
+    }
+    file += "_new.png";
+
+    path = folder_prefix + "/" + file;
+
+    cv::Mat final = cv::imread(folder_prefix + "/empty.png", cv::IMREAD_UNCHANGED);
+    cv::Mat final3 = final;
+    
+    i = 0;
+    while(i < mats.size()) {
+        merge_images(&final, &mats[i], 0, 0);
+        i++;
+    }
+
+    //cv::Mat final2;
+
+    //cv::resize(final, final2, cv::Size(), 1, 1, 2);
+
+    cv::imwrite(path, final);
+
+    return file;
+}
+
+dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
+    std::vector<std::string> eventtable = {
+        "lapi.level.embed.description",
+        "lapi.level.register.embed.description",
+        "lapi.level.rate.embed.description",
+    };
+
+    std::string url = "https://levelapi.dogotrigger.xyz";
+
+    std::string img_path = generateDifficultyImage("images");
+
+    std::string gv = std::to_string((float)m_nGameVersion / 10.f);
+    gv.erase(gv.find_last_not_of('0') + 1, std::string::npos);
+    gv.erase(gv.find_last_not_of('.') + 1, std::string::npos);
+
+    std::string msg = Translation::getByKey(eventtable[e], gv, m_sCreatedTimestamp);
+
+    std::string thumbnail = url + "/api/v1/img/request/" + img_path;    
+
+    std::random_device rd;
+    std::uniform_int_distribution<int> uid(0, m_nLevelID);
 
     dpp::embed embed = dpp::embed().
         set_color(uid(rd)).
@@ -253,7 +383,7 @@ dpp::embed Level::getAsEmbed() {
         ).
         add_field(
             Translation::getByKey("lapi.level.embed.field.info"),
-            "[" + Translation::getByKey("lapi.level.embed.field.info.value.metadata") + "](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")" + (m_bHasLevelString ? " | [GMD2](https://levelapi.dogotrigger.xyz/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&gmd2=true)" : ""),
+            "[" + Translation::getByKey("lapi.level.embed.field.info.value.metadata") + "](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")" + (m_bHasLevelString ? " | [GMD2](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&gmd2=true)" : ""),
             true
         ).
         set_thumbnail(thumbnail).

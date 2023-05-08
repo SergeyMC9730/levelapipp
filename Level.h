@@ -10,6 +10,11 @@
 
 namespace LevelAPI {
     namespace DatabaseController {
+        enum LevelAppearanceEvent {
+            E_RECENT = 0,
+            E_REGISTERED, E_RATE
+        };
+
         class Level : public GJGameLevel {
         public:
             nlohmann::json levelJson;
@@ -30,7 +35,9 @@ namespace LevelAPI {
             void restore();
             void save(bool onlyLevelString = false);
 
-            dpp::embed getAsEmbed();
+            dpp::embed getAsEmbed(LevelAppearanceEvent e);
+            // returns filename without its path
+            std::string generateDifficultyImage(std::string folder_prefix);
 
             ~Level();
         };

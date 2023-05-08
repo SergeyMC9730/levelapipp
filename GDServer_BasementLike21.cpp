@@ -110,7 +110,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getL
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
         new CURLParameter("type", type),
-        new CURLParameter("page", 0),
+        new CURLParameter("page", page),
         new CURLParameter("gameVersion", getGameVersion()),
         new CURLParameter("str", str)
     });

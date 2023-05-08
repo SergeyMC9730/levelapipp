@@ -16,6 +16,8 @@ public:
     std::shared_ptr<httpserver::http_response> generateResponse(int data, std::string content_type);
     std::shared_ptr<httpserver::http_response> generateResponse(const char *data, std::string content_type);
 
+    std::shared_ptr<httpserver::file_response> sendFile(std::string path);
+
     const char *request_name;
     const char *request_url;
 

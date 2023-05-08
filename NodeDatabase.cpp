@@ -23,6 +23,8 @@ void NodeDatabase::save() {
     ndJson["endpoint"] = m_sEndpoint;
     ndJson["featureSet"] = m_nFeatureSet;
     ndJson["readOnly"] = m_bReadOnly;
+    ndJson["playerLogin"] = m_sPlayerLogin;
+    ndJson["playerPassword"] = m_sPlayerPassword;
     if(!m_sModifications.empty()) ndJson["modifications"] = m_sModifications;
 }
 
@@ -31,6 +33,8 @@ void NodeDatabase::recover() {
     m_nFeatureSet = ndJson["featureSet"].get<int>();
     m_bReadOnly = ndJson["readOnly"].get<bool>();
     if(ndJson.contains("modifications")) m_sModifications = ndJson["modifications"].get<std::string>();
+    if(ndJson.contains("playerLogin")) m_sPlayerLogin = ndJson["playerLogin"].get<std::string>();
+    if(ndJson.contains("playerPassword")) m_sPlayerPassword = ndJson["playerPassword"].get<std::string>();
 }
 
 void NodeDatabase::setupJSON() {

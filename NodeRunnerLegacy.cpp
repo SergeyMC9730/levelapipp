@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "GDServer.h"
+#include "Level.h"
 #include "Tools.h"
 #include "lapi_database.h"
 #include "message.h"
@@ -83,7 +84,7 @@ void DatabaseController::node_runner_wait_level(Node *nd, dpp::message message, 
         if(level->m_bHasLevelString) {
             auto level = nd->getLevel(id);
             message.embeds.clear();
-            message.add_embed(level->getAsEmbed());
+            message.add_embed(level->getAsEmbed(E_RECENT));
             DatabaseController::database->m_pLinkedBot->m_pBot->message_edit(
                 message
             );
@@ -166,12 +167,18 @@ void DatabaseController::node_runner_resolve_level(Node *nd, NodeCommandQueue *q
 }
 
 void DatabaseController::node_runner(Node *nd) {
+    std::ofstream outfile;
+
+    outfile.open("database/nodes/" + nd->m_sInternalName + "/log.txt", std::ios_base::app);
+
     int prev_q = NC_NONE;
     std::cout << Translation::getByKey("lapi.noderunner.start", nd->m_sInternalName) << std::endl;
 
     std::vector<int> recent_downloadedids;
 
     Backend::GDServer *server = nd->createServer();
+
+    outfile << Translation::getByKey("lapi.noderunner.logger.init") << std::endl;
 
     server->setDebug(false);
 
@@ -295,7 +302,9 @@ start:
 
     switch(q->m_nCommand) {
         case NC_USER: {
-            if(server->m_eStatus == GSS_PERMANENT_BAN) break;
+            std::cout << "prepare user\n";
+
+            //if(server->m_eStatus == GSS_PERMANENT_BAN) break;
 
             if(!nd->m_pPolicy->m_bNoOutput) {
                 std::cout << Translation::getByKey("lapi.noderunner.downloader.user.fetch", nd->m_sInternalName) << std::endl;
@@ -325,26 +334,29 @@ start:
                             levels[q]->m_bHasLevelString = false;
                             levels[q]->save();
                             nd->m_jLastDownloadedLevel = levels[q]->levelJson;
+                            if (!DatabaseController::database->m_sRegisteredCID2.empty() && DatabaseController::database->m_bBotReady) {
+                                DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
+                                    dpp::snowflake(DatabaseController::database->m_sRegisteredCID2), levels[q]->getAsEmbed(E_REGISTERED)
+                                ));
+                            }
+                            if(!nd->m_pPolicy->m_bNoOutput) {
+                                std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
+                            }
+                            outfile << Translation::getByKey("lapi.noderunner.logger.leveladded", levelname, levels[q]->m_sUsername, levelid) << std::endl;
                         } else {
                             delete level_from_node;
                         }
 
                         delete levels[q];
                         levels[q] = nullptr;
-
-                        if(!nd->m_pPolicy->m_bNoOutput) {
-                            std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
-                        }
                         q++;
                     }
                     levels.clear();
                 }
-
+                i++;
                 std::this_thread::sleep_for(
                     std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000.f))
                 );
-
-                i++;
             }
 
             break;
@@ -380,6 +392,9 @@ start:
 
                 if(level_from_node == nullptr) {
                     new_levels.push_back(levelid);
+                    if(!nd->userIDExists(levels[i]->m_nPlayerID)) {
+                        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
+                    }
                     nd->initLevel(levels[i]);
                     levels[i]->m_bHasLevelString = false;
                     levels[i]->save();
@@ -390,9 +405,13 @@ start:
                     }
                     if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady) {
                         DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
-                            dpp::snowflake(DatabaseController::database->m_sRegisteredCID), levels[i]->getAsEmbed()
+                            dpp::snowflake(DatabaseController::database->m_sRegisteredCID), levels[i]->getAsEmbed(E_RECENT)
                         ));
                     }
+                    if(!nd->m_pPolicy->m_bNoOutput) {
+                        std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
+                    }
+                    outfile << Translation::getByKey("lapi.noderunner.logger.leveladded", levelname, levels[i]->m_sUsername, levelid) << std::endl;
                 } else {
                     if(nd->m_pPolicy->m_bEnableResolver && !levels[i]->m_bHasLevelString) {
                         nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));
@@ -403,10 +422,7 @@ start:
                 delete levels[i];
                 levels[i] = nullptr;
 
-                // if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << nd->m_sInternalName << "] Level saved without level string: " << levelid << " \"" << levelname << "\"" << std::endl; 
-                if(!nd->m_pPolicy->m_bNoOutput) {
-                    std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
-                }
+                // if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << nd->m_sInternalName << "] Level saved without level string: " << levelid << " \"" << levelname << "\"" << std::endl;
                 i++;
             }
             levels.clear();

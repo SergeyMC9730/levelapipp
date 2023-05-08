@@ -3,6 +3,10 @@
 
 #include "Translation.h"
 
+//#include "Include/GDCrypto/RobTopCipher.hpp"
+#include "GDCrypto-patched/Include/GDCrypto/RobTopCipher.hpp"
+
+using namespace gdcrypto;
 using namespace LevelAPI::Backend;
 
 GDServer::GDServer() {
@@ -33,9 +37,11 @@ bool GDServer::getDebug() {
 	return m_bDebug;
 }
 
-void GDServer::setCredintials(std::string u, std::string p) {
+void GDServer::setCredentials(std::string u, std::string p) {
     m_sUsername = u;
     m_sPassword = p;
+    RobTopCipher gjpCipher(gdcrypto::vecFromArray(keys::GJP_KEY));;
+    m_sGJPPassword = gjpCipher.encode(m_sPassword);
 }
 
 GDServerUploadResult *GDServer::uploadLevel(DatabaseController::Level *level) {

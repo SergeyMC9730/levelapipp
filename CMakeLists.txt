@@ -40,6 +40,8 @@ include_directories(httpserver PRIVATE
     DPP/include/
     fmt/inlcude
     fmt/include/fmt
+    GDCrypto-patched/Include
+    GDCrypto-patched/Include/GDCrypto
 )
 # include_directories(levelapi_server PRIVATE
 
@@ -72,4 +74,6 @@ add_executable(levelapi_test_folders
     "ExternalTest_Folders.cc"
 )
 
-target_link_libraries(levelapi_server httpserver gmd2 dpp fmt)
+file(COPY images DESTINATION .)
+
+target_link_libraries(levelapi_server httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto)

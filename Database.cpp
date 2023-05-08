@@ -90,6 +90,9 @@ Database::Database(std::string path) {
     if (databaseJson.contains("registeredCID")) {
         m_sRegisteredCID = databaseJson["registeredCID"].get<std::string>();
     }
+    if (databaseJson.contains("registeredCID2")) {
+        m_sRegisteredCID2 = databaseJson["registeredCID2"].get<std::string>();
+    }
     
     translation_language = databaseJson["language"].get<std::string>();
 
@@ -128,6 +131,7 @@ void Database::save() {
     databaseJson["nodeSize"] = m_nNodeSize;
     if(m_bEnableBot) databaseJson["botToken"] = m_sBotToken;
     databaseJson["registeredCID"] = m_sRegisteredCID;
+    databaseJson["registeredCID2"] = m_sRegisteredCID2;
 
     int i = 0;
     while(i < m_vNodes.size()) {

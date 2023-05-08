@@ -95,18 +95,27 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     
     m_pLinkedCURL->setDebug(getDebug());
 
-    m_pLinkedCURL->setData({
+    //if(type == 5) page++;
+
+    std::vector<CURLParameter *> params = {
         new CURLParameter("secret", "Wmfd2893gb7"),
         new CURLParameter("type", type),
-        new CURLParameter("page", 0),
-        new CURLParameter("gameVersion", getGameVersion()),
         new CURLParameter("page", page),
-        new CURLParameter("str", str)
-    });
+        new CURLParameter("gameVersion", getGameVersion()),
+        new CURLParameter("total", 9999),
+    };
 
+    if(!m_sGJPPassword.empty()) params.push_back(new CURLParameter("gjp", m_sGJPPassword));
+    if(!str.empty()) params.push_back(new CURLParameter("str", str));
+
+    m_pLinkedCURL->setData(params);
+    
     std::string uurl = m_sEndpointURL + "/getGJLevels21.php";
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
+
+    printf("%s\n", res->data);
+    
     if(res->http_status != 200 || res->result != 0) {
         std::string ddd = res->data;
         std::vector<std::string> pban_responses {
