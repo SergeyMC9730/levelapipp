@@ -167,18 +167,12 @@ void DatabaseController::node_runner_resolve_level(Node *nd, NodeCommandQueue *q
 }
 
 void DatabaseController::node_runner(Node *nd) {
-    std::ofstream outfile;
-
-    outfile.open("database/nodes/" + nd->m_sInternalName + "/log.txt", std::ios_base::app);
-
     int prev_q = NC_NONE;
     std::cout << Translation::getByKey("lapi.noderunner.start", nd->m_sInternalName) << std::endl;
 
     std::vector<int> recent_downloadedids;
 
     Backend::GDServer *server = nd->createServer();
-
-    outfile << Translation::getByKey("lapi.noderunner.logger.init") << std::endl;
 
     server->setDebug(false);
 
@@ -342,7 +336,6 @@ start:
                             if(!nd->m_pPolicy->m_bNoOutput) {
                                 std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
                             }
-                            outfile << Translation::getByKey("lapi.noderunner.logger.leveladded", levelname, levels[q]->m_sUsername, levelid) << std::endl;
                         } else {
                             delete level_from_node;
                         }
@@ -411,7 +404,6 @@ start:
                     if(!nd->m_pPolicy->m_bNoOutput) {
                         std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
                     }
-                    outfile << Translation::getByKey("lapi.noderunner.logger.leveladded", levelname, levels[i]->m_sUsername, levelid) << std::endl;
                 } else {
                     if(nd->m_pPolicy->m_bEnableResolver && !levels[i]->m_bHasLevelString) {
                         nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));

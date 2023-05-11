@@ -114,7 +114,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
 
     CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
 
-    printf("%s\n", res->data);
+    //printf("%s\n", res->data);
     
     if(res->http_status != 200 || res->result != 0) {
         std::string ddd = res->data;
