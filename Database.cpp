@@ -82,6 +82,7 @@ Database::Database(std::string path) {
     }
 
     recalculate();
+    std::cout << databaseJson.contains("botToken") << std::endl;
 
     if (databaseJson.contains("botToken")) {
         m_bEnableBot = true;
@@ -96,7 +97,7 @@ Database::Database(std::string path) {
     
     translation_language = databaseJson["language"].get<std::string>();
 
-    if(m_bEnableBot) {
+    if(m_bEnableBot && !m_sBotToken.empty()) {
         m_pLinkedBot = new LevelAPI::DiscordController::DiscordInstance(this);
         m_vThreads.push_back(m_pLinkedBot->start());
     }

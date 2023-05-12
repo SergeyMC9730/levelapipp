@@ -125,17 +125,23 @@ Level *Node::getLevel(int id) {
         ref = nullptr;
         return level;
     } else {
-        std::ifstream i(p3);
-        nlohmann::json file = nlohmann::json::parse(i);
-        
         Level *l = new Level();
-        l->levelJson = file;
-        l->m_sLevelPath = p1;
-        l->restore();
+        try {
+            std::ifstream i(p3);
+            nlohmann::json file = nlohmann::json::parse(i);
+            
+            l->levelJson = file;
+            l->m_sLevelPath = p1;
+            l->restore();
 
-        l->m_bHasLevelString = file_exists(p2.c_str());
+            l->m_bHasLevelString = file_exists(p2.c_str());
 
-        return l;
+            return l;
+        } catch (nlohmann::json::exception &e) {
+            delete l;
+            l = nullptr;
+            return nullptr;
+        }
     }
 }
 
