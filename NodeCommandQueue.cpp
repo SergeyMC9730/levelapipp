@@ -1,5 +1,6 @@
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
+#include "Tools.h"
 
 using namespace LevelAPI::DatabaseController;
 
@@ -27,8 +28,8 @@ void NodeCommandQueue::save() {
 }
 
 void NodeCommandQueue::recover() {
-    m_nCommand = commandJson["type"].get<int>();
-    m_sText = commandJson["data"].get<std::string>();
+    GET_JSON_VALUE(commandJson, "type", m_nCommand, int);
+    GET_JSON_VALUE(commandJson, "data", m_sText, std::string);
 }
 
 void NodeCommandQueue::setupJSON() {

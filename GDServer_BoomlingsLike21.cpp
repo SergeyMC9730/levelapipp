@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <stdexcept>
 #include <vector>
 #include <algorithm>
 
@@ -164,14 +165,41 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     
     while(i < vec4array.size()) {
         std::vector<std::string> vec5player = splitString(vec4array[i].c_str(), ':');
-        int userID = std::stoi(vec5player[0]);
-        std::string username = vec5player[1];
-        int accountID = std::stoi(vec5player[2]);
-        Account19 *ac20 = new Account19();
-        ac20->accountID = accountID;
-        ac20->username = username;
-        playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
-        accounts.push_back(ac20);
+        std::cout << vec5player.size() << std::endl;
+        if(vec5player.size() == 0) {
+            if(type == 5) {
+                int userID = std::stoi(str);
+                std::string username = "-";
+                int accountID = 0;
+                Account19 *ac20 = new Account19();
+                ac20->accountID = accountID;
+                ac20->username = username;
+                playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
+                accounts.push_back(ac20);
+            }
+            break;
+        };
+        try {
+            int userID = std::stoi(vec5player[0]);
+            std::string username = vec5player[1];
+            int accountID = std::stoi(vec5player[2]);
+            Account19 *ac20 = new Account19();
+            ac20->accountID = accountID;
+            ac20->username = username;
+            playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
+            accounts.push_back(ac20);
+        } catch (std::invalid_argument &e) {
+            if(type == 5) {
+                int userID = std::stoi(str);
+                std::string username = "-";
+                int accountID = 0;
+                Account19 *ac20 = new Account19();
+                ac20->accountID = accountID;
+                ac20->username = username;
+                playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
+                accounts.push_back(ac20);
+            }
+        }
         vec5player.clear();
         i++;
     }

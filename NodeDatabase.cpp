@@ -1,4 +1,5 @@
 #include "lapi_database.h"
+#include "Tools.h"
 
 using namespace LevelAPI::DatabaseController;
 
@@ -29,12 +30,12 @@ void NodeDatabase::save() {
 }
 
 void NodeDatabase::recover() {
-    m_sEndpoint = ndJson["endpoint"].get<std::string>();
-    m_nFeatureSet = ndJson["featureSet"].get<int>();
-    m_bReadOnly = ndJson["readOnly"].get<bool>();
-    if(ndJson.contains("modifications")) m_sModifications = ndJson["modifications"].get<std::string>();
-    if(ndJson.contains("playerLogin")) m_sPlayerLogin = ndJson["playerLogin"].get<std::string>();
-    if(ndJson.contains("playerPassword")) m_sPlayerPassword = ndJson["playerPassword"].get<std::string>();
+    GET_JSON_VALUE(ndJson, "endpoint", m_sEndpoint, std::string);
+    GET_JSON_VALUE(ndJson, "featureSet", m_nFeatureSet, int);
+    GET_JSON_VALUE(ndJson, "readOnly", m_bReadOnly, bool);
+    GET_JSON_VALUE(ndJson, "modifications", m_sModifications, std::string);
+    GET_JSON_VALUE(ndJson, "playerLogin", m_sPlayerLogin, std::string);
+    GET_JSON_VALUE(ndJson, "playerPassword", m_sPlayerPassword, std::string);
 }
 
 void NodeDatabase::setupJSON() {

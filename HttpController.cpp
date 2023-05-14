@@ -7,6 +7,7 @@ using namespace LevelAPI;
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <thread>
 
 nlohmann::json HttpController_json;
 
@@ -26,7 +27,7 @@ void HttpController::setup() {
     if(!h.good()) {
         nlohmann::json j;
         j["port"] = 8000;
-        j["threads"] = 4;
+        j["threads"] = std::thread::hardware_concurrency();
 
         std::string j2 = j.dump();
 

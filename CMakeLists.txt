@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.5.0)
 project(levelapi_server VERSION 1.0.0)
 
 set(CXX_STANDARD_REQUIRED 17)

@@ -1,6 +1,8 @@
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
 
+#include "Tools.h"
+
 #include <iostream>
 
 using namespace LevelAPI::DatabaseController;
@@ -28,13 +30,13 @@ void NodePolicy::save() {
     policyJson["noOutput"] = m_bNoOutput;
 }
 void NodePolicy::recover() {
-    if(policyJson.contains("enableRecentTab")) m_bEnableRecentTab = policyJson["enableRecentTab"].get<bool>();
-    if(policyJson.contains("waitResolverRateLimit")) m_bWaitResolverRL = policyJson["waitResolverRateLimit"].get<bool>();
-    if(policyJson.contains("resolverInterval")) m_nResolverInterval = policyJson["resolverInterval"].get<float>();
-    if(policyJson.contains("queueProcessingInterval")) m_nQueueProcessingInterval = policyJson["queueProcessingInterval"].get<float>();
-    if(policyJson.contains("enableLinearResolver")) m_bEnableLinearResolver = policyJson["enableLinearResolver"].get<bool>();
-    if(policyJson.contains("enableResolver")) m_bEnableResolver = policyJson["enableResolver"].get<bool>();
-    if(policyJson.contains("noOutput")) m_bNoOutput = policyJson["noOutput"].get<bool>();
+    GET_JSON_VALUE(policyJson, "enableRecentTab", m_bEnableRecentTab, bool);
+    GET_JSON_VALUE(policyJson, "waitResolverRateLimit", m_bWaitResolverRL, bool);
+    GET_JSON_VALUE(policyJson, "resolverInterval", m_nResolverInterval, float);
+    GET_JSON_VALUE(policyJson, "queueProcessingInterval", m_nQueueProcessingInterval, float);
+    GET_JSON_VALUE(policyJson, "enableLinearResolver", m_bEnableLinearResolver, bool);
+    GET_JSON_VALUE(policyJson, "enableResolver", m_bEnableResolver, bool);
+    GET_JSON_VALUE(policyJson, "noOutput", m_bNoOutput, bool);
 }
 
 void NodePolicy::setupJSON() {

@@ -1,6 +1,5 @@
 #include "Level.h"
 #include "lapi_database.h"
-#include "Tools.h"
 #include "json/single_include/nlohmann/json.hpp"
 #include "gmd2pp/gmd2.h"
 #include "message.h"
@@ -261,10 +260,7 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     if(parameters[1]) parameters[0] = false;
 
     if(parameters[0]) {
-        //auto m1 = cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED);
-        
-        mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));
-    
+        mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));  
     };
     if(parameters[1]) {
         mats.push_back(cv::imread(folder_prefix + "/epic.png", cv::IMREAD_UNCHANGED));
@@ -306,7 +302,7 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     }
 
     stars = m_nStars;
-    if(stars <= 10) mats.push_back(cv::imread(folder_prefix + "/star" + std::to_string(stars) + ".png", cv::IMREAD_UNCHANGED));
+    if(stars <= 10 && stars >= 0) mats.push_back(cv::imread(folder_prefix + "/star" + std::to_string(stars) + ".png", cv::IMREAD_UNCHANGED));
 
     if(m_bAuto) diffimage = "auto";
     if(m_bDemon) diffimage = "demon";

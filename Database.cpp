@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "Translation.h"
+#include "Tools.h"
 
 using namespace LevelAPI::DatabaseController;
 
@@ -72,7 +73,7 @@ Database::Database(std::string path) {
     std::ifstream i(p1);
     databaseJson = nlohmann::json::parse(i);
 
-    m_nNodeSize = databaseJson["nodeSize"].get<int>();
+    GET_JSON_VALUE(databaseJson, "nodeSize", m_nNodeSize, int);
     int ii = 0;
     while(ii < databaseJson["nodes"].size()) {
         m_vNodes.push_back(new Node());
@@ -82,20 +83,15 @@ Database::Database(std::string path) {
     }
 
     recalculate();
-    std::cout << databaseJson.contains("botToken") << std::endl;
 
     if (databaseJson.contains("botToken")) {
         m_bEnableBot = true;
-        m_sBotToken = databaseJson["botToken"].get<std::string>();
+        GET_JSON_VALUE(databaseJson, "botToken", m_sBotToken, std::string);
     }
-    if (databaseJson.contains("registeredCID")) {
-        m_sRegisteredCID = databaseJson["registeredCID"].get<std::string>();
-    }
-    if (databaseJson.contains("registeredCID2")) {
-        m_sRegisteredCID2 = databaseJson["registeredCID2"].get<std::string>();
-    }
+    GET_JSON_VALUE(databaseJson, "registeredCID", m_sRegisteredCID, std::string);
+    GET_JSON_VALUE(databaseJson, "registeredCID2", m_sRegisteredCID, std::string);
     
-    translation_language = databaseJson["language"].get<std::string>();
+    GET_JSON_VALUE(databaseJson, "language", translation_language, std::string);
 
     if(m_bEnableBot && !m_sBotToken.empty()) {
         m_pLinkedBot = new LevelAPI::DiscordController::DiscordInstance(this);

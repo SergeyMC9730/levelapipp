@@ -24,11 +24,9 @@
 namespace LevelAPI {
     namespace DatabaseController {
         enum NodeCommands {
-            NC_ID = 0,
-            NC_USER = 1,
-            NC_RECENT = 2,
-            NC_NONE = 3,
-            NC_IDLE = 4
+            NC_ID = 0, 
+            NC_USER, NC_RECENT, NC_EXPERIMENT1,
+            NC_NONE, NC_IDLE
         };
 
         class NodeCommandQueue {
@@ -139,6 +137,7 @@ namespace LevelAPI {
             bool m_bResolverIsActive;
 
             int m_nWaitTime;
+            int m_nExperiment1Value;
 
             bool m_bRateLimitApplied;
 

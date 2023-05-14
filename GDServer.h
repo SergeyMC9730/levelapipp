@@ -8,8 +8,7 @@
 
 
 #include "Level.h"
-
-#include "Tools.h"
+#include "LevelRange.h"
 
 #define GDSEARCH_RECENT "4"
 
@@ -36,7 +35,7 @@ namespace LevelAPI {
 
             Account19 *m_pAccount;
 
-            std::vector<Tools::LevelRange *> m_vRanges;
+            std::vector<LevelAPI::LevelRange *> m_vRanges;
 
 	        bool m_bDebug;
         public:

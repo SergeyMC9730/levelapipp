@@ -1,6 +1,8 @@
 #include "lapi_database.h"
 #include <vector>
 
+#include "Tools.h"
+
 using namespace LevelAPI::DatabaseController;
 
 NodeQueue::NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState) {
@@ -71,8 +73,8 @@ void NodeQueue::save() {
 }
 
 void NodeQueue::recover() {
-    m_bExecuteQueue = queueJson["executeQueue"].get<bool>();
-    m_nRuntimeState = queueJson["runtimeState"].get<int>();
+    GET_JSON_VALUE(queueJson, "executeQueue", m_bExecuteQueue, bool);
+    GET_JSON_VALUE(queueJson, "runtimeState", m_nRuntimeState, int);
 
     int i = 0;
     while(i < queueJson["commandQueue"].size()) {

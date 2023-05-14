@@ -14,6 +14,7 @@
 #include "GDServer_BasementGDPS.h"
 #include "GDServer_19GDPS.h"
 #include "Translation.h"
+#include "Tools.h"
 
 using namespace LevelAPI::DatabaseController;
 
@@ -60,11 +61,13 @@ void Node::save() {
     nodeJson["queue"] = m_uQueue->queueJson;
     nodeJson["policy"] = m_pPolicy->policyJson;
     nodeJson["levels"] = m_vCachedLevels.size();
+    nodeJson["experiment1value"] = m_nExperiment1Value;
 }
 
 void Node::recover() {
-    m_sInternalName = nodeJson["internalName"].get<std::string>();
-    m_sLevelDataPath = nodeJson["levelDataPath"].get<std::string>();
+    GET_JSON_VALUE(nodeJson, "internalName", m_sInternalName, std::string);
+    GET_JSON_VALUE(nodeJson, "levelDataPath", m_sLevelDataPath, std::string);
+    GET_JSON_VALUE(nodeJson, "experiment1value", m_nExperiment1Value, int);
     m_uQueue->queueJson = nodeJson["queue"];
     m_uQueue->recover();
     m_uDatabase->ndJson = nodeJson["database"];

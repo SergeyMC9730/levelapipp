@@ -19,8 +19,6 @@ using namespace LevelAPI::Backend;
 
 GDServer_BasementLike21::GDServer_BasementLike21(std::string endpoint) : GDServer() {
     m_sEndpointURL = endpoint;
-
-    m_vRanges.push_back(new Tools::LevelRange(101, 9999, "2.1"));
 }
 LevelAPI::DatabaseController::Level *GDServer_BasementLike21::getLevelMetaByID(int id, bool resolveAccountInfo) {
     auto m_pLinkedCURL = new CURLConnection();

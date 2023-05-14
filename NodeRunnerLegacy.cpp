@@ -9,7 +9,6 @@
 
 #include "GDServer.h"
 #include "Level.h"
-#include "Tools.h"
 #include "lapi_database.h"
 #include "message.h"
 #include "restresults.h"
@@ -184,6 +183,63 @@ void DatabaseController::node_runner(Node *nd) {
 
     Level *llevel;
 
+    auto user_job = [=](std::string uid) {
+        if(!nd->m_pPolicy->m_bNoOutput) {
+            std::cout << Translation::getByKey("lapi.noderunner.downloader.user.fetch", nd->m_sInternalName) << std::endl;
+        }
+
+        int pages = 6553; //65530 levels max
+        int i = 0;
+
+        while(i < pages) {
+            auto levels = server->getLevelsBySearchType(5, uid, i);
+            std::cout << "Got response for " << uid << std::endl;
+            if(levels.size() == 0) {
+                i = pages + 1;
+            } else {
+                int q = 0;
+                int skipped = 0;
+                while(q < levels.size()) {
+                    int levelid;
+                    std::string levelname;
+                    levelid = levels[q]->m_nLevelID;
+                    levelname = levels[q]->m_sLevelName;
+                    levels[q]->m_sLinkedNode = nd->m_sInternalName;
+
+                    auto level_from_node = nd->getLevel(levelid);
+
+                    if(level_from_node == nullptr) {
+                        nd->initLevel(levels[q]);
+                        levels[q]->m_bHasLevelString = false;
+                        levels[q]->save();
+                        nd->m_jLastDownloadedLevel = levels[q]->levelJson;
+                        if (!DatabaseController::database->m_sRegisteredCID2.empty() && DatabaseController::database->m_bBotReady) {
+                            DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
+                                dpp::snowflake(DatabaseController::database->m_sRegisteredCID2), levels[q]->getAsEmbed(E_REGISTERED)
+                            ));
+                        }
+                        if(!nd->m_pPolicy->m_bNoOutput) {
+                            std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
+                        }
+                    } else {
+                        delete level_from_node;
+                        skipped++;
+                    }
+
+                    delete levels[q];
+                    levels[q] = nullptr;
+                    q++;
+                }
+                std::cout << skipped << " levels were skipped (already exists)" << std::endl;
+                levels.clear();
+            }
+            i++;
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000.f))
+            );
+        }
+    };
+
     goto start_linear;
 
 error_ignore:
@@ -295,62 +351,20 @@ start:
     prev_q = q->m_nCommand;
 
     switch(q->m_nCommand) {
+        case NC_EXPERIMENT1: { // downloads levels from all gd users (or, atleast, tried to do so)
+            if(nd->m_nExperiment1Value < 0) nd->m_nExperiment1Value = 0;
+            int n = nd->m_nExperiment1Value;
+            for(;;) {
+                user_job(std::to_string(n));
+                n++;
+                nd->m_nExperiment1Value = n;
+            }
+            break;
+        }
         case NC_USER: {
-            std::cout << "prepare user\n";
-
             //if(server->m_eStatus == GSS_PERMANENT_BAN) break;
 
-            if(!nd->m_pPolicy->m_bNoOutput) {
-                std::cout << Translation::getByKey("lapi.noderunner.downloader.user.fetch", nd->m_sInternalName) << std::endl;
-            }
-
-            int pages = 6553; //65530 levels max
-            int i = 0;
-            std::string uid = q->m_sText;
-
-            while(i < pages) {
-                auto levels = server->getLevelsBySearchType(5, uid, i);
-                if(levels.size() == 0) {
-                    i = pages + 1;
-                } else {
-                    int q = 0;
-                    while(q < levels.size()) {
-                        int levelid;
-                        std::string levelname;
-                        levelid = levels[q]->m_nLevelID;
-                        levelname = levels[q]->m_sLevelName;
-                        levels[q]->m_sLinkedNode = nd->m_sInternalName;
-
-                        auto level_from_node = nd->getLevel(levelid);
-
-                        if(level_from_node == nullptr) {
-                            nd->initLevel(levels[q]);
-                            levels[q]->m_bHasLevelString = false;
-                            levels[q]->save();
-                            nd->m_jLastDownloadedLevel = levels[q]->levelJson;
-                            if (!DatabaseController::database->m_sRegisteredCID2.empty() && DatabaseController::database->m_bBotReady) {
-                                DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
-                                    dpp::snowflake(DatabaseController::database->m_sRegisteredCID2), levels[q]->getAsEmbed(E_REGISTERED)
-                                ));
-                            }
-                            if(!nd->m_pPolicy->m_bNoOutput) {
-                                std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
-                            }
-                        } else {
-                            delete level_from_node;
-                        }
-
-                        delete levels[q];
-                        levels[q] = nullptr;
-                        q++;
-                    }
-                    levels.clear();
-                }
-                i++;
-                std::this_thread::sleep_for(
-                    std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000.f))
-                );
-            }
+            user_job(q->m_sText);
 
             break;
         }
