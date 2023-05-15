@@ -400,7 +400,7 @@ start:
                 if(level_from_node == nullptr) {
                     new_levels.push_back(levelid);
                     if(!nd->userIDExists(levels[i]->m_nPlayerID)) {
-                        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
+                        // nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
                     }
                     nd->initLevel(levels[i]);
                     levels[i]->m_bHasLevelString = false;
