@@ -34,6 +34,7 @@ public:
     int m_nEditorTime;
     int m_nEditorTimeTotal;
     int m_nSongID;
+    int m_nAccountID;
     
     bool m_bAuto;
     bool m_bDemon;
@@ -51,4 +52,7 @@ public:
     std::string m_sExtraString;
     std::string m_sSettings;
     std::string m_sRecordString;
+    std::string m_sUsername;
+
+    std::vector<int> m_vSFXList;
 };

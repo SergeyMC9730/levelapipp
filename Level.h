@@ -20,9 +20,6 @@ namespace LevelAPI {
             nlohmann::json levelJson;
             LevelRelease *m_uRelease;
             std::string m_sLevelPath;
-            int m_nAccountID;
-            std::string m_sUsername;
-
             std::string m_sCreatedTimestamp;
 
             std::string m_sLinkedNode;
