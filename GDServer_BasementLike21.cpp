@@ -374,3 +374,6 @@ bool GDServer_BasementLike21::login() {
 std::string GDServer_BasementLike21::getServerName() {
     return Frontend::Translation::getByKey("lapi.gdserver_basementlike21.name");
 }
+std::string GDServer_BasementLike21::getServerIdentifier() {
+    return "gdserver_basementlike21";
+}

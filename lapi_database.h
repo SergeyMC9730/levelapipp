@@ -68,6 +68,19 @@ namespace LevelAPI {
 
             ~NodeQueue();
         };
+        class NodeProxyList {
+        public:
+            nlohmann::json plJson;
+        public:
+            std::vector<std::string> m_vProxies;
+
+            NodeProxyList();
+
+            void save();
+            void recover();
+            
+            void setupJSON();
+        };
         class NodeDatabase {
         public:
             nlohmann::json ndJson;
@@ -128,9 +141,11 @@ namespace LevelAPI {
             std::string m_sLevelDataPath;
             NodeQueue *m_uQueue;
             NodePolicy *m_pPolicy;
+            NodeProxyList *m_pProxy;
 
             bool m_bCacheInProcess;
             std::vector<int> m_vCachedLevels;
+            int m_nCachedLevels;
 
             nlohmann::json m_jLastDownloadedLevel;
 
@@ -189,6 +204,8 @@ namespace LevelAPI {
 
             int m_nNodeSize;
             std::vector<Node *> m_vNodes;
+
+            int getTotalLevels();
 
             void setupJSON();
 

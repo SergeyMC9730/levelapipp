@@ -44,6 +44,7 @@ Node::Node() {
     m_sLevelDataPath = "levels";
     m_uQueue = new NodeQueue();
     m_pPolicy = new NodePolicy();
+    m_pProxy = new NodeProxyList();
 
     setupJSON();
 
@@ -54,14 +55,16 @@ void Node::save() {
     m_uDatabase->save();
     m_uQueue->save();
     m_pPolicy->save();
+    m_pProxy->save();
 
     nodeJson["database"] = m_uDatabase->ndJson;
     nodeJson["internalName"] = m_sInternalName;
     nodeJson["levelDataPath"] = m_sLevelDataPath;
     nodeJson["queue"] = m_uQueue->queueJson;
     nodeJson["policy"] = m_pPolicy->policyJson;
-    nodeJson["levels"] = m_vCachedLevels.size();
+    nodeJson["levels"] = m_nCachedLevels;
     nodeJson["experiment1value"] = m_nExperiment1Value;
+    nodeJson["proxy"] = m_pProxy->plJson;
 }
 
 void Node::recover() {
@@ -74,6 +77,8 @@ void Node::recover() {
     m_uDatabase->recover();
     m_pPolicy->policyJson = nodeJson["policy"];
     m_pPolicy->recover();
+    m_pProxy->plJson = nodeJson["proxy"];
+    m_pProxy->recover();
 
     std::string p1 = "database/nodes/" + m_sInternalName;
     std::string p2 = "database/nodes/" + m_sInternalName + "/levels";
@@ -159,6 +164,8 @@ Node::~Node() {
     m_uQueue = nullptr;
     delete m_pPolicy;
     m_pPolicy = nullptr;
+    delete m_pProxy;
+    m_pProxy = nullptr;
 }
 
 void Node::initLevel(Level *level) {

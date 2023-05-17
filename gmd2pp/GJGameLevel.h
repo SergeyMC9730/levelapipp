@@ -35,6 +35,7 @@ public:
     int m_nEditorTimeTotal;
     int m_nSongID;
     int m_nAccountID;
+    int m_nMoons;
     
     bool m_bAuto;
     bool m_bDemon;

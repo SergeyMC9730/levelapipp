@@ -20,6 +20,8 @@ namespace LevelAPI {
 
             int getGameVersion() override;
             std::string getServerName() override;
+
+            std::string getServerIdentifier() override;
         };
     }
 }

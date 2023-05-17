@@ -70,3 +70,7 @@ std::string GDServer::determineGVFromID(int id) {
 std::string GDServer::getServerName() {
     return Frontend::Translation::getByKey("lapi.gdserver.name");
 }
+
+std::string GDServer::getServerIdentifier() {
+    return "gdserver";
+}

@@ -7,6 +7,7 @@ namespace LevelAPI {
             GDServer_Boomlings(std::string endpoint);
 
             std::string getServerName() override;
+            std::string getServerIdentifier() override;
         };
     }
 }

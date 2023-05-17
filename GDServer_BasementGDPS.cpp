@@ -9,3 +9,6 @@ LevelAPI::Backend::GDServer_BasementGDPS::GDServer_BasementGDPS(std::string endp
 std::string LevelAPI::Backend::GDServer_BasementGDPS::getServerName() {
     return Frontend::Translation::getByKey("lapi.gdserver_basementgdps.name");
 }
+std::string LevelAPI::Backend::GDServer_BasementGDPS::getServerIdentifier() {
+    return "gdserver_basementGDPS";
+}

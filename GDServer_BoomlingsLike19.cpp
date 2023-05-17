@@ -283,3 +283,6 @@ int GDServer_BoomlingsLike19::getGameVersion() {
 std::string GDServer_BoomlingsLike19::getServerName() {
     return Frontend::Translation::getByKey("lapi.gdserver_boomlingslike19.name");
 }
+std::string GDServer_BoomlingsLike19::getServerIdentifier() {
+    return "gdserver_boomlingslike19";
+}

@@ -36,6 +36,7 @@ void DatabaseController::node_runner_recount_task(Node *nd) {
     if(!nd->m_pPolicy->m_bNoOutput) {
         std::cout << Translation::getByKey("lapi.noderunner.recount.complete", nd->m_sInternalName, nd->m_vCachedLevels.size()) << std::endl;
     }
+    nd->m_nCachedLevels = nd->m_vCachedLevels.size();
     std::this_thread::sleep_for(5s);
     goto lp;
 }
@@ -386,8 +387,6 @@ start:
                 for(;;);
             }
 
-            std::vector<int> new_levels;
-
             while(i < levels.size()) {
                 int levelid;
                 std::string levelname;
@@ -398,8 +397,7 @@ start:
                 auto level_from_node = nd->getLevel(levelid);
 
                 if(level_from_node == nullptr) {
-                    new_levels.push_back(levelid);
-                    if(!nd->userIDExists(levels[i]->m_nPlayerID)) {
+                    if(!nd->userIDExists(levels[i]->m_nPlayerID) && server->getServerIdentifier() != "gdserver_boomlings") {
                         // nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
                     }
                     nd->initLevel(levels[i]);

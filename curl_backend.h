@@ -4,6 +4,7 @@
 #include <string>
 #include "CURLParameter.h"
 #include <vector>
+#include "CurlProxy.h"
 
 namespace LevelAPI {
     namespace Backend {
@@ -41,11 +42,13 @@ namespace LevelAPI {
             CURL *m_pCurl;
             bool m_bDebug;
             std::vector<CURLParameter*> m_mUserData;
+            CurlProxy m_proxy;
 
             void destroy();
         public:
             void setDebug(bool d);
             void setData(std::vector<CURLParameter*> parameters);
+            void setProxy(CurlProxy &proxy);
 
             virtual CURLResult *access_page(const char *url);
             virtual CURLResult *access_page(const char *url, FILE *file);

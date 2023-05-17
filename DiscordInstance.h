@@ -17,6 +17,8 @@ namespace LevelAPI {
             DiscordInstance(void *db);
             static void dthread(DiscordInstance *instance); 
 
+            void setStatus(std::string status);
+
             std::thread *start();     
         };
     }

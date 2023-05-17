@@ -72,6 +72,8 @@ void Level::setupJSON() {
 }
 
 void Level::save(bool onlyLevelString) {
+    generateDifficultyImage("images");
+
     #define fill(str, val) levelJson[str] = val;
     #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
@@ -254,17 +256,13 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     int stars;
     std::vector<bool> parameters;
     std::vector<cv::Mat> mats;
+    struct stat buffer;
+    
+    #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
     parameters.push_back(m_nFeatureScore > 0);
     parameters.push_back(m_nEpic);
     if(parameters[1]) parameters[0] = false;
-
-    if(parameters[0]) {
-        mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));  
-    };
-    if(parameters[1]) {
-        mats.push_back(cv::imread(folder_prefix + "/epic.png", cv::IMREAD_UNCHANGED));
-    };
 
     switch(m_nStars == 0 ? m_nStarsRequested : m_nStars) {
         case 1:
@@ -302,11 +300,9 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     }
 
     stars = m_nStars;
-    if(stars <= 10 && stars >= 0) mats.push_back(cv::imread(folder_prefix + "/star" + std::to_string(stars) + ".png", cv::IMREAD_UNCHANGED));
 
     if(m_bAuto) diffimage = "auto";
     if(m_bDemon) diffimage = "demon";
-    mats.push_back(cv::imread(folder_prefix + "/" + diffimage + ".png", cv::IMREAD_UNCHANGED));
 
     file += diffimage + std::to_string(stars) + "_";
     int i = 0;
@@ -317,6 +313,19 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     file += "_new.png";
 
     path = folder_prefix + "/" + file;
+
+    if(file_exists(path.c_str())) {
+        return file;
+    }
+
+    if(parameters[0]) {
+        mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));  
+    };
+    if(parameters[1]) {
+        mats.push_back(cv::imread(folder_prefix + "/epic.png", cv::IMREAD_UNCHANGED));
+    };
+    if(stars <= 10 && stars >= 0) mats.push_back(cv::imread(folder_prefix + "/star" + std::to_string(stars) + ".png", cv::IMREAD_UNCHANGED));
+    mats.push_back(cv::imread(folder_prefix + "/" + diffimage + ".png", cv::IMREAD_UNCHANGED));
 
     cv::Mat final = cv::imread(folder_prefix + "/empty.png", cv::IMREAD_UNCHANGED);
     cv::Mat final3 = final;

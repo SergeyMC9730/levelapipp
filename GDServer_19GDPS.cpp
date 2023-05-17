@@ -9,3 +9,6 @@ LevelAPI::Backend::GDServer_19GDPS::GDServer_19GDPS(std::string endpoint) : GDSe
 std::string LevelAPI::Backend::GDServer_19GDPS::getServerName() {
     return Frontend::Translation::getByKey("lapi.gdserver_19gdps.name");
 }
+std::string LevelAPI::Backend::GDServer_19GDPS::getServerIdentifier() {
+    return "gdserver_19gdps";
+}

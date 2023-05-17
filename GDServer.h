@@ -58,6 +58,7 @@ namespace LevelAPI {
 
             virtual int getGameVersion();
             virtual std::string getServerName();
+            virtual std::string getServerIdentifier();
 
             virtual std::string determineGVFromID(int id);
 

@@ -89,7 +89,7 @@ Database::Database(std::string path) {
         GET_JSON_VALUE(databaseJson, "botToken", m_sBotToken, std::string);
     }
     GET_JSON_VALUE(databaseJson, "registeredCID", m_sRegisteredCID, std::string);
-    GET_JSON_VALUE(databaseJson, "registeredCID2", m_sRegisteredCID, std::string);
+    GET_JSON_VALUE(databaseJson, "registeredCID2", m_sRegisteredCID2, std::string);
     
     GET_JSON_VALUE(databaseJson, "language", translation_language, std::string);
 
@@ -198,4 +198,14 @@ void Database::runThreads() {
         m_vThreads.push_back(ndt);
         i++;
     }
+}
+
+int Database::getTotalLevels() {
+    int i = 0;
+    int res = 0;
+    while(i < m_vNodes.size()) {
+        res += m_vNodes[i]->m_nCachedLevels;
+        i++;
+    }
+    return res;
 }

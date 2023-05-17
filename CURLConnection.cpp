@@ -1,3 +1,4 @@
+#include "CurlProxy.h"
 #include "curl_backend.h"
 #include <cstddef>
 #include <cstdlib>
@@ -50,6 +51,9 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
     curl_easy_setopt(m_pCurl, CURLOPT_WRITEFUNCTION, CURLConnection::write_data);
     curl_easy_setopt(m_pCurl, CURLOPT_WRITEDATA, settings);
     curl_easy_setopt(m_pCurl, CURLOPT_VERBOSE, m_bDebug);
+    if(m_proxy.getType() != PT_NONE) {
+        curl_easy_setopt(m_pCurl, CURLOPT_PROXY, m_proxy.getURL().c_str());
+    }
 
     std::string generatedUserData = "";
     int i = 0;
@@ -114,6 +118,9 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method, FIL
     curl_easy_setopt(m_pCurl, CURLOPT_VERBOSE, true);
     curl_easy_setopt(m_pCurl, CURLOPT_FOLLOWLOCATION, true);
     curl_easy_setopt(m_pCurl, CURLOPT_HTTPPROXYTUNNEL, true);
+    if(m_proxy.getType() != PT_NONE) {
+        curl_easy_setopt(m_pCurl, CURLOPT_PROXY, m_proxy.getURL().c_str());
+    }
 
     std::string generatedUserData = "";
     int i = 0;
@@ -162,6 +169,10 @@ void CURLConnection::setDebug(bool d) {
 
 void CURLConnection::destroy() {
     curl_easy_cleanup(m_pCurl);
+}
+
+void CURLConnection::setProxy(CurlProxy &proxy) {
+    m_proxy = proxy;
 }
 
 void CURLConnection::setData(std::vector<CURLParameter*> parameters) {

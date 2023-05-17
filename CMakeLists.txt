@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.5.0)
 project(levelapi_server VERSION 1.0.0)
 
-set(CXX_STANDARD_REQUIRED 17)
+set(CXX_STANDARD_REQUIRED 20)
+set(CXX_STANDARD 20)
 
 # add_library(httpserver
 #     libhttpserver/src/basic_auth_fail_response.cpp
@@ -31,7 +32,7 @@ file(GLOB levelapi_base
     "*.h"
 )
 
-include_directories(httpserver PRIVATE
+include_directories(httpserver
     libhttpserver/src
     libhttpserver/src/details
     libhttpserver/src/httpserver

@@ -10,6 +10,7 @@ namespace LevelAPI {
             GDServer_BasementGDPS(std::string endpoint);
 
             std::string getServerName() override;
+            std::string getServerIdentifier() override;
         };
     }
 }

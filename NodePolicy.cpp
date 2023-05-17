@@ -3,8 +3,6 @@
 
 #include "Tools.h"
 
-#include <iostream>
-
 using namespace LevelAPI::DatabaseController;
 
 NodePolicy::NodePolicy() {

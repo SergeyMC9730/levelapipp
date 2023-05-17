@@ -13,10 +13,14 @@ LevelAPI::Backend::GDServer_Boomlings::GDServer_Boomlings(std::string endpoint) 
     m_vRanges.push_back(new LevelAPI::LevelRange(1627363, 2810918, "1.8"));
     m_vRanges.push_back(new LevelAPI::LevelRange(2810919, 11020426, "1.9"));
     m_vRanges.push_back(new LevelAPI::LevelRange(11020427, 28356225, "2.0"));
-    m_vRanges.push_back(new LevelAPI::LevelRange(28356226, 100000000, "2.1"));
-    m_vRanges.push_back(new LevelAPI::LevelRange(100000001, 108000002, "2.2"));
+    m_vRanges.push_back(new LevelAPI::LevelRange(28356226, 90900002, "2.1"));
+    m_vRanges.push_back(new LevelAPI::LevelRange(90900002, 100800002, "2.2"));
 }
 
 std::string LevelAPI::Backend::GDServer_Boomlings::getServerName() {
     return Frontend::Translation::getByKey("lapi.gdserver_boomlings.name");
+}
+
+std::string LevelAPI::Backend::GDServer_Boomlings::getServerIdentifier() {
+    return "gdserver_boomlings";
 }
