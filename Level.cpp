@@ -13,6 +13,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <vector>
+#include "HttpController.h"
 
 #include <opencv2/imgproc.hpp>
 #include <opencv4/opencv2/imgcodecs.hpp>
@@ -118,10 +119,17 @@ void Level::save(bool onlyLevelString) {
 
     std::string g = m_sLevelPath + "/meta.json";
     std::string g2 = m_sLevelPath + "/data.gmd2";
+    std::string g3 = m_sLevelPath + "/raw.txt";
     
     if (!onlyLevelString) {
 	    std::ofstream file(g);
     	file << levelJson.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
+	    file.close();
+    }
+
+    if (!m_sRawData.empty()) {
+        std::ofstream file(g3);
+    	file << m_sRawData;
 	    file.close();
     }
 
@@ -140,6 +148,26 @@ void Level::save(bool onlyLevelString) {
     }
 
     return;
+}
+
+std::string Level::getDownloadLinks(bool embed) {
+    std::string result;
+    std::string url = HttpController::getURL();
+
+    bool hasGMD2 = m_bHasLevelString;
+    bool hasRaw = true;
+
+    result = "[" + Translation::getByKey("lapi.level.embed.field.info.value.metadata") + "](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")";
+
+    if (hasGMD2) {
+        result += " | [GMD2](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&type=1)";
+    }
+
+    if (hasRaw) {
+        result += " | [" + Translation::getByKey("lapi.level.embed.field.info.value.rawdata") + "](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&type=2)";
+    }
+
+    return result;
 }
 
 void Level::restore() {
@@ -388,7 +416,7 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
         ).
         add_field(
             Translation::getByKey("lapi.level.embed.field.info"),
-            "[" + Translation::getByKey("lapi.level.embed.field.info.value.metadata") + "](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")" + (m_bHasLevelString ? " | [GMD2](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&gmd2=true)" : ""),
+            getDownloadLinks(true),
             true
         ).
         set_thumbnail(thumbnail).

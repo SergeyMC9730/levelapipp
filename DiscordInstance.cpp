@@ -4,6 +4,7 @@
 #include "lapi_database.h"
 #include "Translation.h"
 #include "presence.h"
+#include "iAndy.h"
 
 using namespace LevelAPI::DiscordController;
 using namespace std::chrono_literals;
@@ -307,7 +308,10 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
     instance->m_pBot->start(dpp::st_return);
     
     while(true) {
-        std::string levelssofar = std::to_string(dbA->getTotalLevels()) + " levels so far!";
+        int ll = dbA->getTotalLevels();
+        float scaleMult = 1.f;
+        std::string levels = iAndy::intToFormatString(ll, scaleMult);
+        std::string levelssofar = Translation::getByKey("lapi.bot.status.levels", levels);
         instance->setStatus(levelssofar);
         std::this_thread::sleep_for(std::chrono::seconds(30s));
     }

@@ -55,6 +55,8 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *
 
     auto info = splitString(response, ':');
 
+    level->m_sRawData = response;
+
     bool doKey = true;
     int currentKey;
 

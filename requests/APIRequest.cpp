@@ -30,8 +30,8 @@ std::shared_ptr<httpserver::http_response> APIRequest::generateResponse(const ch
     return APIRequest::generateResponse(std::string(data), content_type);
 }
 
-std::shared_ptr<httpserver::file_response> APIRequest::sendFile(std::string path) {
-    return std::shared_ptr<httpserver::file_response>(new httpserver::file_response(path, 200, "image/png"));
+std::shared_ptr<httpserver::file_response> APIRequest::sendFile(std::string path, HTTPContentType type) {
+    return std::shared_ptr<httpserver::file_response>(new httpserver::file_response(path, 200, type.getType()));
 }
 
 httpserver::http_resource *APIRequest::getAsResource() {

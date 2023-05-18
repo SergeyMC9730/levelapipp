@@ -473,11 +473,36 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "Метаданные"
         }
     },
+    {
+        "lapi.level.embed.field.info.value.rawdata", {
+            "Raw Data",
+            "Исходник"
+        }
+    },
+    // from iAndy.cpp
+    {
+        "iandy.prefix.m", {
+            "M",
+            " млн."
+        }
+    },
+    {
+        "iandy.prefix.k", {
+            "K",
+            " тыс."
+        }
+    },
     // from DiscordInstance.cpp
     {
         "lapi.bot.ready", {
             "[LevelAPI DiscordInstance] Bot is ready!",
             "[LevelAPI DiscordInstance] Бот запущен!"
+        }
+    },
+    {
+        "lapi.bot.status.levels", {
+            "{} levels so far!",
+            "{} уровней на данный момент!"
         }
     },
     {

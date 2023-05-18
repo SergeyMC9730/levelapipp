@@ -104,6 +104,8 @@ Level *Node::getLevel(int id) {
     std::string p1 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
     std::string p2 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id) + "/data.gmd2";
     std::string p3 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id) + "/meta.json";
+    std::string p4 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id) + "/raw.txt";
+    
     // TODO: comment registering
 
     use_gmd2 = file_exists(p2.c_str());
@@ -143,6 +145,7 @@ Level *Node::getLevel(int id) {
             l->restore();
 
             l->m_bHasLevelString = file_exists(p2.c_str());
+            l->m_bHasRawData = file_exists(p4.c_str());
 
             return l;
         } catch (nlohmann::json::exception &e) {

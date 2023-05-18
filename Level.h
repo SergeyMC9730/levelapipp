@@ -16,6 +16,8 @@ namespace LevelAPI {
         };
 
         class Level : public GJGameLevel {
+        private:
+            std::string getDownloadLinks(bool embed);
         public:
             nlohmann::json levelJson;
             LevelRelease *m_uRelease;
@@ -24,8 +26,12 @@ namespace LevelAPI {
 
             std::string m_sLinkedNode;
 
+            std::string m_sRawData;
+
             int m_nRetryAfter;
+
             bool m_bHasLevelString;
+            bool m_bHasRawData;
 
             void setupJSON();
             Level();

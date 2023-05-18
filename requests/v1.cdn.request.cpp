@@ -5,6 +5,8 @@
 #include <sys/stat.h>
 #include <iostream>
 
+#include "HTTPContentTypeImage.h"
+
 #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
 LevelAPI::v1::CDNRequest::CDNRequest() {
@@ -20,8 +22,8 @@ std::shared_ptr<http_response> LevelAPI::v1::CDNRequest::render(const http_reque
         file.find("/")   == 0                 || 
         file.find("~")   != std::string::npos  )
     {
-        return sendFile("images/auto.png");
+        return sendFile("images/auto.png", HTTPContentTypeImage());
     }
 
-    return sendFile(std::string(file));
+    return sendFile(std::string(file), HTTPContentTypeImage());
 }
