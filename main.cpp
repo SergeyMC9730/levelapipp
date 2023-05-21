@@ -4,9 +4,11 @@
 #include <iterator>
 #include "GDServer.h"
 #include "Level.h"
+
 #include "requests/v1.helloworld.h"
 #include "requests/v1.level.download.h"
-#include "requests/v1.cdn.request.h"
+#include "requests/v1.img.request.h"
+#include "requests/v1.res.request.h"
 
 #include "gmd2pp/gmd2.h"
 
@@ -49,7 +51,8 @@ int main(int, char**) {
 
     ws.register_resource("/api/v1/hello", reinterpret_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
     ws.register_resource("/api/v1/level/download", reinterpret_cast<http_resource *>(new LevelAPI::v1::LevelDownloadRequest()));
-    ws.register_resource("/api/v1/img/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::CDNRequest()));
+    ws.register_resource("/api/v1/img/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::IMGRequest()));
+    ws.register_resource("/api/v1/res/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::ResourceRequest()));
 
     std::cout << getByKey("lapi.main.portstart", HttpController::getPort()) << std::endl;
 

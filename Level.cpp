@@ -74,6 +74,7 @@ void Level::setupJSON() {
 
 void Level::save(bool onlyLevelString) {
     generateDifficultyImage("images");
+    generateDifficultyImage("resources");
 
     #define fill(str, val) levelJson[str] = val;
     #define file_exists(cstr) (stat(cstr, &buffer) == 0)
@@ -102,6 +103,7 @@ void Level::save(bool onlyLevelString) {
     fill("editorTimeTotal", m_nEditorTimeTotal)
     fill("songID", m_nSongID)
     fill("objects", m_nObjects);
+    fill("moons", m_nMoons);
 
     fill("isAuto", m_bAuto)
     fill("isDemon", m_bDemon)
@@ -197,6 +199,7 @@ void Level::restore() {
     RS(int, "accountID", m_nAccountID)
     RS(int, "songID", m_nSongID)
     RS(int, "objects", m_nObjects)
+    RS(int, "moons", m_nMoons);
 
     RS(bool, "isAuto", m_bAuto)
     RS(bool, "isDemon", m_bDemon)
@@ -380,9 +383,10 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
         "lapi.level.rate.embed.description",
     };
 
-    std::string url = "https://levelapi.dogotrigger.xyz";
+    std::string url = HttpController::getURL();
 
-    std::string img_path = generateDifficultyImage("images");
+    generateDifficultyImage("images");
+    std::string img_path = generateDifficultyImage("resources");
 
     std::string gv = std::to_string((float)m_nGameVersion / 10.f);
     gv.erase(gv.find_last_not_of('0') + 1, std::string::npos);
@@ -390,7 +394,7 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
 
     std::string msg = Translation::getByKey(eventtable[e], gv, m_sCreatedTimestamp);
 
-    std::string thumbnail = url + "/api/v1/img/request/" + img_path;    
+    std::string thumbnail = url + "/api/v1/res/request/" + img_path;    
 
     std::random_device rd;
     std::uniform_int_distribution<int> uid(0, m_nLevelID);

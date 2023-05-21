@@ -75,6 +75,6 @@ add_executable(levelapi_test_folders
     "ExternalTest_Folders.cc"
 )
 
-file(COPY images DESTINATION .)
+file(COPY resources DESTINATION .)
 
 target_link_libraries(levelapi_server httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto)
