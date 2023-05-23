@@ -73,7 +73,6 @@ void Level::setupJSON() {
 }
 
 void Level::save(bool onlyLevelString) {
-    generateDifficultyImage("images");
     generateDifficultyImage("resources");
 
     #define fill(str, val) levelJson[str] = val;
