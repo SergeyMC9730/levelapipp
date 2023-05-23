@@ -385,7 +385,6 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
 
     std::string url = HttpController::getURL();
 
-    generateDifficultyImage("images");
     std::string img_path = generateDifficultyImage("resources");
 
     std::string gv = std::to_string((float)m_nGameVersion / 10.f);
