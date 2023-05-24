@@ -37,8 +37,6 @@ add_library(ext_bzip2 ${bzip2_files})
 add_library(ext_lzma ${lzma_files})
 add_library(ext_zlib ${zlib_files})
 
-message(${CMAKE_CURRENT_SOURCE_DIR})
-
 set(CMAKE_CXX_STANDARD 11)
 
 file(GLOB ziplib_files
@@ -116,5 +114,5 @@ add_subdirectory(pugixml_patch)
 
 install(TARGETS pugixml-shared EXPORT levelapi_workarounds)
 
-add_library(gmd2 impl.cpp hex.cpp base64.cpp)
+add_library(gmd2 impl.cpp hex.cpp base64.cpp GDLevelSaveable.cpp)
 target_link_libraries(gmd2 ext_ziplib gmdtools cjson pugixml-shared)

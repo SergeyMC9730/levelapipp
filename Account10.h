@@ -4,7 +4,12 @@
 
 class Account10 {
 public:
-    bool autoRenamed; // thank you cvolton
+    /* 
+        if username starts with GDUsrXXXX, 
+        where XXXX is a number,  this user
+        was actually renamed automatically
+    */
+    bool autoRenamed; 
     std::string username;
     int userID;
 };

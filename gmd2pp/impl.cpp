@@ -24,16 +24,6 @@ GMD2::~GMD2() {
     this->m_pTools = nullptr;
 }
 
-GJGameLevel *GMD2::getLevel() {
-    return this->m_pLevel;
-}
-
-std::string GMD2::getFileName() {
-    return this->m_sFileName;
-}
-void GMD2::setFileName(std::string str) {
-    this->m_sFileName = str;
-}
 
 int GMD2::getSongID() {
     return this->m_nSongName;
@@ -42,12 +32,6 @@ void GMD2::setSongID(int sid) {
     this->m_nSongName = sid;
 }
 
-bool GMD2::getDebug() {
-    return this->m_bDebug;
-}
-void GMD2::setDebug(bool debug) {
-    this->m_bDebug = debug;
-}
 
 void GMD2::parse() {
     ZipArchive::Ptr data = ZipFile::Open(this->m_sFileName);
@@ -153,8 +137,4 @@ void GMD2::generate() {
     pLd->SetCompressionStream(str2, StoreMethod::Create());
 
     ZipFile::SaveAndClose(arc, this->getFileName());
-}
-
-void GMD2::setLevel(GJGameLevel *lvl) {
-    this->m_pLevel = lvl;
 }

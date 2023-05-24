@@ -2,30 +2,18 @@
 
 #include "GJGameLevel.h"
 #include "gmdtools.h"
+#include "GDLevelSaveable.h"
 
-class GMD2 {
+class GMD2 : public GDLevelSaveable {
 protected:
-    GJGameLevel *m_pLevel;
     GMDTools *m_pTools;
-
-    std::string m_sFileName;
     int m_nSongName;
-    bool m_bDebug;
 public:
-    GJGameLevel *getLevel();
-    void setLevel(GJGameLevel *lvl);
-    
-    std::string getFileName();
-    void setFileName(std::string str);
-
     int getSongID();
     void setSongID(int sid);
 
-    bool getDebug();
-    void setDebug(bool debug);
-
-    virtual void parse();
-    virtual void generate();
+    void parse() override;
+    void generate() override;
 
     GMD2();
     ~GMD2();
