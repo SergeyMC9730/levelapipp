@@ -19,6 +19,8 @@
 
 #include "GDServer.h"
 
+#include "fast-vector/fast_vector.h"
+
 #pragma pack(push, 1)
 
 namespace LevelAPI {
@@ -144,7 +146,7 @@ namespace LevelAPI {
             NodeProxyList *m_pProxy;
 
             bool m_bCacheInProcess;
-            std::vector<int> m_vCachedLevels;
+            fast_vector<int> m_vCachedLevels;
             int m_nCachedLevels;
 
             nlohmann::json m_jLastDownloadedLevel;

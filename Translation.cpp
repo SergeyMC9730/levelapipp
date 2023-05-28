@@ -269,6 +269,12 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     // from NodeRunnerLegacy.cpp (and shared with NodeRunner.cpp)
     {
+        "lapi.noderunner.recount.time", {
+            "[LevelAPI {}] {}ms were taken to cache IDs.",
+            "[LevelAPI {}] {} мс потрачено на кеширование айдишников."
+        }
+    },
+    {
         "lapi.noderunner.logger.leveladded", {
             "[OK] Added level \"{}\" by {} ({})",
             "[OK] Добавлен уровень \"{}\" от {} ({})"

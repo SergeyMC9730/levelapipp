@@ -179,8 +179,8 @@ void Node::initLevel(Level *level) {
     level->m_sLinkedNode = m_sInternalName;
     mkdir(p.c_str(), 0777);
     //mkdir(p3.c_str(), 0777);
-    int fd = open(p2.c_str(), O_CREAT | S_IRUSR | S_IWUSR);
-    close(fd);
+    // int fd = open(p2.c_str(), O_CREAT | S_IRUSR | S_IWUSR);
+    // close(fd);
 }
 bool Node::userIDExists(int uid) {
     #define file_exists(cstr) (stat(cstr, &buffer) == 0)

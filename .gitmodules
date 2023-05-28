@@ -28,3 +28,6 @@
 [submodule "GDCrypto-patched"]
 	path = GDCrypto-patched
 	url = https://github.com/SergeyMC9730/GDCrypto-patched
+[submodule "fast-vector"]
+	path = fast-vector
+	url = https://github.com/sigerror/fast-vector.git

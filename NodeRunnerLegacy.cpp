@@ -8,7 +8,7 @@
 #include <thread>
 #include <iostream>
 #include <vector>
-#include <queue>
+#include <dirent.h>
 
 #include "GDServer.h"
 #include "Level.h"
@@ -25,128 +25,26 @@ using namespace std::chrono_literals;
 void DatabaseController::node_runner_recount_task(Node *nd) {
     goto lp;
     lp:
+    auto start = std::chrono::high_resolution_clock::now();
     std::string folder = "database/nodes/" + nd->m_sInternalName + "/levels";
     nd->m_vCachedLevels.clear();
-    for (const auto & entry : std::filesystem::directory_iterator(folder)) {
-        std::string path = entry.path();
-        std::string filename = path.substr(path.find_last_of("/\\") + 1);
-        //std::cout << filename << std::endl;
-        std::string levelid = filename.substr(filename.find_last_of("_") + 1);
-        try {
-            nd->m_vCachedLevels.push_back(std::stoi(levelid));
-        } catch (std::invalid_argument &e) {}
+    
+    DIR *d = opendir(folder.c_str());
+    struct dirent *dir;
+    while ((dir = readdir(d)) != NULL) {
+        nd->m_vCachedLevels.push_back(std::atoi(dir->d_name + 6));
     }
+    closedir(d);
+    
     if(!nd->m_pPolicy->m_bNoOutput) {
         std::cout << Translation::getByKey("lapi.noderunner.recount.complete", nd->m_sInternalName, nd->m_vCachedLevels.size()) << std::endl;
     }
     nd->m_nCachedLevels = nd->m_vCachedLevels.size();
 
-    auto start = std::chrono::high_resolution_clock::now();
-
-    int i = 0;
-    int i2 = 0;
-
-    std::vector<std::thread *> job_threads;
-    std::vector<std::queue<int>> jobs_per_thread;
-    std::vector<int> thread_pointers;
-    std::vector<int> levels_completed;
-    std::vector<int> thread_states;
-
-    std::vector<int> history;
-    nlohmann::json jsonreport;
-
-    std::thread t1 = std::thread([&]{
-        g:
-        int i3 = 0;
-        int lvls = 0;
-	int lvls1 = 0;
-        while(i3 < job_threads.size()) {
-            lvls += levels_completed[i3];
-            levels_completed[i3] = 0;
-            i3++;
-        }
-	i3 = 0;
-	history.push_back(lvls);
-	while(i3 < history.size()) {
-		lvls1 += history[i3];
-		i3++;
-	}
-        jsonreport["report"] = history;
-        std::ofstream rep("report.json");
-        rep << jsonreport.dump();
-        rep.close();
-        std::cout << lvls << " levels per second" << std::endl;
-	std::cout << lvls1 << " levels so far" << std::endl;
-        std::this_thread::sleep_for(1s);
-        goto g;
-    });
-    t1.detach();
-
-
-    auto simple_job = [&](int id) {
-        loop:
-        if(jobs_per_thread[id].size() != 0) {
-            int lid = jobs_per_thread[id].front();
-            thread_states[id] = 1;
-            //std::cout << "[" << id << "] Parsing " << lid << std::endl;;
-            auto level1 = nd->getLevel(lid);
-            delete level1;
-            levels_completed[id]++;
-            jobs_per_thread[id].pop();
-        } else {
-            //std::cout << "[" << id << "] Waiting " << std::endl;;
-            thread_states[id] = 0;
-        }
-        //std::this_thread::sleep_for(10ms);
-
-        goto loop;
-    };
-
-    while(i < std::thread::hardware_concurrency()) {
-        jobs_per_thread.push_back(std::queue<int>());
-        thread_pointers.push_back(i);
-        levels_completed.push_back(0);
-        thread_states.push_back(0);
-        job_threads.push_back(new std::thread(simple_job, i));
-        i++;
-    }
-
-    i = 0;
-    int p = 0;
-
-    while(i < nd->m_nCachedLevels) {
-        if(thread_states[p] == 0) {
-            jobs_per_thread[p].push(nd->m_vCachedLevels[i]);
-            p++;
-            p = p % job_threads.size();
-            i++;
-        } else {
-            p++;
-            p = p % job_threads.size();
-        }
-    }
-
-    i = 0;
-    bool ended = false;
-    lp1:
-    int j = 0;
-    while(j < job_threads.size()) {
-        if(jobs_per_thread[j].size() != 0) {
-            ended = false;
-            j = 0;
-            goto lp;
-        } else {
-            ended = true;
-        }
-        j++;
-        std::this_thread::sleep_for(100ms);
-    }
-    
-
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
  
-    std::cout << "Time taken by function: " << duration.count() << " ms" << std::endl;
+    std::cout << Translation::getByKey("lapi.noderunner.recount.time", nd->m_sInternalName, duration.count()) << std::endl;
 
     std::this_thread::sleep_for(5s);
     goto lp;
