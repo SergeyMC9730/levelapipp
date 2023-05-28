@@ -16,9 +16,6 @@
 [submodule "json"]
 	path = json
 	url = https://github.com/nlohmann/json.git
-[submodule "DPP"]
-	path = DPP
-	url = https://github.com/brainboxdotcc/DPP.git
 [submodule "fmt"]
 	path = fmt
 	url = https://github.com/fmtlib/fmt.git
@@ -28,3 +25,6 @@
 [submodule "fast-vector"]
 	path = fast-vector
 	url = https://github.com/sigerror/fast-vector.git
+[submodule "DPP"]
+	path = DPP
+	url = https://github.com/SergeyMC9730/DPP-patched

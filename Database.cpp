@@ -143,11 +143,6 @@ void Database::save() {
     std::ofstream file(p1);
     file << databaseJson.dump(4);
 
-    int r = malloc_trim(0);
-    if(!r) {
-        std::cout << "[LevelAPI WARN] Couldn't clean up memory" << std::endl;
-    }
-
     //auto end = std::chrono::high_resolution_clock::now();
 
     //auto etime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
