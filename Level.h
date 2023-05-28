@@ -21,17 +21,17 @@ namespace LevelAPI {
         public:
             nlohmann::json levelJson;
             LevelRelease *m_uRelease;
-            std::string m_sLevelPath;
+            std::string m_sLevelPath = "";
             std::string m_sCreatedTimestamp;
 
-            std::string m_sLinkedNode;
+            std::string m_sLinkedNode = "";
 
-            std::string m_sRawData;
+            std::string m_sRawData = "";
 
-            int m_nRetryAfter;
+            int m_nRetryAfter = 0;
 
-            bool m_bHasLevelString;
-            bool m_bHasRawData;
+            bool m_bHasLevelString = false;
+            bool m_bHasRawData = false;
 
             void setupJSON();
             Level();

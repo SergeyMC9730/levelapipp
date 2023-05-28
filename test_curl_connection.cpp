@@ -5,7 +5,6 @@
 #include <iostream>
 
 #include <thread>
-#include "termcolor/include/termcolor/termcolor.hpp"
 
 #include "Translation.h"
 
@@ -13,7 +12,7 @@ using namespace LevelAPI;
 using namespace LevelAPI::Frontend;
 
 void Tests::testCurl() {
-    std::cout << termcolor::bright_cyan << Translation::getByKey("lapi.curltest.start") << termcolor::reset;
+    std::cout << Translation::getByKey("lapi.curltest.start");
 
     std::thread tr(Tests::testCurlThread);
     tr.detach();
@@ -27,15 +26,10 @@ void Tests::testCurlThread() {
 
     printf(Translation::getByKey("lapi.curltest.test0result").c_str(), res->result, res->http_status);
     if(res->http_status == 200 && res->result == 0) {
-        std::cout << termcolor::green << Translation::getByKey("lapi.curltest.complete") << termcolor::reset;
+        std::cout << Translation::getByKey("lapi.curltest.complete");
     } else {
-        std::cout << termcolor::red << Translation::getByKey("lapi.curltest.fail") << termcolor::reset;
+        std::cout << Translation::getByKey("lapi.curltest.fail");
     }
-
-    con.setData({
-        new CURLParameter("secret", "Wmfd2893gb7"),
-        new CURLParameter("type", "4")
-    });
 
     free((void *)res->data);
     delete res;

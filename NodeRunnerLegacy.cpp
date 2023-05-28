@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <dirent.h>
+#include <sys/statvfs.h>
 
 #include "GDServer.h"
 #include "Level.h"
@@ -28,6 +29,13 @@ void DatabaseController::node_runner_recount_task(Node *nd) {
     auto start = std::chrono::high_resolution_clock::now();
     std::string folder = "database/nodes/" + nd->m_sInternalName + "/levels";
     nd->m_vCachedLevels.clear();
+
+    struct statvfs buf;
+    statvfs(folder.c_str(), &buf);
+
+    int files_allocate = ((buf.f_files - buf.f_ffree) / 2);
+
+    nd->m_vCachedLevels.reserve(files_allocate);
     
     DIR *d = opendir(folder.c_str());
     struct dirent *dir;

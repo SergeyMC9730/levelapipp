@@ -17,8 +17,6 @@
 
 #include "HttpController.h"
 
-#include "termcolor/include/termcolor/termcolor.hpp"
-
 #include "GDServer_BoomlingsLike21.h"
 
 #include "tests.h"
@@ -29,14 +27,12 @@ using namespace LevelAPI;
 using namespace LevelAPI::Frontend::Translation;
 
 int main(int, char**) {
-    std::cout << termcolor::bright_cyan << "LevelAPI " << LEVELAPI_VERSION << "\n" << termcolor::reset;
-    std::cout << termcolor::bright_cyan << getByKey("lapi.main.alpha") << "\n\n" << termcolor::reset;
+    std::cout << "LevelAPI " << LEVELAPI_VERSION << "\n";
+    std::cout << getByKey("lapi.main.alpha") << "\n\n";
 
     DatabaseController::setup();
     HttpController::setup();
     HttpController::parse();
-
-    std::cout << termcolor::reset;
 
     LevelAPI::Tests::testCurl();
     // LevelAPI::Tests::testGDParsers();
@@ -55,21 +51,6 @@ int main(int, char**) {
     ws.register_resource("/api/v1/res/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::ResourceRequest()));
 
     std::cout << getByKey("lapi.main.portstart", HttpController::getPort()) << std::endl;
-
-    //DatabaseController::database->getNode("boomlings")->importLevelMetaFromLAPIold("test.json");
-
-    // auto lvl = new DatabaseController::Level();
-    // lvl->m_nFeatureScore = 1;
-    // lvl->m_nStars = 5;
-    // lvl->generateDifficultyImage("images");
-    // lvl->m_nFeatureScore = 110;
-    // lvl->m_nEpic = 1;
-    // lvl->m_bDemon = 1;
-    // lvl->generateDifficultyImage("images");
-    // lvl->m_nEpic = false;
-    // lvl->m_nStars = 10;
-    // lvl->generateDifficultyImage("images");
-    // delete lvl;
 
     ws.start(true);
 

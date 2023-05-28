@@ -24,44 +24,12 @@ using namespace LevelAPI::Frontend;
 Level::Level() {
     m_uRelease = new LevelRelease();
 
-    m_nRetryAfter = 0;
     m_bHasLevelString = false;
-    m_nAccountID = 0;
     m_uRelease->m_nGameVersion = 0;
-
-    m_nLevelID = 0;
-    m_nVersion = 0;
-    m_nPlayerID = 0;
-    m_nDownloads = 0;
-    m_nMusicID = 0;
-    m_nLikes = 0;
-    m_nLength = 0;
-    m_nDifficultyDenominator = 0;
-    m_nDifficultyNumerator = 0;
-    m_nSetCompletes = 0;
-    m_nGameVersion = 0;
-    m_nDislikes = 0;
-    m_nStars = 0;
-    m_nFeatureScore = 0;
-    m_nCoins = 0;
-    m_nCopiedID = 0;
-    m_nStarsRequested = 0;
-    m_nDailyNumber = 0;
-    m_nEpic = 0;
-    m_nDemonDifficulty = 0;
-    m_nObjects = 0;
-    m_nEditorTime = 0;
-    m_nEditorTimeTotal = 0;
-
-    m_bAuto = false;
-    m_bDemon = false;
-    m_bVerifiedCoins = false;
-    m_bLDM = false;
-    m_bGauntlet = false;
-    m_b2P = false;
 
     Frontend::Time *t = Frontend::Time::create();
     m_sCreatedTimestamp = t->getAsString();
+    
     delete t;
     t = nullptr;
 
