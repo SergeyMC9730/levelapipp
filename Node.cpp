@@ -6,6 +6,8 @@
 #include "gmd2pp/gmd2.h"
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <sys/stat.h>
 #include <vector>
@@ -178,17 +180,58 @@ void Node::initLevel(Level *level) {
     level->m_sLevelPath = p;
     level->m_sLinkedNode = m_sInternalName;
     mkdir(p.c_str(), 0777);
-    //mkdir(p3.c_str(), 0777);
-    // int fd = open(p2.c_str(), O_CREAT | S_IRUSR | S_IWUSR);
-    // close(fd);
+    mkdir(p3.c_str(), 0777);
+
+    if(std::filesystem::exists(p2)) {
+        std::fstream f(p2);
+
+        nlohmann::json fj;
+        std::vector<int> list;
+
+        if (std::filesystem::file_size(p2) != 0) {
+            fj = nlohmann::json::parse(f);
+            int i = 0;
+            std::cout << "Size: " << fj["levels"].size() << std::endl;
+            while(i < fj["levels"].size()) {
+                list.push_back(fj["levels"].at(i).get<int>());
+                i++;
+            }
+        }
+
+        if(!std::count(list.begin(), list.end(), level->m_nLevelID)) {
+            list.push_back(level->m_nLevelID);
+        } else {
+            std::cout << "Level " << level->m_nLevelID << " already exists!" << std::endl;
+        }
+        fj["account_id"] = level->m_nAccountID;
+        fj["username"] = level->m_sUsername;
+        fj["user_id"] = level->m_nPlayerID;
+        fj["levels"] = list;
+
+        f << fj.dump();
+
+        f.close();
+    } else {
+        std::ofstream f(p2);
+
+        nlohmann::json fj;
+        std::vector<int> list = { level->m_nLevelID };
+
+        fj["account_id"] = level->m_nAccountID;
+        fj["username"] = level->m_sUsername;
+        fj["user_id"] = level->m_nPlayerID;
+        fj["levels"] = list;
+
+        f << fj.dump();
+
+        f.close();
+    }
 }
 bool Node::userIDExists(int uid) {
-    #define file_exists(cstr) (stat(cstr, &buffer) == 0)
-
-    struct stat buffer;
     std::string p = "database/nodes/" + m_sInternalName + "/users/" + std::to_string(uid) + ".txt";
+    std::string p1 = "database/nodes/" + m_sInternalName + "/users/" + std::to_string(uid) + ".json";
 
-    return file_exists(p.c_str());
+    return std::filesystem::exists(p) || std::filesystem::exists(p1);
 }
 
 std::vector<Level *> Node::getLevels(SearchFilter *filter) {

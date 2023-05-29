@@ -1,7 +1,10 @@
 #include <iostream>
-
 #include <httpserver.hpp>
 #include <iterator>
+#include <dirent.h>
+#include <sys/statvfs.h>
+#include <thread>
+
 #include "GDServer.h"
 #include "Level.h"
 
@@ -44,6 +47,25 @@ int main(int, char**) {
         .debug()
         // .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK)
     ;
+
+    std::thread t([&]{
+        DIR *d = opendir("database/nodes/boomlings/levels");
+        struct dirent *dir;
+        auto nd = DatabaseController::database->getNode("boomlings");
+        
+        while ((dir = readdir(d)) != NULL) {
+            int id = std::atoi(dir->d_name + 6);
+            //std::cout << "Updating level " << id << std::endl;
+            auto level = nd->getLevel(id);
+            if (level != nullptr) {
+                nd->initLevel(level);
+                delete level;
+            }
+        }
+        closedir(d);
+    });
+
+    t.detach();
 
     ws.register_resource("/api/v1/hello", reinterpret_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
     ws.register_resource("/api/v1/level/download", reinterpret_cast<http_resource *>(new LevelAPI::v1::LevelDownloadRequest()));

@@ -7,6 +7,7 @@
 #include "DatabaseControllerThreads.h"
 #include "snowflake.h"
 
+#include <filesystem>
 #include <fstream>
 #include <vector>
 #include <iostream>
@@ -59,7 +60,7 @@ Database::Database(std::string path) {
 
     m_nNodeSize = m_vNodes.size();
 
-    if(!exists()) {
+    if(!std::filesystem::exists(p1)) {
         setupJSON();
 
         databaseJson["nodes"] = nlohmann::json::array();
