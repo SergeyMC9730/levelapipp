@@ -48,24 +48,30 @@ int main(int, char**) {
         // .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK)
     ;
 
-    std::thread t([&]{
-        DIR *d = opendir("database/nodes/boomlings/levels");
-        struct dirent *dir;
-        auto nd = DatabaseController::database->getNode("boomlings");
-        
-        while ((dir = readdir(d)) != NULL) {
-            int id = std::atoi(dir->d_name + 6);
-            //std::cout << "Updating level " << id << std::endl;
-            auto level = nd->getLevel(id);
-            if (level != nullptr) {
-                nd->initLevel(level);
-                delete level;
-            }
-        }
-        closedir(d);
-    });
+    // std::thread t([&]{
+    //     int i = 0;
+    //     int size = DatabaseController::database->m_vNodes.size();
+    //     while(i < size) {
+    //         std::string leveldir = "database/nodes/" + DatabaseController::database->m_vNodes[i]->m_sInternalName + "/levels";
+    //         DIR *d = opendir(leveldir.c_str());
+    //         struct dirent *dir;
+    //         auto nd = DatabaseController::database->getNode("boomlings");
+            
+    //         while ((dir = readdir(d)) != NULL) {
+    //             int id = std::atoi(dir->d_name + 6);
+    //             //std::cout << "Updating level " << id << std::endl;
+    //             auto level = nd->getLevel(id);
+    //             if (level != nullptr) {
+    //                 nd->initLevel(level);
+    //                 delete level;
+    //             }
+    //         }
+    //         closedir(d);
+    //         i++;
+    //     }
+    // });
 
-    t.detach();
+    // t.detach();
 
     ws.register_resource("/api/v1/hello", reinterpret_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
     ws.register_resource("/api/v1/level/download", reinterpret_cast<http_resource *>(new LevelAPI::v1::LevelDownloadRequest()));

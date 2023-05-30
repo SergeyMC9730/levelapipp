@@ -173,6 +173,9 @@ Node::~Node() {
     m_pProxy = nullptr;
 }
 
+int initLevel_min = 0;
+int initLevel_max = 0;
+
 void Node::initLevel(Level *level) {
     std::string p = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(level->m_nLevelID);
     std::string p2 = "database/nodes/" + m_sInternalName + "/users/" + std::to_string(level->m_nPlayerID) + ".txt";
@@ -191,22 +194,32 @@ void Node::initLevel(Level *level) {
         if (std::filesystem::file_size(p2) != 0) {
             fj = nlohmann::json::parse(f);
             int i = 0;
-            std::cout << "Size: " << fj["levels"].size() << std::endl;
             while(i < fj["levels"].size()) {
-                list.push_back(fj["levels"].at(i).get<int>());
+                int id = fj["levels"].at(i).get<int>();
+                
+                if(id > 0) {
+                    list.push_back(fj["levels"].at(i).get<int>());
+                }
+                
                 i++;
             }
         }
 
         if(!std::count(list.begin(), list.end(), level->m_nLevelID)) {
             list.push_back(level->m_nLevelID);
-        } else {
-            std::cout << "Level " << level->m_nLevelID << " already exists!" << std::endl;
         }
         fj["account_id"] = level->m_nAccountID;
         fj["username"] = level->m_sUsername;
         fj["user_id"] = level->m_nPlayerID;
         fj["levels"] = list;
+
+        int size = fj["levels"].size();
+        std::cout << "Levels: " << size << " | User ID: " << level->m_nPlayerID << std::endl;
+        int i = 0;
+        while(i < size) {
+            std::cout << "  - Level : " << fj["levels"].at(i).get<int>() << std::endl;
+            i++;    
+        }
 
         f << fj.dump();
 
