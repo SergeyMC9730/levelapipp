@@ -37,12 +37,12 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *
 
     container->setParserForVariable(
         {
-            1,  5,  6,  8, 
-            9,  10, 11, 12, 
+            1,  5,  6,   8,
+            9,  10, 11, 12,
             13, 14, 15, 16,
             18, 19, 30, 35,
             37, 39, 41, 42,
-            43, 45, 46, 47
+            43, 45, 46,  47
         },
         [&](std::string_view input, int id) {
             try {
@@ -54,9 +54,9 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *
     );
     container->setParserForVariable(
         {
-            17, 25, 
+            17, 25,
             31, 38,
-            40, 44
+            40,  44
         },
         [&](std::string_view input, int id) {
             int v = 0;
@@ -84,11 +84,11 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(const char *
             auto input2 = std::string(input);
 
             try {
-                if(carg) {
+                if(true) {
                     if(input.compare("")) {
                         std::string_view member = (char *)(input2).data();
                         return member;
-                    } 
+                    }
                 } else {
                     std::string_view member = input;
                     return member;
