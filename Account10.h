@@ -2,7 +2,13 @@
 
 #include <string>
 
+#include "RobTopStringContainer.hpp"
+
 class Account10 {
+protected:
+    RobTopStringContainer *m_pContainer;
+
+    virtual void addParsers();
 public:
     /* 
         If username starts with GDUsrXXXX, 
@@ -13,5 +19,8 @@ public:
     std::string username;
     int userID;
 
-    //virtual void parseFromString(std::string server_response);
+    Account10();
+    ~Account10();
+
+    virtual void parseFromString(std::string server_response);
 };

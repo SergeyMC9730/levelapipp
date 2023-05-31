@@ -364,7 +364,13 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
 
     std::random_device rd;
     std::uniform_int_distribution<int> uid(0, m_nLevelID);
-
+    
+    std::cout << "Level info:" << std::endl;
+    std::cout << "  - Name: " << this->m_sLevelName << std::endl;
+    std::cout << "  - Author: " << this->m_sUsername << std::endl;
+    std::cout << "  - ID: " << this->m_nLevelID << std::endl;
+    std::cout << "  - Node: " << this->m_sLinkedNode << std::endl;
+    
     dpp::embed embed = dpp::embed().
         set_color(uid(rd)).
         set_title(Translation::getByKey("lapi.level.embed.title")).

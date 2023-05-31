@@ -5,8 +5,7 @@
 namespace LevelAPI {
     namespace Backend {
         namespace LevelParser {
-            LevelAPI::DatabaseController::Level *parseFromResponse(const char *response);
-            LevelAPI::DatabaseController::Level *parseFromResponse(const char *response, bool decrypt_description);
+            LevelAPI::DatabaseController::Level *parseFromResponse(std::string response, bool decrypt_description = true);
         }
     }
 }

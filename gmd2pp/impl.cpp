@@ -1,6 +1,6 @@
 #include "gmd2.h"
 #include "hex.h"
-#include "base64.h"
+#include "cpp-base64/base64.h"
 
 #include <fstream>
 #include <iterator>
@@ -96,7 +96,7 @@ void GMD2::generate() {
         if(this->m_bDebug) printf("[GMD2Impl] Level Description: %s\n", this->m_pLevel->m_sDescription.data());
         ldata += "<k>k3</k>";
             ldata += "<s>";
-                ldata += base64_encode((BYTE *)this->m_pLevel->m_sDescription.data(), this->m_pLevel->m_sDescription.size());
+                ldata += base64_encode(this->m_pLevel->m_sDescription);
             ldata += "</s>";
 
         ldata += "<k>k4</k>";

@@ -4,7 +4,7 @@
 #include "curl_backend.h"
 #include "ThreadSafeLevelParser.h"
 #include "lapi_database.h"
-#include "Account19.h"
+#include "Account21.h"
 #include "StringSplit.h"
 #include "UUID.h"
 #include "Translation.h"
@@ -153,13 +153,13 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     // parse players
     std::string plList = vec2[1];
     std::string lvlList = vec2[0];
-    std::map<int, Account19 *> playerMap;
+    std::map<int, Account21 *> playerMap;
 
     std::vector<std::string> vec4array = splitString(plList.c_str(), '|');
     std::vector<std::string> vec5levels = splitString(lvlList.c_str(), '|');
     int i = 0;
 
-    std::vector<Account19 *> accounts;
+    std::vector<Account21 *> accounts;
     
     while(i < vec4array.size()) {
         std::vector<std::string> vec5player = splitString(vec4array[i].c_str(), ':');
@@ -169,10 +169,10 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
                 int userID = std::stoi(str);
                 std::string username = "-";
                 int accountID = 0;
-                Account19 *ac20 = new Account19();
+                Account21 *ac20 = new Account21();
                 ac20->accountID = accountID;
                 ac20->username = username;
-                playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
+                playerMap.insert(std::pair<int, Account21 *>(userID, ac20));
                 accounts.push_back(ac20);
             }
             break;
@@ -181,20 +181,20 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
             int userID = std::stoi(vec5player[0]);
             std::string username = vec5player[1];
             int accountID = std::stoi(vec5player[2]);
-            Account19 *ac20 = new Account19();
+            Account21 *ac20 = new Account21();
             ac20->accountID = accountID;
             ac20->username = username;
-            playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
+            playerMap.insert(std::pair<int, Account21 *>(userID, ac20));
             accounts.push_back(ac20);
         } catch (std::invalid_argument &e) {
             if(type == 5) {
                 int userID = std::stoi(str);
                 std::string username = "-";
                 int accountID = 0;
-                Account19 *ac20 = new Account19();
+                Account21 *ac20 = new Account21();
                 ac20->accountID = accountID;
                 ac20->username = username;
-                playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
+                playerMap.insert(std::pair<int, Account21 *>(userID, ac20));
                 accounts.push_back(ac20);
             }
         }
@@ -206,7 +206,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
     i = 0;
     while(i < vec5levels.size()) {
         LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str());
-        Account19 *ac20 = playerMap[lvl->m_nPlayerID];
+        Account21 *ac20 = playerMap[lvl->m_nPlayerID];
         lvl->m_nAccountID = ac20->accountID;
         lvl->m_sUsername = ac20->username;
         lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;

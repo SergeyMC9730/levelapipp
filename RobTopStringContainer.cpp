@@ -12,21 +12,21 @@ RobTopStringContainer::RobTopStringContainer(std::string str) {
     m_sOriginalString = str;
 }
 
-void RobTopStringContainer::setParserForVariable(int index, std::function<std::variant<std::string_view, int, float, bool> (std::string_view, int)> func) {
+void RobTopStringContainer::setParserForVariable(int index, std::function<std::variant<std::string, int, float, bool> (std::string, int)> func) {
     m_mFunctionContainer[index] = func;
 }
-void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<std::variant<std::string_view, int, float, bool> (std::string_view, int)> func) {
+void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<std::variant<std::string, int, float, bool> (std::string, int)> func) {
     int i = 0;
     while(i < indexes.size()) {
         setParserForVariable(indexes[i], func);
         i++;
     }
 }
-void RobTopStringContainer::setParserForVariable(int index, std::function<std::variant<std::string_view, int, float, bool>(std::string_view inputString, int inputID, int customArgumentValue)> func, int carg) {
+void RobTopStringContainer::setParserForVariable(int index, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int customArgumentValue)> func, int carg) {
     m_mFunctionContainer[index] = func;
     m_mFuncCustomArgList[index] = carg;
 }
-void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<std::variant<std::string_view, int, float, bool>(std::string_view inputString, int inputID, int customArgumentValue)> func, int carg) {
+void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int customArgumentValue)> func, int carg) {
     int i = 0;
     while(i < indexes.size()) {
         setParserForVariable(indexes[i], func, carg);
@@ -35,13 +35,13 @@ void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::
 }
 
 
-std::variant<std::string_view, int, float, bool> RobTopStringContainer::getVariable(int id) {
+std::variant<std::string, int, float, bool> RobTopStringContainer::getVariable(int id) {
     return m_mContainer[id];
 }
 
-std::string RobTopStringContainer::variantToString(std::variant<std::string_view, int, float, bool> var) {
-    if (std::holds_alternative<std::string_view>(var)) {
-        return std::string(std::get<std::string_view>(var));
+std::string RobTopStringContainer::variantToString(std::variant<std::string, int, float, bool> var) {
+    if (std::holds_alternative<std::string>(var)) {
+        return std::get<std::string>(var);
     }
     if (std::holds_alternative<int>(var)) {
         return std::to_string(std::get<int>(var));
@@ -60,6 +60,10 @@ bool RobTopStringContainer::variableExists(int id) {
     return m_mContainer.count(id);
 }
 
+void RobTopStringContainer::setString(std::string str) {
+    this->m_sOriginalString = str;
+}
+
 void RobTopStringContainer::parse() {
     int currentKey = 0;
     int i = 0;
@@ -68,20 +72,18 @@ void RobTopStringContainer::parse() {
     while(i < splittedString.size()) {
         try {
             currentKey = std::stoi(splittedString[i]);
-        } catch (std::invalid_argument &e) {
-            return;
-        }
+        } catch (std::invalid_argument &e) { return; }
 
         i++;
 
         if(m_mFunctionContainer.count(currentKey)) {
-            if(std::holds_alternative<std::function<std::variant<std::string_view, int, float, bool>(std::string_view inputString, int inputID)>>(m_mFunctionContainer[currentKey])) {
-                auto func = std::get<std::function<std::variant<std::string_view, int, float, bool>(std::string_view inputString, int inputID)>>(m_mFunctionContainer[currentKey]);
+            if(std::holds_alternative<std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID)>>(m_mFunctionContainer[currentKey])) {
+                auto func = std::get<std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID)>>(m_mFunctionContainer[currentKey]);
                 auto res = func(splittedString[i], currentKey);
                 m_mContainer[currentKey] = res;
             }
-            if(std::holds_alternative<std::function<std::variant<std::string_view, int, float, bool>(std::string_view inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey])) {
-                auto func = std::get<std::function<std::variant<std::string_view, int, float, bool>(std::string_view inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey]);
+            if(std::holds_alternative<std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey])) {
+                auto func = std::get<std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey]);
                 if(m_mFuncCustomArgList.count(currentKey)) {
                     auto res = func(splittedString[i], currentKey, m_mFuncCustomArgList[currentKey]);
                     m_mContainer[currentKey] = res;

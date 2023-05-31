@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Account10.h"
+#include "Account19.h"
 
-class Account19 : public Account10 {
+class Account21 : public Account19 {
 protected:
     void addParsers() override;
 public:
-    int accountID;
+    int modLevel;
 
     void parseFromString(std::string server_response) override;
 };

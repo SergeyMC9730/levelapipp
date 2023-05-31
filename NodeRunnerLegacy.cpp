@@ -231,7 +231,7 @@ void DatabaseController::node_runner(Node *nd) {
                         levels[q]->m_bHasLevelString = false;
                         levels[q]->save();
                         nd->m_jLastDownloadedLevel = levels[q]->levelJson;
-                        if (!DatabaseController::database->m_sRegisteredCID2.empty() && DatabaseController::database->m_bBotReady) {
+                        if (!DatabaseController::database->m_sRegisteredCID2.empty() && DatabaseController::database->m_bBotReady && DatabaseController::database->m_pLinkedBot->m_pBot != nullptr) {
                             DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
                                 dpp::snowflake(DatabaseController::database->m_sRegisteredCID2), levels[q]->getAsEmbed(E_REGISTERED)
                             ));
@@ -425,7 +425,7 @@ start:
                     if(!nd->m_bRateLimitApplied && nd->m_pPolicy->m_bEnableResolver) {
                         nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));
                     }
-                    if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady) {
+                    if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady && DatabaseController::database->m_pLinkedBot->m_pBot != nullptr) {
                         DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
                             dpp::snowflake(DatabaseController::database->m_sRegisteredCID), levels[i]->getAsEmbed(E_RECENT)
                         ));

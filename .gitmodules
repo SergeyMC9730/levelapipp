@@ -28,3 +28,6 @@
 [submodule "DPP"]
 	path = DPP
 	url = https://github.com/SergeyMC9730/DPP-patched
+[submodule "gmd2pp/cpp-base64"]
+	path = gmd2pp/cpp-base64
+	url = https://github.com/ReneNyffenegger/cpp-base64.git

@@ -38,6 +38,7 @@ add_library(ext_lzma ${lzma_files})
 add_library(ext_zlib ${zlib_files})
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED 11)
 
 file(GLOB ziplib_files
     "${CMAKE_CURRENT_SOURCE_DIR}/ziplib/Source/ZipLib/*.cpp"
@@ -97,6 +98,9 @@ install(TARGETS ext_lzma EXPORT levelapi_workarounds)
 install(TARGETS ext_zlib EXPORT levelapi_workarounds)
 install(TARGETS ext_ziplib EXPORT levelapi_workarounds)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED 17)
+
 add_library(gmdtools gmdtools.cpp)
 link_libraries(gmdtools curl)
 
@@ -114,5 +118,9 @@ add_subdirectory(pugixml_patch)
 
 install(TARGETS pugixml-shared EXPORT levelapi_workarounds)
 
-add_library(gmd2 impl.cpp hex.cpp base64.cpp GDLevelSaveable.cpp)
-target_link_libraries(gmd2 ext_ziplib gmdtools cjson pugixml-shared)
+add_library(base64 cpp-base64/base64.cpp)
+
+install(TARGETS base64 EXPORT levelapi_workarounds)
+
+add_library(gmd2 impl.cpp hex.cpp GDLevelSaveable.cpp)
+target_link_libraries(gmd2 ext_ziplib gmdtools cjson pugixml-shared base64)
