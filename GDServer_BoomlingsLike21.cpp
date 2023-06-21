@@ -36,7 +36,8 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
 
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
-        new CURLParameter("levelID", id)
+        new CURLParameter("levelID", id),
+        new CURLParameter("gameVersion", getGameVersion())
     });
 
     std::string uurl = m_sEndpointURL + "/downloadGJLevel22.php";
@@ -101,10 +102,13 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike21::get
         new CURLParameter("secret", "Wmfd2893gb7"),
         new CURLParameter("type", type),
         new CURLParameter("page", page),
-        new CURLParameter("total", 9999)
+        new CURLParameter("total", 9999),
+        new CURLParameter("gameVersion", getGameVersion())
     };
 
-    if(!m_sGJPPassword.empty()) params.push_back(new CURLParameter("gjp", m_sGJPPassword));
+    if(!m_sGJPPassword.empty()) {
+        params.push_back(new CURLParameter("gjp", m_sGJPPassword));
+    }
     if(!str.empty()) params.push_back(new CURLParameter("str", str));
 
     m_pLinkedCURL->setData(params);
@@ -243,7 +247,8 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::resolveLevelData(
 
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
-        new CURLParameter("levelID", level->m_nLevelID)
+        new CURLParameter("levelID", level->m_nLevelID),
+        new CURLParameter("gameVersion", getGameVersion())
     });
 
     std::string uurl = m_sEndpointURL + "/downloadGJLevel22.php";
@@ -332,7 +337,7 @@ GDServerUploadResult *GDServer_BoomlingsLike21::uploadLevel(DatabaseController::
 
     m_pLinkedCURL->setData({
         new CURLParameter("secret", "Wmfd2893gb7"),
-        new CURLParameter("gameVersion", getGameVersion()),
+        new CURLParameter("gameVersion", getGameVersion())
 
     });
 
@@ -355,7 +360,8 @@ bool GDServer_BoomlingsLike21::login() {
         new CURLParameter("secret", "Wmfv3899gc9"),
         new CURLParameter("udid", ConnectionCrypt::createUUID()),
         new CURLParameter("password", m_sPassword),
-        new CURLParameter("userName", m_sUsername)
+        new CURLParameter("userName", m_sUsername),
+        new CURLParameter("gameVersion", getGameVersion())
     });
 
     std::string uurl = m_sEndpointURL + "/accounts/loginGJAccount.php";

@@ -153,6 +153,13 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "Бумлингс (официальный) сервер"
         }
     },
+    // from GDServer_BoomlingsExperimental22.cpp
+    {
+        "lapi.gdserver_boomlingsexperimental22.name", {
+            "Boomlings (official) server (with 2.2 features)",
+            "Бумлингс (официальный) сервер (с фичами из 2.2)"
+        }
+    },
     // from GDServer_BoomlingsLike19.cpp
     {
         "lapi.gdserver_boomlingslike19.name", {
@@ -165,6 +172,13 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.gdserver_boomlingslike21.name", {
             "Standard 2.1 server",
             "Стандартный 2.1 сервер"
+        }
+    },
+    // from GDServer_BoomlingsLike22.cpp
+    {
+        "lapi.gdserver_boomlingslike22.name", {
+            "Standard 2.2 server",
+            "Стандартный 2.2 сервер"
         }
     },
     // from GDServer_BoomlingsLike22.cpp

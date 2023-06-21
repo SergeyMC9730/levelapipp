@@ -4,10 +4,12 @@
 #include <dirent.h>
 #include <sys/statvfs.h>
 #include <thread>
+#include <vector>
 
 #include "GDServer.h"
 #include "Level.h"
 
+#include "TestingBoomlings22.h"
 #include "requests/v1.helloworld.h"
 #include "requests/v1.level.download.h"
 #include "requests/v1.img.request.h"
@@ -29,9 +31,99 @@
 using namespace LevelAPI;
 using namespace LevelAPI::Frontend::Translation;
 
-int main(int, char**) {
+std::vector<std::string> get_tests() {
+    return {
+        "boomlings2.2"
+    };
+}
+
+void print_tests() {
+    auto tests = get_tests();
+
+    int i = 0;
+
+    std::cout << "Available tests:" << std::endl;
+    
+    while(i < tests.size()) {
+        auto test = tests[i];
+
+        std::cout << " - " << test << std::endl;
+
+        i++;
+    }
+
+    return;
+}
+
+bool is_test_valid(std::string test) {
+    auto tests = get_tests();
+
+    int i = 0;
+    while(i < tests.size()) {
+        if (tests[i] == test) return true;
+        i++;
+    }
+
+    return false;
+}
+
+void route_test(std::string test) {
+    if (!is_test_valid(test)) return;
+
+    if (test == "boomlings2.2") {
+        LevelAPI::Tests::test_boomlings_ver22();
+    }
+
+    return;
+}
+
+std::vector<std::string> getArguments(int argc, char *argv[]) {
+    if (argc == 1) return {};
+
+    int i = 1;
+    std::vector<std::string> arguments = {};
+
+    while(i < argc) {
+        arguments.push_back(argv[i]);
+        i++;
+    }
+
+    return arguments;
+}
+
+int main(int argc, char *argv[]) {
     std::cout << "LevelAPI " << LEVELAPI_VERSION << "\n";
     std::cout << getByKey("lapi.main.alpha") << "\n\n";
+
+    auto args = getArguments(argc, argv);
+
+    if (args.size() != 0) {
+        auto command = args[0];
+
+        if (command == "test") {
+            if (args.size() == 1) {
+                print_tests();
+
+                return 1;
+            }
+
+            auto subtest = args[1];
+
+            if (!is_test_valid(subtest)) {
+                print_tests();
+
+                return 1;
+            }
+
+            route_test(subtest);
+
+            return 0;
+        }
+
+        std::cout << "Help:\n - test  -> testing new LevelAPI features\n";
+
+        return 1;
+    }
 
     DatabaseController::setup();
     HttpController::setup();

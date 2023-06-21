@@ -1,6 +1,7 @@
 #include "GDServer.h"
 #include "GDServer_BoomlingsLike19.h"
 #include "GDServer_BoomlingsLike21.h"
+#include "GDServer_BoomlingsLike22.h"
 #include "Level.h"
 #include "SearchFilter.h"
 #include "gmd2pp/gmd2.h"
@@ -368,6 +369,13 @@ LevelAPI::Backend::GDServer *Node::createServer() {
                 serv = new Backend::GDServer_BoomlingsLike21(m_uDatabase->m_sEndpoint);
             }
             break;
+        }
+        case 22: {
+            if (m_uDatabase->m_sModifications.empty()) {
+                serv = new Backend::GDServer_Boomlings(m_uDatabase->m_sEndpoint);
+            } else {
+                serv = new Backend::GDServer_BoomlingsLike22(m_uDatabase->m_sEndpoint);
+            }
         }
         case 19: {
             if(m_uDatabase->m_sModifications == "19gdps-custom") {
