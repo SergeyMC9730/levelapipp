@@ -25,14 +25,20 @@
 
 #include "GDServer_BoomlingsLike21.h"
 
+#include "UUID.h"
+
+#include <ctime>
+
 // #include "sqlite3/connection.h"
 // #include "sqlite3/connection_config.h"
 
-#include <sqlite3.h>
+#include "SQLiteManager.h"
 
 #include "tests.h"
 
 #include "Translation.h"
+
+#include <chrono>
 
 // #include <sqlpp11/sqlpp11.h>
 // #include <sqlpp11/sqlite3/sqlite3.h>
@@ -100,9 +106,33 @@ std::vector<std::string> getArguments(int argc, char *argv[]) {
     return arguments;
 }
 
+int testcallback(void *sql, int columns, char **array1, char **array2) {
+    int i = 0;
+
+    std::cout << "Columns: " << columns << std::endl;
+
+    // std::cout << "ARRAY 1:" << std::endl;
+    // while (array1[i] != NULL) {
+    //     std::cout << array1[i] << std::endl; 
+    //     i++;
+    // }
+
+    // i = 0;
+
+    // std::cout << "ARRAY 2:" << std::endl;
+    // while (array2[i] != NULL) {
+    //     std::cout << array2[i] << std::endl; 
+    //     i++;
+    // }
+
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
     std::cout << "LevelAPI " << LEVELAPI_VERSION << "\n";
     std::cout << getByKey("lapi.main.alpha") << "\n\n";
+
+    srand(time(nullptr));
 
     auto args = getArguments(argc, argv);
 
@@ -136,14 +166,85 @@ int main(int argc, char *argv[]) {
 
     std::cout << "doing sqlite shit pls wait" << std::endl;
 
-    sqlite3 *sq;
-    sqlite3_open("database/test.db", &sq);
+    auto manager = SQLiteManager::create("database/test.db");
 
-    if (!sq) {
-        std::cout << "error happened!" << std::endl;
-    } else {
-        sqlite3_close(sq);
+    manager->wipeTable("comments");
+
+    int i = 0;
+    while(i < 64) {
+        manager->pushRow({
+            {"message", Backend::ConnectionCrypt::createUUID()},
+            {"percentage", 100},
+            {"userID", 1},
+            {"levelID", 1}
+        } , "comments");
+        i++;
     }
+        
+    delete manager;
+    // sqlite3_initialize();
+
+    // sqlite3 *sq = NULL;
+    // sqlite3_open("database/test.db", &sq);
+
+    // if (!sq) {
+    //     std::cout << "error happened!" << std::endl;
+    //     return 1;
+    // }
+
+    // char *error = NULL;
+
+    // sqlite3_exec(sq, "SELECT * FROM comments", testcallback, sq, &error);
+
+    // if (error) {
+    //     std::cout << error << std::endl;
+    // }
+
+    // sqlite3_exec(sq, sqlite3_mprintf("DELETE FROM comments WHERE userID = %d", 64), testcallback, sq, &error);
+
+    // if (error) {
+    //     std::cout << error << std::endl;
+    // }
+
+    // sqlite3_enable_shared_cache(1);
+    // sqlite3_config(SQLITE_CONFIG_MULTITHREAD, 1);
+
+    // std::thread d([&]() {
+    //     std::cout << "destroying comments" << std::endl;
+    //     char *errorlol;
+    //     sqlite3_exec(sq, "DELETE FROM comments WHERE 1", testcallback, sq, &errorlol);
+
+    //     std::cout << "creating comments" << std::endl;
+    //     int i = 0;
+    //     while(i < 1024) {
+    //         auto start = std::chrono::high_resolution_clock::now();
+
+    //         char *error = NULL;
+    //         std::string message = LevelAPI::Backend::ConnectionCrypt::createUUID();
+
+    //         const char *sql_query = sqlite3_mprintf("INSERT INTO comments (message, percentage, userID, levelID) VALUES ('%s', %d, %d, %d)", message.c_str(), i % 100, i, i * 10);
+    //         sqlite3_exec(sq, sql_query, testcallback, sq, &error);
+            
+    //         if (error) {
+    //             std::cout << error << std::endl;
+    //             sqlite3_free((void *)error);
+    //         }
+
+    //         sqlite3_free((void *)sql_query);
+
+    //         i++;
+
+    //         auto end = std::chrono::high_resolution_clock::now();
+
+    //         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+            
+    //         std::cout << duration.count() << "micros per query! " << i << std::endl;
+    //     }
+    // });
+    
+    // sqlite3_mprintf()
+    
+    // sqlite3_close(sq);
 
     // sqlpp::connection con;
     
