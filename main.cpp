@@ -180,16 +180,19 @@ int main(int argc, char *argv[]) {
     }
 
     // std::vector<std::map<std::string, std::string>>
-    auto table = manager->getTableWithEquality("comments", "levelID", 1, {{"message", "hi"}, {"levelID", 1}});
-    
-    i = 0;
-    while(i < table.size()) {
-        auto map = table.at(i);
-        for (auto [key, val] : map) {
-            std::cout << key << ", " << val << std::endl;
-        }
-        i++;
-    }
+
+    std::cout << "Rows: " << manager->countTable("comments") << std::endl;
+
+    // auto table = manager->getTableWithEquality("comments", "levelID", 1, {{"message", "hi"}, {"levelID", 1}});
+
+    // i = 0;
+    // while(i < table.size()) {
+    //     auto map = table.at(i);
+    //     for (auto [key, val] : map) {
+    //         std::cout << key << ", " << val << std::endl;
+    //     }
+    //     i++;
+    // }
 
     delete manager;
 

@@ -161,27 +161,9 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTable(std::str
     if (page == 0) page = 1;
     if (rowsPerPage == 0) rowsPerPage = 1;
 
-    bool job_completed = false;
-
-    std::vector<std::map<std::string, std::string>> vec = {};
-
     char *data1 = sqlite3_mprintf("SELECT * FROM %s ORDER BY %s LIMIT %d OFFSET %d;", table.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
 
-    _queue.push(
-        std::pair<
-            std::string, 
-            std::function<SQLITE_CALLBACK_FUNC>>
-                (data1,
-                    [&](SQLiteManager *self, std::vector<std::map<std::string, std::string>> v, bool c) {
-                        vec = v;
-                        job_completed = true;
-                    }
-                )
-    );
-    
-    while (!job_completed) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
+    auto vec = syncQuery(data1);
 
     sqlite3_free(data1);
     
@@ -191,10 +173,6 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTable(std::str
 std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithEquality(std::string table, std::string columnOrdering, int rowsPerPage, int page, std::map<std::string, std::variant<std::string, int, bool>> equality) {
     if (page == 0) page = 1;
     if (rowsPerPage == 0) rowsPerPage = 1;
-
-    bool job_completed = false;
-
-    std::vector<std::map<std::string, std::string>> vec = {};
 
     std::string eq = "";
 
@@ -218,21 +196,7 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithEqual
 
     char *data1 = sqlite3_mprintf("SELECT * FROM %s WHERE %s ORDER BY %s LIMIT %d OFFSET %d;", table.c_str(), eq.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
     
-    _queue.push(
-        std::pair<
-            std::string, 
-            std::function<SQLITE_CALLBACK_FUNC>>
-                (data1,
-                    [&](SQLiteManager *self, std::vector<std::map<std::string, std::string>> v, bool c) {
-                        vec = v;
-                        job_completed = true;
-                    }
-                )
-    );
-    
-    while (!job_completed) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
+    auto vec = syncQuery(data1);
 
     sqlite3_free(data1);
     
@@ -250,4 +214,34 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTable(std::str
 
 std::function<SQLITE_CALLBACK_FUNC> SQLiteManager::getPlaceholderCallback() {
     return [](SQLiteManager *, std::vector<std::map<std::string, std::string>>, bool){};
+}
+
+std::vector<std::map<std::string, std::string>> SQLiteManager::syncQuery(std::string query) {
+    bool job_completed = false;
+
+    std::vector<std::map<std::string, std::string>> vec = {};
+
+    _queue.push(
+        std::pair<
+            std::string, 
+            std::function<SQLITE_CALLBACK_FUNC>>
+                (query.c_str(),
+                    [&](SQLiteManager *self, std::vector<std::map<std::string, std::string>> v, bool c) {
+                        vec = v;
+                        job_completed = true;
+                    }
+                )
+    );
+    
+    while (!job_completed) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    return vec;
+}
+
+int SQLiteManager::countTable(std::string table) {
+    auto vec = syncQuery("SELECT COUNT(*) AS length FROM " + table);
+
+    return std::stoi(vec.at(0)["length"]);
 }

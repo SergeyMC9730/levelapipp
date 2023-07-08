@@ -21,6 +21,8 @@
 
 #include "fast-vector/fast_vector.h"
 
+#include "SQLiteManager.h"
+
 #pragma pack(push, 1)
 
 namespace LevelAPI {
@@ -133,6 +135,8 @@ namespace LevelAPI {
             Backend::GDServer *m_pCachedGDInstance = nullptr;
         public:
             nlohmann::json nodeJson;
+
+            SQLiteManager *m_pSQLiteInstance;
 
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath, NodeQueue *queue);
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath);

@@ -42,6 +42,10 @@ public:
     // wipes table's contents
     void wipeTable(std::string table);
 
+    int countTable(std::string table);
+
+    std::vector<std::map<std::string, std::string>> syncQuery(std::string query);
+
     std::vector<std::map<std::string, std::string>> getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page);
     std::vector<std::map<std::string, std::string>> getTable(std::string table, std::string columnOrdering, int page);
 
