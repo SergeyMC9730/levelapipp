@@ -164,93 +164,34 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    std::cout << "doing sqlite shit pls wait" << std::endl;
-
     auto manager = SQLiteManager::create("database/test.db");
 
     manager->wipeTable("comments");
 
     int i = 0;
-    while(i < 64) {
+    while(i < 16) {
         manager->pushRow({
-            {"message", Backend::ConnectionCrypt::createUUID()},
+            {"message", "hi"},
             {"percentage", 100},
             {"userID", 1},
             {"levelID", 1}
         } , "comments");
         i++;
     }
-        
+
+    // std::vector<std::map<std::string, std::string>>
+    auto table = manager->getTableWithEquality("comments", "levelID", 1, {{"message", "hi"}, {"levelID", 1}});
+    
+    i = 0;
+    while(i < table.size()) {
+        auto map = table.at(i);
+        for (auto [key, val] : map) {
+            std::cout << key << ", " << val << std::endl;
+        }
+        i++;
+    }
+
     delete manager;
-    // sqlite3_initialize();
-
-    // sqlite3 *sq = NULL;
-    // sqlite3_open("database/test.db", &sq);
-
-    // if (!sq) {
-    //     std::cout << "error happened!" << std::endl;
-    //     return 1;
-    // }
-
-    // char *error = NULL;
-
-    // sqlite3_exec(sq, "SELECT * FROM comments", testcallback, sq, &error);
-
-    // if (error) {
-    //     std::cout << error << std::endl;
-    // }
-
-    // sqlite3_exec(sq, sqlite3_mprintf("DELETE FROM comments WHERE userID = %d", 64), testcallback, sq, &error);
-
-    // if (error) {
-    //     std::cout << error << std::endl;
-    // }
-
-    // sqlite3_enable_shared_cache(1);
-    // sqlite3_config(SQLITE_CONFIG_MULTITHREAD, 1);
-
-    // std::thread d([&]() {
-    //     std::cout << "destroying comments" << std::endl;
-    //     char *errorlol;
-    //     sqlite3_exec(sq, "DELETE FROM comments WHERE 1", testcallback, sq, &errorlol);
-
-    //     std::cout << "creating comments" << std::endl;
-    //     int i = 0;
-    //     while(i < 1024) {
-    //         auto start = std::chrono::high_resolution_clock::now();
-
-    //         char *error = NULL;
-    //         std::string message = LevelAPI::Backend::ConnectionCrypt::createUUID();
-
-    //         const char *sql_query = sqlite3_mprintf("INSERT INTO comments (message, percentage, userID, levelID) VALUES ('%s', %d, %d, %d)", message.c_str(), i % 100, i, i * 10);
-    //         sqlite3_exec(sq, sql_query, testcallback, sq, &error);
-            
-    //         if (error) {
-    //             std::cout << error << std::endl;
-    //             sqlite3_free((void *)error);
-    //         }
-
-    //         sqlite3_free((void *)sql_query);
-
-    //         i++;
-
-    //         auto end = std::chrono::high_resolution_clock::now();
-
-    //         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-            
-    //         std::cout << duration.count() << "micros per query! " << i << std::endl;
-    //     }
-    // });
-    
-    // sqlite3_mprintf()
-    
-    // sqlite3_close(sq);
-
-    // sqlpp::connection con;
-    
-    // auto config = sqlpp::sqlite3::connection_config("database/test.db");
-
-    // sqlpp::sqlite3::connection con(config);
 
     // DatabaseController::setup();
     // HttpController::setup();

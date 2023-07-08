@@ -1,6 +1,7 @@
 #include "SQLiteManager.h"
 #include <chrono>
 #include <exception>
+#include <functional>
 #include <thread>
 #include <utility>
 #include <variant>
@@ -71,8 +72,7 @@ void SQLiteManager::pushRow(std::map<std::string, std::variant<std::string, int,
         s += key + ", ";
     }
 
-    s.pop_back();
-    s.pop_back();
+    s.erase(s.size() - 2);
 
     s += ") VALUES (";
 
@@ -90,8 +90,7 @@ void SQLiteManager::pushRow(std::map<std::string, std::variant<std::string, int,
         s += ", ";
     }
 
-    s.pop_back();
-    s.pop_back();
+    s.erase(s.size() - 2);
 
     s += ")";
     
@@ -109,28 +108,29 @@ int SQLiteManager::sqlite_callback(void *data, int columns, char **array1, char 
     SQLiteCallbackData *c = static_cast<SQLiteCallbackData *>(data);
     int i = 0;
 
-    std::cout << "Columns: " << columns << std::endl;
+    std::map<std::string, std::string> m = {};
 
-    std::cout << "ARRAY 1:" << std::endl;
-    while (array1[i] != NULL) {
-        std::cout << array1[i] << std::endl; 
+    while (i < columns) {
+        m.insert(
+            std::pair<std::string, std::string>(
+                array2[i], array2[i + columns]
+            )
+        );
+
         i++;
     }
 
-    i = 0;
-
-    std::cout << "ARRAY 2:" << std::endl;
-    while (array2[i] != NULL) {
-        std::cout << array2[i] << std::endl; 
-        i++;
-    }
+    c->_result_vec.push_back(m);
 
     return 0;
 }
 
 void SQLiteManager::processQueue(SQLiteManager *self, std::future<void> signal) {
     while (signal.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
+        bool had_request = false;
         if (self->_queue.size() != 0) {
+            had_request = true;
+
             auto pair = self->_queue.front();
 
             char *error = NULL;
@@ -139,7 +139,7 @@ void SQLiteManager::processQueue(SQLiteManager *self, std::future<void> signal) 
 
             sqlite3_exec(self->_database, pair.first.c_str(), SQLiteManager::sqlite_callback, (void *)callbackData, &error);
         
-            pair.second(self, callbackData->_result_map, error != NULL);
+            pair.second(self, callbackData->_result_vec, error != NULL);
 
             if (error) {
                 std::cout << error << std::endl;
@@ -153,10 +153,101 @@ void SQLiteManager::processQueue(SQLiteManager *self, std::future<void> signal) 
 
             self->_queue.pop();
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if (!had_request) std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
+std::vector<std::map<std::string, std::string>> SQLiteManager::getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page) {
+    if (page == 0) page = 1;
+    if (rowsPerPage == 0) rowsPerPage = 1;
+
+    bool job_completed = false;
+
+    std::vector<std::map<std::string, std::string>> vec = {};
+
+    char *data1 = sqlite3_mprintf("SELECT * FROM %s ORDER BY %s LIMIT %d OFFSET %d;", table.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
+
+    _queue.push(
+        std::pair<
+            std::string, 
+            std::function<SQLITE_CALLBACK_FUNC>>
+                (data1,
+                    [&](SQLiteManager *self, std::vector<std::map<std::string, std::string>> v, bool c) {
+                        vec = v;
+                        job_completed = true;
+                    }
+                )
+    );
+    
+    while (!job_completed) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    sqlite3_free(data1);
+    
+    return vec;
+}
+
+std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithEquality(std::string table, std::string columnOrdering, int rowsPerPage, int page, std::map<std::string, std::variant<std::string, int, bool>> equality) {
+    if (page == 0) page = 1;
+    if (rowsPerPage == 0) rowsPerPage = 1;
+
+    bool job_completed = false;
+
+    std::vector<std::map<std::string, std::string>> vec = {};
+
+    std::string eq = "";
+
+    for (auto [key, val] : equality) {
+        eq += key + " ";
+
+        if (std::holds_alternative<std::string>(val)) {
+            eq += "LIKE '%" + std::get<std::string>(val) + "%'";
+        }
+        if (std::holds_alternative<int>(val)) {
+            eq += "= " + std::to_string(std::get<int>(val));
+        }
+        if (std::holds_alternative<bool>(val)) {
+            eq += "= " + std::to_string((int)std::get<bool>(val));
+        }
+
+        eq += " AND ";
+    }
+
+    eq.erase(eq.size() - 5);
+
+    char *data1 = sqlite3_mprintf("SELECT * FROM %s WHERE %s ORDER BY %s LIMIT %d OFFSET %d;", table.c_str(), eq.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
+    
+    _queue.push(
+        std::pair<
+            std::string, 
+            std::function<SQLITE_CALLBACK_FUNC>>
+                (data1,
+                    [&](SQLiteManager *self, std::vector<std::map<std::string, std::string>> v, bool c) {
+                        vec = v;
+                        job_completed = true;
+                    }
+                )
+    );
+    
+    while (!job_completed) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    sqlite3_free(data1);
+    
+    return vec;
+}
+
+
+std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithEquality(std::string table, std::string columnOrdering, int page, std::map<std::string, std::variant<std::string, int, bool>> equality) {
+    return getTableWithEquality(table, columnOrdering, 10, page, equality);
+}
+
+std::vector<std::map<std::string, std::string>> SQLiteManager::getTable(std::string table, std::string columnOrdering, int page) {
+    return getTable(table, columnOrdering, 10, page);
+}
+
 std::function<SQLITE_CALLBACK_FUNC> SQLiteManager::getPlaceholderCallback() {
-    return [](SQLiteManager *, std::map<std::string, std::string>, bool){};
+    return [](SQLiteManager *, std::vector<std::map<std::string, std::string>>, bool){};
 }

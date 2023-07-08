@@ -8,8 +8,9 @@
 #include <thread>
 #include <variant>
 #include <future>
+#include <vector>
 
-#define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::map<std::string, std::string>, bool)
+#define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::vector<std::map<std::string, std::string>>, bool)
 
 class SQLiteManager {
 protected:
@@ -41,6 +42,12 @@ public:
     // wipes table's contents
     void wipeTable(std::string table);
 
+    std::vector<std::map<std::string, std::string>> getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page);
+    std::vector<std::map<std::string, std::string>> getTable(std::string table, std::string columnOrdering, int page);
+
+    std::vector<std::map<std::string, std::string>> getTableWithEquality(std::string table, std::string columnOrdering, int rowsPerPage, int page, std::map<std::string, std::variant<std::string, int, bool>> equality);
+    std::vector<std::map<std::string, std::string>> getTableWithEquality(std::string table, std::string columnOrdering, int page, std::map<std::string, std::variant<std::string, int, bool>> equality);
+
     std::function<SQLITE_CALLBACK_FUNC> getPlaceholderCallback();
 
     static int sqlite_callback(void *data, int columns, char **array1, char **array2);
@@ -51,5 +58,5 @@ class SQLiteCallbackData {
 public:
     SQLiteManager *manager = nullptr;
 
-    std::map<std::string, std::string> _result_map = {};
+    std::vector<std::map<std::string, std::string>> _result_vec = {};
 };
