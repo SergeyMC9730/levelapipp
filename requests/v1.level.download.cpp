@@ -23,7 +23,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
     int type = 0;
 
     try {
-        if(!type1.empty()) {
+        if(!type1.get_flat_value().empty()) {
             type = std::stoi(std::string(type1));
         }
     } catch (std::invalid_argument &e) {

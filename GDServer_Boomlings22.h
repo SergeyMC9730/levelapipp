@@ -2,9 +2,9 @@
 
 namespace LevelAPI {
     namespace Backend {
-        class GDServer_BoomlingsExperimental22 : public GDServer_BoomlingsLike22 {
+        class GDServer_Boomlings22 : public GDServer_BoomlingsLike22 {
         public:
-            GDServer_BoomlingsExperimental22(std::string endpoint);
+            GDServer_Boomlings22(std::string endpoint);
 
             std::string getServerName() override;
             std::string getServerIdentifier() override;

@@ -1,6 +1,6 @@
 #include "TestingBoomlings22.h"
 
-#include "GDServer_BoomlingsExperimental22.h"
+#include "GDServer_Boomlings22.h"
 
 #include <iostream>
 #include <thread>
@@ -10,7 +10,7 @@ using namespace LevelAPI;
 void Tests::test_boomlings_ver22() {
     std::cout << "Testing official GD server in 2.2 mode" << std::endl;
 
-    auto boom = new LevelAPI::Backend::GDServer_BoomlingsExperimental22("https://www.boomlings.com/database");
+    auto boom = new LevelAPI::Backend::GDServer_Boomlings22("https://www.boomlings.com/database");
 
     boom->setDebug(false);
 
