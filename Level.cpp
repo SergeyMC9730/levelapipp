@@ -37,13 +37,23 @@ Level::Level() {
 }
 
 void Level::setupJSON() {
-    levelJson = nlohmann::json();
+    _jsonObject = nlohmann::json();
+}
+
+Time *Level::getTimeLegacy() {
+    if (m_sCreatedTimestamp.empty()) return nullptr;
+
+    Time *t = Time::create();
+
+    t->fromTimeString(m_sCreatedTimestamp);
+
+    return t;
 }
 
 void Level::save(bool onlyLevelString) {
     generateDifficultyImage("resources");
 
-    #define fill(str, val) levelJson[str] = val;
+    #define fill(str, val) _jsonObject[str] = val;
     #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
     fill("levelID", m_nLevelID)
@@ -92,7 +102,7 @@ void Level::save(bool onlyLevelString) {
     
     if (!onlyLevelString) {
 	    std::ofstream file(g);
-    	file << levelJson.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
+    	file << _jsonObject.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
 	    file.close();
     }
 
@@ -139,8 +149,8 @@ std::string Level::getDownloadLinks(bool embed) {
     return result;
 }
 
-void Level::restore() {
-    #define RS(t, str, val) if (levelJson.contains(str)) {if(!levelJson[str].is_null()) val = levelJson[str].get<t>();}
+void Level::recover() {
+    #define RS(t, str, val) if (_jsonObject.contains(str)) {if(!_jsonObject[str].is_null()) val = _jsonObject[str].get<t>();}
 
     RS(int, "levelID", m_nLevelID)
     RS(int, "version", m_nVersion)
@@ -168,6 +178,8 @@ void Level::restore() {
     RS(int, "objects", m_nObjects)
     RS(int, "moons", m_nMoons);
 
+    RS(uint64_t, "appereanceTimestamp", m_nAppereanceTimestamp);
+
     RS(bool, "isAuto", m_bAuto)
     RS(bool, "isDemon", m_bDemon)
     RS(bool, "areCoinsVerified", m_bVerifiedCoins)
@@ -181,6 +193,15 @@ void Level::restore() {
     RS(std::string, "username", m_sUsername)
     RS(std::string, "actualGameVersion", m_uRelease->m_fActualVersion)
     RS(std::string, "publicationDate", m_sCreatedTimestamp);
+
+    auto time_legacy = getTimeLegacy();
+
+    if (time_legacy) {
+        m_nAppereanceTimestamp = time_legacy->unixTime;
+
+        delete time_legacy;
+        time_legacy = nullptr;
+    }
 
     return;
 }

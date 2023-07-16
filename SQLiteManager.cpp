@@ -56,6 +56,67 @@ SQLiteManager::SQLiteManager(std::string databasePath) {
     _processThread.detach();
 }
 
+void SQLiteManager::updateRow(std::string table, SQLiteRow newRow, SQLiteRow condition) {
+    std::string s = "UPDATE " + table + " SET";
+
+    for (auto const [key, val] : newRow) {
+        s += " " + key + " = ";
+
+        if (std::holds_alternative<std::string>(val)) {
+            s += "'" + std::get<std::string>(val) + "'";
+        }
+        if (std::holds_alternative<int>(val)) {
+            s += std::to_string(std::get<int>(val));
+        }
+        if (std::holds_alternative<uint32_t>(val)) {
+            s += std::to_string((int)std::get<uint32_t>(val));
+        }
+        if (std::holds_alternative<uint64_t>(val)) {
+            s += std::to_string(std::get<uint64_t>(val));
+        }
+        if (std::holds_alternative<bool>(val)) {
+            s += std::to_string((int)std::get<bool>(val));
+        }
+
+        s += ",";
+    }
+
+    s.erase(s.size() - 1);
+
+    s += " WHERE ";
+
+    for (auto const [key, val] : condition) {
+        s += key + " ";
+
+        if (std::holds_alternative<std::string>(val)) {
+            s += "LIKE '%" + std::get<std::string>(val) + "%'";
+        }
+        if (std::holds_alternative<int>(val)) {
+            s += "= " + std::to_string(std::get<int>(val));
+        }
+        if (std::holds_alternative<uint32_t>(val)) {
+            s += "= " + std::to_string((int)std::get<uint32_t>(val));
+        }
+        if (std::holds_alternative<uint64_t>(val)) {
+            s += "= " + std::to_string(std::get<uint64_t>(val));
+        }
+        if (std::holds_alternative<bool>(val)) {
+            s += "= " + std::to_string(std::get<bool>(val));
+        }
+
+        s += " AND ";
+    }
+
+    s.erase(s.size() - 5);
+
+    _queue.push(
+        std::pair<
+            std::string, 
+            std::function<SQLITE_CALLBACK_FUNC>>
+                (s, getPlaceholderCallback())
+    );
+}
+
 void SQLiteManager::wipeTable(std::string table) {
     _queue.push(
         std::pair<
@@ -65,10 +126,10 @@ void SQLiteManager::wipeTable(std::string table) {
     );
 }
 
-void SQLiteManager::pushRow(std::map<std::string, std::variant<std::string, int, bool>> row, std::string table) {
+void SQLiteManager::pushRow(SQLiteRow row, std::string table) {
     std::string s = "INSERT INTO " + table + "(";
 
-    for (auto const& [key, val] : row) {
+    for (auto const [key, val] : row) {
         s += key + ", ";
     }
 
@@ -76,12 +137,18 @@ void SQLiteManager::pushRow(std::map<std::string, std::variant<std::string, int,
 
     s += ") VALUES (";
 
-    for (auto const& [key, val] : row) {
+    for (auto const [key, val] : row) {
         if (std::holds_alternative<std::string>(val)) {
             s += "'" + std::get<std::string>(val) + "'";
         }
         if (std::holds_alternative<int>(val)) {
             s += std::to_string(std::get<int>(val));
+        }
+        if (std::holds_alternative<uint32_t>(val)) {
+            s += std::to_string((int)std::get<uint32_t>(val));
+        }
+        if (std::holds_alternative<uint64_t>(val)) {
+            s += std::to_string(std::get<uint64_t>(val));
         }
         if (std::holds_alternative<bool>(val)) {
             s += std::to_string((int)std::get<bool>(val));
@@ -93,6 +160,8 @@ void SQLiteManager::pushRow(std::map<std::string, std::variant<std::string, int,
     s.erase(s.size() - 2);
 
     s += ")";
+
+    // std::cout << s << std::endl;
     
     _queue.push(
         std::pair<
@@ -101,7 +170,7 @@ void SQLiteManager::pushRow(std::map<std::string, std::variant<std::string, int,
                 (s, getPlaceholderCallback())
     );
 
-    
+    return;
 }
 
 int SQLiteManager::sqlite_callback(void *data, int columns, char **array1, char **array2) {
@@ -121,6 +190,9 @@ int SQLiteManager::sqlite_callback(void *data, int columns, char **array1, char 
     }
 
     c->_result_vec.push_back(m);
+
+    sqlite3_free_table(array1);
+    sqlite3_free_table(array2);
 
     return 0;
 }
@@ -170,13 +242,13 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTable(std::str
     return vec;
 }
 
-std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithEquality(std::string table, std::string columnOrdering, int rowsPerPage, int page, std::map<std::string, std::variant<std::string, int, bool>> equality) {
+std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition) {
     if (page == 0) page = 1;
     if (rowsPerPage == 0) rowsPerPage = 1;
 
     std::string eq = "";
 
-    for (auto [key, val] : equality) {
+    for (auto const [key, val] : condition) {
         eq += key + " ";
 
         if (std::holds_alternative<std::string>(val)) {
@@ -185,8 +257,14 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithEqual
         if (std::holds_alternative<int>(val)) {
             eq += "= " + std::to_string(std::get<int>(val));
         }
+        if (std::holds_alternative<uint32_t>(val)) {
+            eq += "= " + std::to_string((int)std::get<uint32_t>(val));
+        }
+        if (std::holds_alternative<uint64_t>(val)) {
+            eq += "= " + std::to_string(std::get<uint64_t>(val));
+        }
         if (std::holds_alternative<bool>(val)) {
-            eq += "= " + std::to_string((int)std::get<bool>(val));
+            eq += "= " + std::to_string(std::get<bool>(val));
         }
 
         eq += " AND ";
@@ -204,8 +282,8 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithEqual
 }
 
 
-std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithEquality(std::string table, std::string columnOrdering, int page, std::map<std::string, std::variant<std::string, int, bool>> equality) {
-    return getTableWithEquality(table, columnOrdering, 10, page, equality);
+std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition) {
+    return getTableWithCondition(table, columnOrdering, 10, page, condition);
 }
 
 std::vector<std::map<std::string, std::string>> SQLiteManager::getTable(std::string table, std::string columnOrdering, int page) {

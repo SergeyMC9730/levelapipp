@@ -10,7 +10,11 @@
 #include <future>
 #include <vector>
 
+#include <cstdint>
+
 #define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::vector<std::map<std::string, std::string>>, bool)
+
+using SQLiteRow = std::map<std::string, std::variant<std::string, int, bool, uint32_t, uint64_t>>;
 
 class SQLiteManager {
 protected:
@@ -37,7 +41,7 @@ public:
 
     ~SQLiteManager();
 
-    void pushRow(std::map<std::string, std::variant<std::string, int, bool>> row, std::string table);
+    void pushRow(SQLiteRow row, std::string table);
 
     // wipes table's contents
     void wipeTable(std::string table);
@@ -49,8 +53,10 @@ public:
     std::vector<std::map<std::string, std::string>> getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page);
     std::vector<std::map<std::string, std::string>> getTable(std::string table, std::string columnOrdering, int page);
 
-    std::vector<std::map<std::string, std::string>> getTableWithEquality(std::string table, std::string columnOrdering, int rowsPerPage, int page, std::map<std::string, std::variant<std::string, int, bool>> equality);
-    std::vector<std::map<std::string, std::string>> getTableWithEquality(std::string table, std::string columnOrdering, int page, std::map<std::string, std::variant<std::string, int, bool>> equality);
+    std::vector<std::map<std::string, std::string>> getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition);
+    std::vector<std::map<std::string, std::string>> getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition);
+
+    void updateRow(std::string table, SQLiteRow newRow, SQLiteRow condition);
 
     std::function<SQLITE_CALLBACK_FUNC> getPlaceholderCallback();
 

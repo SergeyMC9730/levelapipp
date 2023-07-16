@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DatabaseCell.h"
 #include "cluster.h"
 #include <array>
 #include <cstdint>
@@ -23,6 +24,8 @@
 
 #include "SQLiteManager.h"
 
+#include "DatabaseCell.h"
+
 #pragma pack(push, 1)
 
 namespace LevelAPI {
@@ -33,9 +36,7 @@ namespace LevelAPI {
             NC_NONE, NC_IDLE
         };
 
-        class NodeCommandQueue {
-        public:
-            nlohmann::json commandJson;
+        class NodeCommandQueue : public DatabaseCell {
         public:
             NodeCommandQueue(int command, std::string text);
             NodeCommandQueue();
@@ -43,16 +44,14 @@ namespace LevelAPI {
             uint8_t m_nCommand;
             std::string m_sText;
 
-            void save();
-            void recover();
+            void save() override;
+            void recover() override;
 
-            void setupJSON();
+            void setupJSON() override;
 
             ~NodeCommandQueue();
         };
-        class NodeQueue {
-        public:
-            nlohmann::json queueJson;
+        class NodeQueue : public DatabaseCell {
         public:
             NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState);
             NodeQueue(std::vector<NodeCommandQueue *> vec, bool executeQueue, int runtimeState);
@@ -65,29 +64,25 @@ namespace LevelAPI {
 
             uint8_t currentState;
 
-            void save();
-            void recover();
+            void save() override;
+            void recover() override;
 
-            void setupJSON();
+            void setupJSON() override;
 
             ~NodeQueue();
         };
-        class NodeProxyList {
-        public:
-            nlohmann::json plJson;
+        class NodeProxyList : public DatabaseCell {
         public:
             std::vector<std::string> m_vProxies;
 
             NodeProxyList();
 
-            void save();
-            void recover();
+            void save() override;
+            void recover() override;
             
-            void setupJSON();
+            void setupJSON() override;
         };
-        class NodeDatabase {
-        public:
-            nlohmann::json ndJson;
+        class NodeDatabase : public DatabaseCell {
         public:
             NodeDatabase();
             NodeDatabase(std::string endpoint, uint8_t featureSet, bool readOnly);
@@ -100,21 +95,19 @@ namespace LevelAPI {
             std::string m_sPlayerLogin;
             std::string m_sPlayerPassword;
 
-            int m_nLevels;
+            int m_nLevels = 0;
 
-            void save();
-            void recover();
+            void save() override;
+            void recover() override;
 
-            void setupJSON();
+            void setupJSON() override;
 
             std::vector<std::string> getModifications();
 
             ~NodeDatabase();
         };
-        class NodePolicy {
+        class NodePolicy : public DatabaseCell {
         public:
-            nlohmann::json policyJson;
-
             NodePolicy();
 
             bool m_bEnableRecentTab;
@@ -125,19 +118,15 @@ namespace LevelAPI {
             float m_nQueueProcessingInterval;
             bool m_bNoOutput;
 
-            void save();
-            void recover();
+            void save() override;
+            void recover() override;
 
-            void setupJSON();
+            void setupJSON() override;
         };
-        class Node {
+        class Node : public DatabaseCell {
         protected:
             Backend::GDServer *m_pCachedGDInstance = nullptr;
         public:
-            nlohmann::json nodeJson;
-
-            SQLiteManager *m_pSQLiteInstance;
-
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath, NodeQueue *queue);
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath);
             Node();
@@ -164,10 +153,11 @@ namespace LevelAPI {
 
             void initLevel(Level *level);
             
-            void save();
-            void recover();
+            void save() override;
+            void recover() override;
 
-            void setupJSON();
+            void setupJSON() override;
+            void setupSQLite() override;
 
             void createLevelFolder();
 
@@ -179,14 +169,12 @@ namespace LevelAPI {
             std::vector<Level *> getLevels(SearchFilter *filter);
             std::vector<int> getIDs(SearchFilter *filter);
 
-            Node *getSelf();
             void importLevelMetaFromLAPIold(std::string path);
 
             ~Node();
         };
-        class Database {
+        class Database : public DatabaseCell {
         public:
-            nlohmann::json databaseJson;
             std::string databasePath;
             LevelAPI::DiscordController::DiscordInstance *m_pLinkedBot;
             bool m_bEnableBot;
@@ -207,14 +195,14 @@ namespace LevelAPI {
 
             void recalculate();
 
-            void save();
+            void save() override;
 
             int m_nNodeSize;
             std::vector<Node *> m_vNodes;
 
             int getTotalLevels();
 
-            void setupJSON();
+            void setupJSON() override;
 
             Node *getNode(std::string internalName);
 
@@ -222,7 +210,9 @@ namespace LevelAPI {
 
             ~Database();
         };
+
         extern Database *database;
+
         void setup();
     }
 }

@@ -19,24 +19,24 @@ NodePolicy::NodePolicy() {
 }
 
 void NodePolicy::save() {
-    policyJson["enableRecentTab"] = m_bEnableRecentTab;
-    policyJson["waitResolverRateLimit"] = m_bWaitResolverRL;
-    policyJson["resolverInterval"] = m_nResolverInterval;
-    policyJson["queueProcessingInterval"] = m_nQueueProcessingInterval;
-    policyJson["enableLinearResolver"] = m_bEnableLinearResolver;
-    policyJson["enableResolver"] = m_bEnableResolver;
-    policyJson["noOutput"] = m_bNoOutput;
+    _jsonObject["enableRecentTab"] = m_bEnableRecentTab;
+    _jsonObject["waitResolverRateLimit"] = m_bWaitResolverRL;
+    _jsonObject["resolverInterval"] = m_nResolverInterval;
+    _jsonObject["queueProcessingInterval"] = m_nQueueProcessingInterval;
+    _jsonObject["enableLinearResolver"] = m_bEnableLinearResolver;
+    _jsonObject["enableResolver"] = m_bEnableResolver;
+    _jsonObject["noOutput"] = m_bNoOutput;
 }
 void NodePolicy::recover() {
-    GET_JSON_VALUE(policyJson, "enableRecentTab", m_bEnableRecentTab, bool);
-    GET_JSON_VALUE(policyJson, "waitResolverRateLimit", m_bWaitResolverRL, bool);
-    GET_JSON_VALUE(policyJson, "resolverInterval", m_nResolverInterval, float);
-    GET_JSON_VALUE(policyJson, "queueProcessingInterval", m_nQueueProcessingInterval, float);
-    GET_JSON_VALUE(policyJson, "enableLinearResolver", m_bEnableLinearResolver, bool);
-    GET_JSON_VALUE(policyJson, "enableResolver", m_bEnableResolver, bool);
-    GET_JSON_VALUE(policyJson, "noOutput", m_bNoOutput, bool);
+    GET_JSON_VALUE(_jsonObject, "enableRecentTab", m_bEnableRecentTab, bool);
+    GET_JSON_VALUE(_jsonObject, "waitResolverRateLimit", m_bWaitResolverRL, bool);
+    GET_JSON_VALUE(_jsonObject, "resolverInterval", m_nResolverInterval, float);
+    GET_JSON_VALUE(_jsonObject, "queueProcessingInterval", m_nQueueProcessingInterval, float);
+    GET_JSON_VALUE(_jsonObject, "enableLinearResolver", m_bEnableLinearResolver, bool);
+    GET_JSON_VALUE(_jsonObject, "enableResolver", m_bEnableResolver, bool);
+    GET_JSON_VALUE(_jsonObject, "noOutput", m_bNoOutput, bool);
 }
 
 void NodePolicy::setupJSON() {
-    policyJson = nlohmann::json();
+    _jsonObject = nlohmann::json();
 }

@@ -72,6 +72,8 @@ add_subdirectory(DPP)
 install(TARGETS gmd2 EXPORT levelapi_workarounds)
 install(EXPORT levelapi_workarounds DESTINATION "./")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
 add_executable(levelapi_server 
     ${levelapi_base}
     ${levelapi_server_requests}

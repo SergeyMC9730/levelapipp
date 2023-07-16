@@ -169,7 +169,7 @@ void DatabaseController::node_runner_resolve_level(Node *nd, NodeCommandQueue *q
 		delete lll;
 		lll = nullptr;
 	}
-        nd->m_jLastDownloadedLevel = level->levelJson;
+        nd->m_jLastDownloadedLevel = level->_jsonObject;
         if(!nd->m_pPolicy->m_bNoOutput) {
             std::cout << Translation::getByKey("lapi.noderunner.downloader.event.levelfetched", nd->m_sInternalName, id) << std::endl;
         }
@@ -230,7 +230,7 @@ void DatabaseController::node_runner(Node *nd) {
                         nd->initLevel(levels[q]);
                         levels[q]->m_bHasLevelString = false;
                         levels[q]->save();
-                        nd->m_jLastDownloadedLevel = levels[q]->levelJson;
+                        nd->m_jLastDownloadedLevel = levels[q]->_jsonObject;
                         if (!DatabaseController::database->m_sRegisteredCID2.empty() && DatabaseController::database->m_bBotReady && DatabaseController::database->m_pLinkedBot->m_pBot != nullptr) {
                             DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
                                 dpp::snowflake(DatabaseController::database->m_sRegisteredCID2), levels[q]->getAsEmbed(E_REGISTERED)
@@ -322,7 +322,7 @@ start_linear:
                 nd->initLevel(llevel);
                 llevel->m_bHasLevelString = true;
                 llevel->save();
-                nd->m_jLastDownloadedLevel = llevel->levelJson;
+                nd->m_jLastDownloadedLevel = llevel->_jsonObject;
                 delete llevel;
                 llevel = nullptr;
                 //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << nd->m_sInternalName << "] Fetched level " << nd->m_uQueue->m_nRuntimeState << std::endl;
@@ -420,7 +420,7 @@ start:
                     nd->initLevel(levels[i]);
                     levels[i]->m_bHasLevelString = false;
                     levels[i]->save();
-                    nd->m_jLastDownloadedLevel = levels[i]->levelJson;
+                    nd->m_jLastDownloadedLevel = levels[i]->_jsonObject;
                     recent_downloadedids.push_back(levelid);
                     if(!nd->m_bRateLimitApplied && nd->m_pPolicy->m_bEnableResolver) {
                         nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));

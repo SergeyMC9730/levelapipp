@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <cstdint>
 
 namespace LevelAPI {
@@ -14,7 +15,10 @@ namespace LevelAPI {
 
             Time();
         public:
+            uint64_t unixTime;
+
             static Time *create();
+            void fromTimeString(std::string str);
 
             std::string getAsString();
             uint64_t getAsInt64();

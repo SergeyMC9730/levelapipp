@@ -15,11 +15,11 @@ NodeQueue::NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState) {
 
     int i = 0;
     while(i < m_vCommandQueue.size()) {
-        queueJson["commandQueue"].push_back(m_vCommandQueue.at(i)->commandJson);
+        _jsonObject["commandQueue"].push_back(m_vCommandQueue.at(i)->_jsonObject);
         i++;
     }
-    queueJson["executeQueue"] = executeQueue;
-    queueJson["runtimeState"] = runtimeState;
+    _jsonObject["executeQueue"] = executeQueue;
+    _jsonObject["runtimeState"] = runtimeState;
 }
 NodeQueue::NodeQueue(std::vector<NodeCommandQueue *> vec, bool executeQueue, int runtimeState) {
     m_vCommandQueue = vec;
@@ -29,15 +29,15 @@ NodeQueue::NodeQueue(std::vector<NodeCommandQueue *> vec, bool executeQueue, int
 
     setupJSON();
 
-    queueJson["commandQueue"] = nlohmann::json::array();
+    _jsonObject["commandQueue"] = nlohmann::json::array();
 
     int i = 0;
     while(i < m_vCommandQueue.size()) {
-        queueJson["commandQueue"].push_back(m_vCommandQueue.at(i)->commandJson);
+        _jsonObject["commandQueue"].push_back(m_vCommandQueue.at(i)->_jsonObject);
         i++;
     }
-    queueJson["executeQueue"] = executeQueue;
-    queueJson["runtimeState"] = runtimeState;
+    _jsonObject["executeQueue"] = executeQueue;
+    _jsonObject["runtimeState"] = runtimeState;
 }
 NodeQueue::NodeQueue(bool executeQueue, int runtimeState) {
     m_bExecuteQueue = executeQueue;
@@ -60,33 +60,33 @@ NodeQueue::NodeQueue() {
 }
 
 void NodeQueue::save() {
-    queueJson["commandQueue"] = nlohmann::json::array();
-    queueJson["executeQueue"] = m_bExecuteQueue;
-    queueJson["runtimeState"] = m_nRuntimeState;
+    _jsonObject["commandQueue"] = nlohmann::json::array();
+    _jsonObject["executeQueue"] = m_bExecuteQueue;
+    _jsonObject["runtimeState"] = m_nRuntimeState;
 
     int i = 0;
     while(i < m_vCommandQueue.size()) {
         m_vCommandQueue.at(i)->save();
-        queueJson["commandQueue"].push_back(m_vCommandQueue.at(i)->commandJson);
+        _jsonObject["commandQueue"].push_back(m_vCommandQueue.at(i)->_jsonObject);
         i++;
     }
 }
 
 void NodeQueue::recover() {
-    GET_JSON_VALUE(queueJson, "executeQueue", m_bExecuteQueue, bool);
-    GET_JSON_VALUE(queueJson, "runtimeState", m_nRuntimeState, int);
+    GET_JSON_VALUE(_jsonObject, "executeQueue", m_bExecuteQueue, bool);
+    GET_JSON_VALUE(_jsonObject, "runtimeState", m_nRuntimeState, int);
 
     int i = 0;
-    while(i < queueJson["commandQueue"].size()) {
+    while(i < _jsonObject["commandQueue"].size()) {
         m_vCommandQueue.push_back(new NodeCommandQueue());
-        m_vCommandQueue.at(i)->commandJson = queueJson["commandQueue"].at(i);
+        m_vCommandQueue.at(i)->_jsonObject = _jsonObject["commandQueue"].at(i);
         m_vCommandQueue.at(i)->recover();
         i++;
     }
 }
 
 void NodeQueue::setupJSON() {
-    queueJson = nlohmann::json();
+    _jsonObject = nlohmann::json();
 }
 
 NodeQueue::~NodeQueue() {

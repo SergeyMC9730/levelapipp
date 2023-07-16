@@ -8,6 +8,10 @@
 
 #include "LevelRelease.h"
 
+#include "Time.h"
+
+#include "DatabaseCell.h"
+
 namespace LevelAPI {
     namespace DatabaseController {
         enum LevelAppearanceEvent {
@@ -15,14 +19,14 @@ namespace LevelAPI {
             E_REGISTERED, E_RATE
         };
 
-        class Level : public GJGameLevel {
+        class Level : public GJGameLevel, public DatabaseCell {
         private:
             std::string getDownloadLinks(bool embed);
         public:
-            nlohmann::json levelJson;
             LevelRelease *m_uRelease;
             std::string m_sLevelPath = "";
             std::string m_sCreatedTimestamp;
+            uint64_t m_nAppereanceTimestamp;
 
             std::string m_sLinkedNode = "";
 
@@ -33,10 +37,12 @@ namespace LevelAPI {
             bool m_bHasLevelString = false;
             bool m_bHasRawData = false;
 
-            void setupJSON();
+            void setupJSON() override;
             Level();
-            void restore();
+            void recover() override;
             void save(bool onlyLevelString = false);
+
+            Frontend::Time *getTimeLegacy();
 
             dpp::embed getAsEmbed(LevelAppearanceEvent e);
             // returns filename without its path

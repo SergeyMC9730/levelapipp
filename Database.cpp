@@ -33,8 +33,8 @@ Database::Database(std::vector<Node *> nodes) {
 
     setupJSON();
 
-    databaseJson["nodes"] = nlohmann::json::array();
-    databaseJson["nodeSize"] = m_nNodeSize;
+    _jsonObject["nodes"] = nlohmann::json::array();
+    _jsonObject["nodeSize"] = m_nNodeSize;
 
     save();
 
@@ -46,8 +46,8 @@ Database::Database(Node *node) {
 
     setupJSON();
 
-    databaseJson["nodes"] = nlohmann::json::array();
-    databaseJson["nodeSize"] = m_nNodeSize;
+    _jsonObject["nodes"] = nlohmann::json::array();
+    _jsonObject["nodeSize"] = m_nNodeSize;
 
     save();
 
@@ -63,8 +63,8 @@ Database::Database(std::string path) {
     if(!std::filesystem::exists(p1)) {
         setupJSON();
 
-        databaseJson["nodes"] = nlohmann::json::array();
-        databaseJson["nodeSize"] = m_nNodeSize;
+        _jsonObject["nodes"] = nlohmann::json::array();
+        _jsonObject["nodeSize"] = m_nNodeSize;
 
         save();
 
@@ -72,27 +72,27 @@ Database::Database(std::string path) {
     }
 
     std::ifstream i(p1);
-    databaseJson = nlohmann::json::parse(i);
+    _jsonObject = nlohmann::json::parse(i);
 
-    GET_JSON_VALUE(databaseJson, "nodeSize", m_nNodeSize, int);
+    GET_JSON_VALUE(_jsonObject, "nodeSize", m_nNodeSize, int);
     int ii = 0;
-    while(ii < databaseJson["nodes"].size()) {
+    while(ii < _jsonObject["nodes"].size()) {
         m_vNodes.push_back(new Node());
-        m_vNodes.at(ii)->nodeJson = databaseJson["nodes"].at(ii);
+        m_vNodes.at(ii)->_jsonObject = _jsonObject["nodes"].at(ii);
         m_vNodes.at(ii)->recover();
         ii++;
     }
 
     recalculate();
 
-    if (databaseJson.contains("botToken")) {
+    if (_jsonObject.contains("botToken")) {
         m_bEnableBot = true;
-        GET_JSON_VALUE(databaseJson, "botToken", m_sBotToken, std::string);
+        GET_JSON_VALUE(_jsonObject, "botToken", m_sBotToken, std::string);
     }
-    GET_JSON_VALUE(databaseJson, "registeredCID", m_sRegisteredCID, std::string);
-    GET_JSON_VALUE(databaseJson, "registeredCID2", m_sRegisteredCID2, std::string);
+    GET_JSON_VALUE(_jsonObject, "registeredCID", m_sRegisteredCID, std::string);
+    GET_JSON_VALUE(_jsonObject, "registeredCID2", m_sRegisteredCID2, std::string);
     
-    GET_JSON_VALUE(databaseJson, "language", translation_language, std::string);
+    GET_JSON_VALUE(_jsonObject, "language", translation_language, std::string);
 
     if(m_bEnableBot && !m_sBotToken.empty()) {
         m_pLinkedBot = new LevelAPI::DiscordController::DiscordInstance(this);
@@ -108,8 +108,8 @@ Database::Database() {
 
     setupJSON();
 
-    databaseJson["nodes"] = nlohmann::json::array();
-    databaseJson["nodeSize"] = m_nNodeSize;
+    _jsonObject["nodes"] = nlohmann::json::array();
+    _jsonObject["nodeSize"] = m_nNodeSize;
 
     save();
 
@@ -125,24 +125,24 @@ void Database::save() {
 
     recalculate();
 
-    databaseJson["nodes"] = nlohmann::json::array();
-    databaseJson["nodeSize"] = m_nNodeSize;
-    if(m_bEnableBot) databaseJson["botToken"] = m_sBotToken;
-    databaseJson["registeredCID"] = m_sRegisteredCID;
-    databaseJson["registeredCID2"] = m_sRegisteredCID2;
+    _jsonObject["nodes"] = nlohmann::json::array();
+    _jsonObject["nodeSize"] = m_nNodeSize;
+    if(m_bEnableBot) _jsonObject["botToken"] = m_sBotToken;
+    _jsonObject["registeredCID"] = m_sRegisteredCID;
+    _jsonObject["registeredCID2"] = m_sRegisteredCID2;
 
     int i = 0;
     while(i < m_vNodes.size()) {
         m_vNodes.at(i)->save();
 
-        databaseJson["nodes"].push_back(m_vNodes.at(i)->nodeJson);
+        _jsonObject["nodes"].push_back(m_vNodes.at(i)->_jsonObject);
         i++;
     }
 
     std::string p1 = databasePath + "/info.json";
 
     std::ofstream file(p1);
-    file << databaseJson.dump(4);
+    file << _jsonObject.dump(4);
 
     //auto end = std::chrono::high_resolution_clock::now();
 
@@ -151,7 +151,7 @@ void Database::save() {
 }
 
 void Database::setupJSON() {
-    databaseJson = nlohmann::json();
+    _jsonObject = nlohmann::json();
 }
 
 Node *Database::getNode(std::string internalName) {
