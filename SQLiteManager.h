@@ -15,6 +15,7 @@
 #define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::vector<std::map<std::string, std::string>>, bool)
 
 using SQLiteRow = std::map<std::string, std::variant<std::string, int, bool, uint32_t, uint64_t>>;
+using SQLiteServerRow = std::map<std::string, std::string>;
 
 class SQLiteManager {
 protected:
@@ -48,13 +49,13 @@ public:
 
     int countTable(std::string table);
 
-    std::vector<std::map<std::string, std::string>> syncQuery(std::string query);
+    std::vector<SQLiteServerRow> syncQuery(std::string query);
 
-    std::vector<std::map<std::string, std::string>> getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page);
-    std::vector<std::map<std::string, std::string>> getTable(std::string table, std::string columnOrdering, int page);
+    std::vector<SQLiteServerRow> getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page);
+    std::vector<SQLiteServerRow> getTable(std::string table, std::string columnOrdering, int page);
 
-    std::vector<std::map<std::string, std::string>> getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition);
-    std::vector<std::map<std::string, std::string>> getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition);
+    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition);
+    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition);
 
     void updateRow(std::string table, SQLiteRow newRow, SQLiteRow condition);
 
@@ -67,6 +68,9 @@ public:
 class SQLiteCallbackData {
 public:
     SQLiteManager *manager = nullptr;
+
+    char **_array1 = nullptr;
+    char **_array2 = nullptr;
 
     std::vector<std::map<std::string, std::string>> _result_vec = {};
 };

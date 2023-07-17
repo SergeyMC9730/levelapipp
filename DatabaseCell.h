@@ -7,8 +7,8 @@ namespace LevelAPI {
     namespace DatabaseController {
         class DatabaseCell {
         public:
-            SQLiteManager *_sqliteObject;
-            nlohmann::json _jsonObject;
+            SQLiteManager *_sqliteObject = nullptr;
+            nlohmann::json _jsonObject = {};
         public:
             ~DatabaseCell();
 

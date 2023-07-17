@@ -1,8 +1,10 @@
 #include "Level.h"
+#include "SQLiteManager.h"
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
 #include "gmd2pp/gmd2.h"
 #include "message.h"
+#include <filesystem>
 #include <fstream>
 #include "Time.h"
 #include <opencv4/opencv2/core.hpp>
@@ -21,7 +23,7 @@
 using namespace LevelAPI::DatabaseController;
 using namespace LevelAPI::Frontend;
 
-Level::Level() {
+Level::Level(std::string linkedNode) {
     m_uRelease = new LevelRelease();
 
     m_bHasLevelString = false;
@@ -29,7 +31,10 @@ Level::Level() {
 
     Frontend::Time *t = Frontend::Time::create();
     m_sCreatedTimestamp = t->getAsString();
+    m_nAppereanceTimestamp = t->unixTime;
     
+    m_sLinkedNode = linkedNode;
+
     delete t;
     t = nullptr;
 
@@ -51,70 +56,10 @@ Time *Level::getTimeLegacy() {
 }
 
 void Level::save(bool onlyLevelString) {
-    generateDifficultyImage("resources");
-
-    #define fill(str, val) _jsonObject[str] = val;
-    #define file_exists(cstr) (stat(cstr, &buffer) == 0)
-
-    fill("levelID", m_nLevelID)
-    fill("version", m_nVersion)
-    fill("playerID", m_nPlayerID)
-    fill("accountID", m_nAccountID)
-    fill("downloads", m_nDownloads)
-    fill("musicID", m_nMusicID)
-    fill("likes", m_nLikes)
-    fill("length", m_nLength)
-    fill("difficulty_denominator", m_nDifficultyDenominator)
-    fill("difficulty_numerator", m_nDifficultyNumerator)
-    fill("fakeGameVersion", m_nGameVersion)
-    fill("dislikes", m_nDislikes)
-    fill("stars", m_nStars)
-    fill("featureScore", m_nFeatureScore)
-    fill("copiedFrom", m_nCopiedID)
-    fill("dailyNumber", m_nDailyNumber)
-    fill("coins", m_nCoins)
-    fill("starsRequested", m_nStarsRequested)
-    fill("isEpic", (bool)m_nEpic)
-    fill("demonDifficulty", m_nDemonDifficulty)
-    fill("editorTime", m_nEditorTime)
-    fill("editorTimeTotal", m_nEditorTimeTotal)
-    fill("songID", m_nSongID)
-    fill("objects", m_nObjects);
-    fill("moons", m_nMoons);
-
-    fill("isAuto", m_bAuto)
-    fill("isDemon", m_bDemon)
-    fill("areCoinsVerified", m_bVerifiedCoins)
-    fill("ldmAvailable", m_bLDM)
-    fill("is2P", m_b2P)
-
-    fill("levelName", m_sLevelName)
-    fill("levelDescription", m_sDescription)
-    fill("uploadDate", m_sUploadDate)
-    fill("updateDate", m_sUpdateDate)
-    fill("username", m_sUsername);
-    fill("actualGameVersion", m_uRelease->m_fActualVersion)
-    fill("publicationDate", m_sCreatedTimestamp);
-
-    std::string g = m_sLevelPath + "/meta.json";
     std::string g2 = m_sLevelPath + "/data.gmd2";
-    std::string g3 = m_sLevelPath + "/raw.txt";
-    
-    if (!onlyLevelString) {
-	    std::ofstream file(g);
-    	file << _jsonObject.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
-	    file.close();
-    }
 
-    if (!m_sRawData.empty()) {
-        std::ofstream file(g3);
-    	file << m_sRawData;
-	    file.close();
-    }
-
-    if(m_bHasLevelString) {
-        struct stat buffer;
-        if(!file_exists(g2.c_str())) {
+    auto lambda_save = [&]() {
+        if (!std::filesystem::exists(g2) && m_bHasLevelString) {
             auto gmd2file = new GMD2();
             gmd2file->setFileName(g2);
             gmd2file->setDebug(false);
@@ -124,6 +69,107 @@ void Level::save(bool onlyLevelString) {
             delete gmd2file;
             gmd2file = nullptr;
         }
+    };
+
+    if (onlyLevelString) {
+        lambda_save();
+        
+        return;
+    }
+
+    generateDifficultyImage("resources");
+
+    SQLiteRow rw = {
+        {"version", m_nVersion},
+        {"playerID", m_nPlayerID},
+        {"downloads", m_nDownloads},
+        {"musicID", m_nMusicID},
+        {"likes", m_nLikes},
+        {"length", m_nLength},
+        {"difficulty_denominator", m_nDifficultyDenominator},
+        {"difficulty_numenator", m_nDifficultyNumerator},
+        {"fakeGameVersion", m_nGameVersion},
+        {"dislikes", m_nDislikes},
+        {"stars", m_nStars},
+        {"featureScore", m_nFeatureScore},
+        {"copiedFrom", m_nCopiedID},
+        {"dailyNumber", m_nDailyNumber},
+        {"coins", m_nCoins},
+        {"starsRequested", m_nStarsRequested},
+        {"isEpic", m_nEpic},
+        {"demonDifficulty", m_nDemonDifficulty},
+        {"editorTime", m_nEditorTime},
+        {"editorTimeTotal", m_nEditorTimeTotal},
+        {"accountID", m_nAccountID},
+        {"songID", m_nSongID},
+        {"objects", m_nObjects},
+        {"moons", m_nMoons},
+        {"isAuto", m_bAuto},
+        {"isDemon", m_bDemon},
+        {"areCoinsVerified", m_bVerifiedCoins},
+        {"ldmAvailable", m_bLDM},
+        {"is2P", m_b2P},
+        {"levelName", m_sLevelName},
+        {"levelDescription", m_sDescription},
+        {"uploadDate", m_sUploadDate},
+        {"updateDate", m_sUpdateDate},
+        {"username", m_sUsername},
+        {"actualGameVersion", m_uRelease->m_fActualVersion},
+        {"databaseAppereanceDate", (uint64_t)m_nAppereanceTimestamp},
+        {"levelID", m_nLevelID}
+    };
+
+    // fill("levelID", m_nLevelID)
+    // fill("version", m_nVersion)
+    // fill("playerID", m_nPlayerID)
+    // fill("accountID", m_nAccountID)
+    // fill("downloads", m_nDownloads)
+    // fill("musicID", m_nMusicID)
+    // fill("likes", m_nLikes)
+    // fill("length", m_nLength)
+    // fill("difficulty_denominator", m_nDifficultyDenominator)
+    // fill("difficulty_numerator", m_nDifficultyNumerator)
+    // fill("fakeGameVersion", m_nGameVersion)
+    // fill("dislikes", m_nDislikes)
+    // fill("stars", m_nStars)
+    // fill("featureScore", m_nFeatureScore)
+    // fill("copiedFrom", m_nCopiedID)
+    // fill("dailyNumber", m_nDailyNumber)
+    // fill("coins", m_nCoins)
+    // fill("starsRequested", m_nStarsRequested)
+    // fill("isEpic", (bool)m_nEpic)
+    // fill("demonDifficulty", m_nDemonDifficulty)
+    // fill("editorTime", m_nEditorTime)
+    // fill("editorTimeTotal", m_nEditorTimeTotal)
+    // fill("songID", m_nSongID)
+    // fill("objects", m_nObjects);
+    // fill("moons", m_nMoons);
+
+    // fill("isAuto", m_bAuto)
+    // fill("isDemon", m_bDemon)
+    // fill("areCoinsVerified", m_bVerifiedCoins)
+    // fill("ldmAvailable", m_bLDM)
+    // fill("is2P", m_b2P)
+
+    // fill("levelName", m_sLevelName)
+    // fill("levelDescription", m_sDescription)
+    // fill("uploadDate", m_sUploadDate)
+    // fill("updateDate", m_sUpdateDate)
+    // fill("username", m_sUsername);
+    // fill("actualGameVersion", m_uRelease->m_fActualVersion)
+    // fill("publicationDate", m_sCreatedTimestamp);
+
+    lambda_save();
+
+    std::string g = m_sLevelPath + "/meta.json";
+
+    if (!onlyLevelString) {
+        auto node = DatabaseController::database->getNode(m_sLinkedNode);
+
+        node->_sqliteObject->pushRow(rw, "levels");
+	    // std::ofstream file(g);
+    	// file << _jsonObject.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
+	    // file.close();
     }
 
     return;
@@ -142,9 +188,9 @@ std::string Level::getDownloadLinks(bool embed) {
         result += " | [GMD2](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&type=1)";
     }
 
-    if (hasRaw) {
-        result += " | [" + Translation::getByKey("lapi.level.embed.field.info.value.rawdata") + "](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&type=2)";
-    }
+    // if (hasRaw) {
+    //     result += " | [" + Translation::getByKey("lapi.level.embed.field.info.value.rawdata") + "](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&type=2)";
+    // }
 
     return result;
 }
@@ -207,8 +253,11 @@ void Level::recover() {
 }
 
 Level::~Level() {
+    // std::cout << "~Level" << std::endl;
     delete m_uRelease;
+    // std::cout << "release deleted" << std::endl;
     m_uRelease = nullptr;
+    // std::cout << "end" << std::endl;
 }
 
 void merge_images(cv::Mat* background, cv::Mat* upcoming, int x, int y)

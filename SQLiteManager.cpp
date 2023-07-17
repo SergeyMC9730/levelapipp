@@ -63,7 +63,18 @@ void SQLiteManager::updateRow(std::string table, SQLiteRow newRow, SQLiteRow con
         s += " " + key + " = ";
 
         if (std::holds_alternative<std::string>(val)) {
-            s += "'" + std::get<std::string>(val) + "'";
+            // prevent sql injection
+
+            auto buf = (char *)sqlite3_malloc(1024);
+            auto str = std::get<std::string>(val);
+
+            sqlite3_snprintf(1024, buf, "%q", str.c_str());
+
+            std::string new_str = buf;
+
+            s += "'" + new_str + "'";
+
+            sqlite3_free(buf);
         }
         if (std::holds_alternative<int>(val)) {
             s += std::to_string(std::get<int>(val));
@@ -89,7 +100,18 @@ void SQLiteManager::updateRow(std::string table, SQLiteRow newRow, SQLiteRow con
         s += key + " ";
 
         if (std::holds_alternative<std::string>(val)) {
-            s += "LIKE '%" + std::get<std::string>(val) + "%'";
+            // prevent sql injection
+
+            auto buf = (char *)sqlite3_malloc(1024);
+            auto str = std::get<std::string>(val);
+
+            sqlite3_snprintf(1024, buf, "%q", str.c_str());
+
+            std::string new_str = buf;
+
+            s += "LIKE '%" + new_str + "%'";
+
+            sqlite3_free(buf);
         }
         if (std::holds_alternative<int>(val)) {
             s += "= " + std::to_string(std::get<int>(val));
@@ -127,7 +149,7 @@ void SQLiteManager::wipeTable(std::string table) {
 }
 
 void SQLiteManager::pushRow(SQLiteRow row, std::string table) {
-    std::string s = "INSERT INTO " + table + "(";
+    std::string s = "INSERT INTO " + table + " (";
 
     for (auto const [key, val] : row) {
         s += key + ", ";
@@ -139,7 +161,18 @@ void SQLiteManager::pushRow(SQLiteRow row, std::string table) {
 
     for (auto const [key, val] : row) {
         if (std::holds_alternative<std::string>(val)) {
-            s += "'" + std::get<std::string>(val) + "'";
+            // prevent sql injection
+
+            auto buf = (char *)sqlite3_malloc(1024);
+            auto str = std::get<std::string>(val);
+
+            sqlite3_snprintf(1024, buf, "%q", str.c_str());
+
+            std::string new_str = buf;
+
+            s += "'" + new_str + "'";
+
+            sqlite3_free(buf);
         }
         if (std::holds_alternative<int>(val)) {
             s += std::to_string(std::get<int>(val));
@@ -179,6 +212,9 @@ int SQLiteManager::sqlite_callback(void *data, int columns, char **array1, char 
 
     std::map<std::string, std::string> m = {};
 
+    c->_array1 = array1;
+    c->_array2 = array2;
+
     while (i < columns) {
         m.insert(
             std::pair<std::string, std::string>(
@@ -191,8 +227,8 @@ int SQLiteManager::sqlite_callback(void *data, int columns, char **array1, char 
 
     c->_result_vec.push_back(m);
 
-    sqlite3_free_table(array1);
-    sqlite3_free_table(array2);
+    // sqlite3_free_table(array1);
+    // sqlite3_free_table(array2);
 
     return 0;
 }
@@ -209,6 +245,8 @@ void SQLiteManager::processQueue(SQLiteManager *self, std::future<void> signal) 
             auto callbackData = new SQLiteCallbackData();
             callbackData->manager = self;
 
+            // std::cout << pair.first << std::endl;
+
             sqlite3_exec(self->_database, pair.first.c_str(), SQLiteManager::sqlite_callback, (void *)callbackData, &error);
         
             pair.second(self, callbackData->_result_vec, error != NULL);
@@ -220,6 +258,9 @@ void SQLiteManager::processQueue(SQLiteManager *self, std::future<void> signal) 
                 error = NULL;
             }
 
+            // sqlite3_free_table(callbackData->_array1);
+            // sqlite3_free_table(callbackData->_array2);
+
             delete callbackData;
             callbackData = nullptr;
 
@@ -229,7 +270,7 @@ void SQLiteManager::processQueue(SQLiteManager *self, std::future<void> signal) 
     }
 }
 
-std::vector<std::map<std::string, std::string>> SQLiteManager::getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page) {
+std::vector<SQLiteServerRow> SQLiteManager::getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page) {
     if (page == 0) page = 1;
     if (rowsPerPage == 0) rowsPerPage = 1;
 
@@ -252,7 +293,18 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondi
         eq += key + " ";
 
         if (std::holds_alternative<std::string>(val)) {
-            eq += "LIKE '%" + std::get<std::string>(val) + "%'";
+            // prevent sql injection
+
+            auto buf = (char *)sqlite3_malloc(1024);
+            auto str = std::get<std::string>(val);
+
+            sqlite3_snprintf(1024, buf, "%q", str.c_str());
+
+            std::string new_str = buf;
+
+            eq += "LIKE '%" + new_str + "%'";
+
+            sqlite3_free(buf);
         }
         if (std::holds_alternative<int>(val)) {
             eq += "= " + std::to_string(std::get<int>(val));
@@ -282,11 +334,11 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondi
 }
 
 
-std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition) {
+std::vector<SQLiteServerRow> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition) {
     return getTableWithCondition(table, columnOrdering, 10, page, condition);
 }
 
-std::vector<std::map<std::string, std::string>> SQLiteManager::getTable(std::string table, std::string columnOrdering, int page) {
+std::vector<SQLiteServerRow> SQLiteManager::getTable(std::string table, std::string columnOrdering, int page) {
     return getTable(table, columnOrdering, 10, page);
 }
 
@@ -294,10 +346,10 @@ std::function<SQLITE_CALLBACK_FUNC> SQLiteManager::getPlaceholderCallback() {
     return [](SQLiteManager *, std::vector<std::map<std::string, std::string>>, bool){};
 }
 
-std::vector<std::map<std::string, std::string>> SQLiteManager::syncQuery(std::string query) {
+std::vector<SQLiteServerRow> SQLiteManager::syncQuery(std::string query) {
     bool job_completed = false;
 
-    std::vector<std::map<std::string, std::string>> vec = {};
+    std::vector<SQLiteServerRow> vec = {};
 
     _queue.push(
         std::pair<

@@ -26,7 +26,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
     LevelAPI::DatabaseController::Level *lvl;
     
     if (id <= 0) {
-        lvl = new DatabaseController::Level();
+        lvl = new DatabaseController::Level("");
         lvl->m_nRetryAfter = id - 1;
         delete m_pLinkedCURL;
         return lvl;
@@ -51,7 +51,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
         if(ddd.find("<h1 data-translate=\"block_headline\">Sorry, you have been blocked</h1>") != std::string::npos) {
             m_eStatus = GSS_PERMANENT_BAN;
         } 
-        lvl = new DatabaseController::Level();
+        lvl = new DatabaseController::Level("");
         lvl->m_nRetryAfter = res->retry_after;
         delete res;
         delete m_pLinkedCURL;
@@ -67,7 +67,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike21::getLevelMetaByID(
         res = nullptr;
         m_pLinkedCURL = nullptr;
 
-        lvl = new DatabaseController::Level();
+        lvl = new DatabaseController::Level("");
         lvl->m_nRetryAfter = -128;
         return lvl;
     }

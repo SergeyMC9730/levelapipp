@@ -6,7 +6,8 @@
             "database": {
                 "endpoint": "https://www.boomlings.com/database",
                 "featureSet": 21,
-                "readOnly": false
+                "readOnly": false,
+                "modifications": "boomlings"
             },
             "internalName": "boomlings",
             "levelDataPath": "levels",

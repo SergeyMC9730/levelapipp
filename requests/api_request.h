@@ -9,14 +9,14 @@
 
 class APIRequest : public httpserver::http_resource {
 public:
-    std::shared_ptr<httpserver::http_response> generateResponse(std::string data);
-    std::shared_ptr<httpserver::http_response> generateResponse(std::string_view data);
-    std::shared_ptr<httpserver::http_response> generateResponse(int data);
-    std::shared_ptr<httpserver::http_response> generateResponse(const char *data);
-    std::shared_ptr<httpserver::http_response> generateResponse(std::string data, std::string content_type);
-    std::shared_ptr<httpserver::http_response> generateResponse(std::string_view data, std::string content_type);
-    std::shared_ptr<httpserver::http_response> generateResponse(int data, std::string content_type);
-    std::shared_ptr<httpserver::http_response> generateResponse(const char *data, std::string content_type);
+    std::shared_ptr<httpserver::http_response> generateResponse(std::string data, int status = 200);
+    std::shared_ptr<httpserver::http_response> generateResponse(std::string_view data, int status = 200);
+    std::shared_ptr<httpserver::http_response> generateResponse(int data, int status = 200);
+    std::shared_ptr<httpserver::http_response> generateResponse(const char *data, int status = 200);
+    std::shared_ptr<httpserver::http_response> generateResponse(std::string data, HTTPContentType type, int status = 200);
+    std::shared_ptr<httpserver::http_response> generateResponse(std::string_view data, HTTPContentType type, int status = 200);
+    std::shared_ptr<httpserver::http_response> generateResponse(int data, HTTPContentType type, int status = 200);
+    std::shared_ptr<httpserver::http_response> generateResponse(const char *data, HTTPContentType type, int status = 200);
 
     std::shared_ptr<httpserver::file_response> sendFile(std::string path, HTTPContentType type);
 

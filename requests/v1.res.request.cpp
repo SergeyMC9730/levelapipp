@@ -25,7 +25,7 @@ std::shared_ptr<http_response> LevelAPI::v1::ResourceRequest::render(const http_
         file.find("/")   == 0                 || 
         file.find("~")   != std::string::npos  )
     {
-        return sendFile("resources/auto.png", HTTPContentTypeImage());
+        return generateResponse("404 File Not Found", 400);
     }
 
     if (file.find(".mp3") != std::string::npos) {

@@ -38,7 +38,7 @@ namespace LevelAPI {
             bool m_bHasRawData = false;
 
             void setupJSON() override;
-            Level();
+            Level(std::string linkedNode);
             void recover() override;
             void save(bool onlyLevelString = false);
 

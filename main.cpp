@@ -207,27 +207,27 @@ int main(int argc, char *argv[]) {
 
     delete manager;
 
-    // DatabaseController::setup();
-    // HttpController::setup();
-    // HttpController::parse();
+    DatabaseController::setup();
+    HttpController::setup();
+    HttpController::parse();
 
-    // LevelAPI::Tests::testCurl();
-    // // LevelAPI::Tests::testGDParsers();
+    LevelAPI::Tests::testCurl();
+    // LevelAPI::Tests::testGDParsers();
 
-    // webserver ws = create_webserver()
-    //     .port(HttpController::getPort())
-    //     .max_threads(HttpController::getThreads())
-    //     .memory_limit(256 * 1024)
-    //     .debug()
-    //     // .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK)
-    // ;
+    webserver ws = create_webserver()
+        .port(HttpController::getPort())
+        .max_threads(HttpController::getThreads())
+        .memory_limit(256 * 1024)
+        .debug()
+        // .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK)
+    ;
 
-    // ws.register_resource("/api/v1/hello", reinterpret_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
-    // ws.register_resource("/api/v1/level/download", reinterpret_cast<http_resource *>(new LevelAPI::v1::LevelDownloadRequest()));
-    // ws.register_resource("/api/v1/img/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::IMGRequest()));
-    // ws.register_resource("/api/v1/res/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::ResourceRequest()));
+    ws.register_resource("/api/v1/hello", reinterpret_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
+    ws.register_resource("/api/v1/level/download", reinterpret_cast<http_resource *>(new LevelAPI::v1::LevelDownloadRequest()));
+    ws.register_resource("/api/v1/img/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::IMGRequest()));
+    ws.register_resource("/api/v1/res/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::ResourceRequest()));
 
-    // std::cout << getByKey("lapi.main.portstart", HttpController::getPort()) << std::endl;
+    std::cout << getByKey("lapi.main.portstart", HttpController::getPort()) << std::endl;
 
     // int i = 0;
     // int size = DatabaseController::database->m_vNodes.size();
@@ -299,7 +299,7 @@ int main(int argc, char *argv[]) {
     //     i++;
     // }
 
-    // ws.start(true);
+    ws.start(true);
 
     return 0;
 }

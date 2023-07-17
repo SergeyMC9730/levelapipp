@@ -26,7 +26,7 @@ LevelAPI::DatabaseController::Level *GDServer_BasementLike21::getLevelMetaByID(i
     LevelAPI::DatabaseController::Level *lvl;
     
     if (id <= 0) {
-        lvl = new DatabaseController::Level();
+        lvl = new DatabaseController::Level("");
         lvl->m_nRetryAfter = id - 1;
         delete m_pLinkedCURL;
         m_pLinkedCURL = nullptr;
@@ -79,7 +79,7 @@ LevelAPI::DatabaseController::Level *GDServer_BasementLike21::getLevelMetaByID(i
         m_pLinkedCURL = nullptr;
         res = nullptr;
 
-        lvl = new DatabaseController::Level();
+        lvl = new DatabaseController::Level("");
         lvl->m_nRetryAfter = -128;
         return lvl;
     }

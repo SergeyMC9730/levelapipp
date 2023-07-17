@@ -13,7 +13,7 @@ LevelAPI::Backend::GDServer_Boomlings22::GDServer_Boomlings22(std::string endpoi
     m_vRanges.push_back(new LevelAPI::LevelRange(1627363, 2810918, "1.8"));
     m_vRanges.push_back(new LevelAPI::LevelRange(2810919, 11020426, "1.9"));
     m_vRanges.push_back(new LevelAPI::LevelRange(11020427, 28356225, "2.0"));
-    m_vRanges.push_back(new LevelAPI::LevelRange(28356226, 90900002, "2.1"));
+    m_vRanges.push_back(new LevelAPI::LevelRange(28356226, 99900002, "2.1"));
     m_vRanges.push_back(new LevelAPI::LevelRange(99000002, 100800002, "2.2"));
 }
 

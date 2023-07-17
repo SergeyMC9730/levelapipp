@@ -60,7 +60,7 @@ NodeQueue::NodeQueue() {
 }
 
 void NodeQueue::save() {
-    _jsonObject["commandQueue"] = nlohmann::json::array();
+    _jsonObject["commandQueue"].clear();
     _jsonObject["executeQueue"] = m_bExecuteQueue;
     _jsonObject["runtimeState"] = m_nRuntimeState;
 

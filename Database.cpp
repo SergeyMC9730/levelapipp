@@ -57,6 +57,7 @@ Database::Database(std::string path) {
     databasePath = path;
 
     std::string p1 = path + "/info.json";
+    std::string p2 = path + "/info_backup.json";
 
     m_nNodeSize = m_vNodes.size();
 
@@ -72,14 +73,35 @@ Database::Database(std::string path) {
     }
 
     std::ifstream i(p1);
-    _jsonObject = nlohmann::json::parse(i);
+    try {
+        _jsonObject = nlohmann::json::parse(i);
+    } catch (nlohmann::detail::parse_error e) {
+        if (std::filesystem::exists(p2)) {
+            std::cout << "Loading from the backup file" << std::endl;
+
+            m_bLoadedFromBackup = true;
+
+            std::ifstream i2(p2);
+            _jsonObject = nlohmann::json::parse(i2);
+
+            i2.close();
+        }
+    }
+
+    i.close();
 
     GET_JSON_VALUE(_jsonObject, "nodeSize", m_nNodeSize, int);
     int ii = 0;
     while(ii < _jsonObject["nodes"].size()) {
-        m_vNodes.push_back(new Node());
-        m_vNodes.at(ii)->_jsonObject = _jsonObject["nodes"].at(ii);
-        m_vNodes.at(ii)->recover();
+        auto json_object = _jsonObject["nodes"].at(ii);
+
+        auto createdNode = new Node(json_object["internalName"].get<std::string>());
+
+        m_vNodes.push_back(createdNode);
+
+        createdNode->_jsonObject = json_object;
+        createdNode->recover();
+
         ii++;
     }
 
@@ -121,6 +143,11 @@ void Database::recalculate() {
 }
 
 void Database::save() {
+    if (!m_bLoadedFromBackup) {
+        std::filesystem::copy(databasePath + "/info.json", databasePath + "/info_backup.json", std::filesystem::copy_options::overwrite_existing);
+    } else {
+        std::filesystem::copy(databasePath + "/info_backup.json", databasePath + "/info.json", std::filesystem::copy_options::overwrite_existing);
+    }
     //auto start = std::chrono::high_resolution_clock::now();
 
     recalculate();

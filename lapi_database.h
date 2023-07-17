@@ -26,7 +26,7 @@
 
 #include "DatabaseCell.h"
 
-#pragma pack(push, 1)
+// #pragma pack(push, 1)
 
 namespace LevelAPI {
     namespace DatabaseController {
@@ -129,7 +129,7 @@ namespace LevelAPI {
         public:
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath, NodeQueue *queue);
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath);
-            Node();
+            Node(std::string internalName = "node");
 
             NodeDatabase *m_uDatabase;
             std::string m_sInternalName;
@@ -151,6 +151,8 @@ namespace LevelAPI {
 
             bool m_bRateLimitApplied;
 
+            static nlohmann::json jsonFromSQLLevel(SQLiteServerRow row); 
+
             void initLevel(Level *level);
             
             void save() override;
@@ -162,6 +164,8 @@ namespace LevelAPI {
             void createLevelFolder();
 
             Level *getLevel(int id);
+            bool levelExists(int id);
+
             bool userIDExists(int uid);
 
             LevelAPI::Backend::GDServer *createServer();
@@ -174,6 +178,8 @@ namespace LevelAPI {
             ~Node();
         };
         class Database : public DatabaseCell {
+        private:
+            bool m_bLoadedFromBackup = false;
         public:
             std::string databasePath;
             LevelAPI::DiscordController::DiscordInstance *m_pLinkedBot;
@@ -217,4 +223,4 @@ namespace LevelAPI {
     }
 }
 
-#pragma pack(pop)
+// #pragma pack(pop)

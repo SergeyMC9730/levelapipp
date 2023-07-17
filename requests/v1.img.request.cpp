@@ -23,7 +23,7 @@ std::shared_ptr<http_response> LevelAPI::v1::IMGRequest::render(const http_reque
         file.find("~")   != std::string::npos ||  
       !(file.find(".png") != std::string::npos))
     {
-        return sendFile("images/auto.png", HTTPContentTypeImage());
+        return generateResponse("404 File Not Found", 404);
     }
 
     return sendFile(std::string(file), HTTPContentTypeImage());

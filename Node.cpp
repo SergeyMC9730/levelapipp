@@ -10,6 +10,7 @@
 #include "json/single_include/nlohmann/json.hpp"
 #include <filesystem>
 #include <fstream>
+#include <new>
 #include <string>
 #include <sys/stat.h>
 #include <vector>
@@ -28,6 +29,8 @@ Node::Node(NodeDatabase *database, std::string internalName, std::string levelDa
     m_sLevelDataPath = levelDataPath;
     m_uQueue = queue;
 
+    createLevelFolder();
+
     setupJSON();
     setupSQLite();
 
@@ -39,18 +42,22 @@ Node::Node(NodeDatabase *database, std::string internalName, std::string levelDa
     m_sLevelDataPath = levelDataPath;
     m_uQueue = new NodeQueue();
 
+    createLevelFolder();
+
     setupJSON();
     setupSQLite();
 
     save();
 }
-Node::Node() {
+Node::Node(std::string internalName) {
     m_uDatabase = new NodeDatabase();
-    m_sInternalName = "node";
+    m_sInternalName = internalName;
     m_sLevelDataPath = "levels";
     m_uQueue = new NodeQueue();
     m_pPolicy = new NodePolicy();
     m_pProxy = new NodeProxyList();
+
+    createLevelFolder();
 
     setupJSON();
     setupSQLite();
@@ -59,13 +66,27 @@ Node::Node() {
 }
 
 void Node::setupSQLite() {
-    std::string path = "database/" + m_sInternalName + "/information.db";
+    std::string path = "database/nodes/" + m_sInternalName + "/information.db";
 
     if (!std::filesystem::exists(path)) {
-        std::filesystem::copy("resource/nodetemplate.db", path);
+        std::filesystem::copy("resources/nodetemplate.db", path);
     }
 
     _sqliteObject = SQLiteManager::create(path);
+}
+
+bool Node::levelExists(int id) {
+    std::string path = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
+
+    return std::filesystem::exists(path);
+}
+
+void Node::createLevelFolder() {
+    std::string p1 = "database/nodes/" + m_sInternalName;
+    std::string p2 = "database/nodes/" + m_sInternalName + "/levels";
+
+    mkdir(p1.c_str(), 0777);
+    mkdir(p2.c_str(), 0777);
 }
 
 void Node::save() {
@@ -77,7 +98,26 @@ void Node::save() {
     _jsonObject["database"] = m_uDatabase->_jsonObject;
     _jsonObject["internalName"] = m_sInternalName;
     _jsonObject["levelDataPath"] = m_sLevelDataPath;
-    _jsonObject["queue"] = m_uQueue->_jsonObject;
+    // if (_jsonObject["queue"].size() != 0) {
+	//     //_jsonObject["queue"].erase(_jsonObject["queue"].begin(), _jsonObject["queue"].end()); 
+    // }
+    if (_jsonObject["queue"] != nullptr) {
+        try {
+            _jsonObject["queue"] = {};
+            // _jsonObject["queue"].clear();
+            _jsonObject["queue"] = m_uQueue->_jsonObject;
+        } catch (std::bad_alloc e) {
+            std::cout << "allocation failed" << std::endl;
+            _jsonObject["queue"] = nlohmann::json();
+        }
+    } else {
+        std::cout << "queue is nullptr" << std::endl;
+        nlohmann::json j;
+        j["commandQueue"] = {};
+        j["executeQueue"] = false;
+        j["runtimeState"] = 0;
+        _jsonObject["queue"] = j;
+    }
     _jsonObject["policy"] = m_pPolicy->_jsonObject;
     _jsonObject["levels"] = m_nCachedLevels;
     _jsonObject["experiment1value"] = m_nExperiment1Value;
@@ -108,6 +148,52 @@ void Node::setupJSON() {
     _jsonObject = nlohmann::json();
 }
 
+nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow row) {
+    nlohmann::json obj;
+
+    obj["levelID"] = std::stoi(row["levelID"]);
+    obj["version"] = std::stoi(row["version"]);
+    obj["playerID"] = std::stoi(row["playerID"]);
+    obj["downloads"] = std::stoi(row["downloads"]);
+    obj["musicID"] = std::stoi(row["musicID"]);
+    obj["likes"] = std::stoi(row["likes"]);
+    obj["length"] = std::stoi(row["length"]);
+    obj["difficulty_denominator"] = std::stoi(row["difficulty_denominator"]);
+    obj["fakeGameVersion"] = std::stoi(row["fakeGameVersion"]);
+    obj["dislikes"] = std::stoi(row["dislikes"]);
+    obj["stars"] = std::stoi(row["stars"]);
+    obj["featureScore"] = std::stoi(row["featureScore"]);
+    obj["copiedFrom"] = std::stoi(row["copiedFrom"]);
+    obj["dailyNumber"] = std::stoi(row["dailyNumber"]);
+    obj["coins"] = std::stoi(row["coins"]);
+    obj["starsRequested"] = std::stoi(row["starsRequested"]);
+    obj["isEpic"] = std::stoi(row["isEpic"]);
+    obj["demonDifficulty"] = std::stoi(row["demonDifficulty"]);
+    obj["editorTime"] = std::stoi(row["editorTime"]);
+    obj["editorTimeTotal"] = std::stoi(row["editorTimeTotal"]);
+    obj["accountID"] = std::stoi(row["accountID"]);
+    obj["songID"] = std::stoi(row["songID"]);
+    obj["objects"] = std::stoi(row["objects"]);
+    obj["moons"] = std::stoi(row["moons"]);
+
+    obj["appereanceTimestamp"] = std::stoi(row["databaseAppereanceDate"]);
+   
+    obj["isAuto"] = (bool)std::stoi(row["isAuto"]);
+    obj["isDemon"] = (bool)std::stoi(row["isDemon"]);
+    obj["areCoinsVerified"] = (bool)std::stoi(row["areCoinsVerified"]);
+    obj["ldmAvailable"] = (bool)std::stoi(row["ldmAvailable"]);
+    obj["is2P"] = (bool)std::stoi(row["is2P"]);
+
+    obj["levelName"] = row["levelName"];
+    obj["levelDescription"] = row["levelDescription"];
+    obj["uploadDate"] = row["uploadDate"];
+    obj["updateDate"] = row["updateDate"];
+    obj["username"] = row["username"];
+    obj["actualGameVersion"] = row["actualGameVersion"];
+
+    return obj;
+}
+
 Level *Node::getLevel(int id) {
     auto lvl = _sqliteObject->getTableWithCondition("levels", "levelID", 10, 1, {
         {"levelID", id}
@@ -123,7 +209,7 @@ Level *Node::getLevel(int id) {
         if (!std::filesystem::exists(p2)) return nullptr; // no level data at all!
 
         auto ref = new GMD2();
-        auto level = new Level();
+        auto level = new Level(m_sInternalName);
 
         ref->setFileName(p2);
         ref->setLevel(level);
@@ -147,48 +233,10 @@ Level *Node::getLevel(int id) {
         ref = nullptr;
         return level;
     } else {
-        auto level = new Level();
+        auto level = new Level(m_sInternalName);
         auto sqlobj = lvl[0];
 
-        level->_jsonObject["levelID"] = std::stoi(sqlobj["levelID"]);
-        level->_jsonObject["version"] = std::stoi(sqlobj["version"]);
-        level->_jsonObject["playerID"] = std::stoi(sqlobj["playerID"]);
-        level->_jsonObject["downloads"] = std::stoi(sqlobj["downloads"]);
-        level->_jsonObject["musicID"] = std::stoi(sqlobj["musicID"]);
-        level->_jsonObject["likes"] = std::stoi(sqlobj["likes"]);
-        level->_jsonObject["length"] = std::stoi(sqlobj["length"]);
-        level->_jsonObject["difficulty_denominator"] = std::stoi(sqlobj["difficulty_denominator"]);
-        level->_jsonObject["fakeGameVersion"] = std::stoi(sqlobj["fakeGameVersion"]);
-        level->_jsonObject["dislikes"] = std::stoi(sqlobj["dislikes"]);
-        level->_jsonObject["stars"] = std::stoi(sqlobj["stars"]);
-        level->_jsonObject["featureScore"] = std::stoi(sqlobj["featureScore"]);
-        level->_jsonObject["copiedFrom"] = std::stoi(sqlobj["copiedFrom"]);
-        level->_jsonObject["dailyNumber"] = std::stoi(sqlobj["dailyNumber"]);
-        level->_jsonObject["coins"] = std::stoi(sqlobj["coins"]);
-        level->_jsonObject["starsRequested"] = std::stoi(sqlobj["starsRequested"]);
-        level->_jsonObject["isEpic"] = std::stoi(sqlobj["isEpic"]);
-        level->_jsonObject["demonDifficulty"] = std::stoi(sqlobj["demonDifficulty"]);
-        level->_jsonObject["editorTime"] = std::stoi(sqlobj["editorTime"]);
-        level->_jsonObject["editorTimeTotal"] = std::stoi(sqlobj["editorTimeTotal"]);
-        level->_jsonObject["accountID"] = std::stoi(sqlobj["accountID"]);
-        level->_jsonObject["songID"] = std::stoi(sqlobj["songID"]);
-        level->_jsonObject["objects"] = std::stoi(sqlobj["objects"]);
-        level->_jsonObject["moons"] = std::stoi(sqlobj["moons"]);
-
-        level->_jsonObject["appereanceTimestamp"] = std::stoi(sqlobj["databaseAppereanceDate"]);
-   
-        level->_jsonObject["isAuto"] = std::stoi(sqlobj["isAuto"]);
-        level->_jsonObject["isDemon"] = std::stoi(sqlobj["isDemon"]);
-        level->_jsonObject["areCoinsVerified"] = std::stoi(sqlobj["areCoinsVerified"]);
-        level->_jsonObject["ldmAvailable"] = std::stoi(sqlobj["ldmAvailable"]);
-        level->_jsonObject["is2P"] = std::stoi(sqlobj["is2P"]);
-
-        level->_jsonObject["levelName"] = sqlobj["levelName"];
-        level->_jsonObject["levelDescription"] = sqlobj["levelDescription"];
-        level->_jsonObject["uploadDate"] = sqlobj["uploadDate"];
-        level->_jsonObject["updateDate"] = sqlobj["updateDate"];
-        level->_jsonObject["username"] = sqlobj["username"];
-        level->_jsonObject["actualGameVersion"] = sqlobj["actualGameVersion"];
+        level->_jsonObject = jsonFromSQLLevel(sqlobj);
 
         level->recover();
 
@@ -283,31 +331,14 @@ void Node::initLevel(Level *level) {
         {"userID", level->m_nPlayerID}
     });
 
-    if (user.size() >= 1) {
-        auto row1 = user[0];
-        
-        nlohmann::json j = nlohmann::json::parse(row1["levels"]);
-        
-        j.push_back(level->m_nLevelID);
-
-        row1["levels"] = j.dump();
-
-        _sqliteObject->updateRow("accounts", {
-            {"accountID", std::stoi(row1["accountID"])},
-            {"username", row1["username"]},
-            {"levels", row1["levels"]},
-            {"userID", std::stoi(row1["userID"])}
-        }, {
-            {"userID", level->m_nPlayerID}
-        });
-    } else {
-        nlohmann::json j = {level->m_nPlayerID};
+    if (user.size() == 0) {
+        nlohmann::json j = {level->m_nLevelID};
 
         _sqliteObject->pushRow({
             {"accountID", level->m_nAccountID},
             {"username", level->m_sUsername},
-            {"levels", j.dump()},
-            {"userID", level->m_sUsername}
+            {"levels", "[]"},
+            {"userID", level->m_nPlayerID}
         }, "accounts");
     }
 
@@ -375,7 +406,73 @@ bool Node::userIDExists(int uid) {
 }
 
 std::vector<Level *> Node::getLevels(SearchFilter *filter) {
-    // std::vector<Level *> res = {};
+    std::vector<Level *> res = {};
+
+    SQLiteRow rw_condition = {};
+
+    if (filter->m_nStars != -1) {
+        rw_condition["stars"] = filter->m_nStars;
+    }
+    if (filter->m_nDifficulty != -1) {
+        rw_condition["difficulty_denominator"] = filter->m_nDifficulty;
+    }
+
+    if (!filter->m_sName.empty()) {
+        rw_condition["levelName"] = filter->m_sName;
+    }
+    if (!filter->m_sDescription.empty()) {
+        rw_condition["levelDescription"] = filter->m_sName;
+    }
+
+    if (filter->m_nUID != 0) {
+        rw_condition["playerID"] = filter->m_nUID;
+    }
+    if (filter->m_nAID != 0) {
+        rw_condition["accountID"] = filter->m_nAID;
+    }
+
+    if (filter->m_nSID != -1) {
+        if (filter->m_bSongOfficial) {
+            rw_condition["musicID"] = filter->m_nSID;
+        } else {
+            rw_condition["songID"] = filter->m_nSID;
+        }
+    }
+
+    std::string ordering = "levelID";
+
+    if (filter->m_eSort == SearchSort::SSMostLiked) {
+        ordering = "-likes";
+    }
+    if (filter->m_eSort == SearchSort::SSMostDownloaded) {
+        ordering = "-downloads";
+    }
+    if (filter->m_eSort == SearchSort::SSLatestDBApperead) {
+        ordering = "-databaseAppereanceDate";
+    }
+    if (filter->m_eSort == SearchSort::SSRecentLevel) {
+        ordering = "-levelID";
+    }
+
+    auto request = _sqliteObject->getTableWithCondition("levels", ordering, filter->m_nLevelsPerPage, filter->m_nPage, rw_condition);
+
+    int i = 0;
+
+    while(i < request.size()) {
+        auto sqlobj = request[i];
+        auto jsonobj = jsonFromSQLLevel(sqlobj);
+        auto level = new Level(m_sInternalName);
+
+        level->_jsonObject = jsonobj;
+        level->recover();
+
+        res.push_back(level);
+
+        i++;
+    }
+
+    return res;
+
     // int i = 0;
     // while(i < m_vCachedLevels.size() && i < 8192) {
     //     bool filter_successful = true;
@@ -485,13 +582,13 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
 LevelAPI::Backend::GDServer *Node::createServer() {
     if(m_pCachedGDInstance != nullptr) return m_pCachedGDInstance;
 
-    LevelAPI::Backend::GDServer *serv;
+    LevelAPI::Backend::GDServer *serv = nullptr;
 
     switch(m_uDatabase->m_nFeatureSet) {
         case 21: {
             if(m_uDatabase->m_sModifications == "basement-custom") {
                 serv = new Backend::GDServer_BasementGDPS(m_uDatabase->m_sEndpoint);
-            } else if (m_uDatabase->m_sModifications.empty()) {
+            } else if (m_uDatabase->m_sModifications.empty() || m_uDatabase->m_sModifications == "boomlings") {
                 serv = new Backend::GDServer_Boomlings(m_uDatabase->m_sEndpoint);
             } else {
                 serv = new Backend::GDServer_BoomlingsLike21(m_uDatabase->m_sEndpoint);
@@ -499,7 +596,7 @@ LevelAPI::Backend::GDServer *Node::createServer() {
             break;
         }
         case 22: {
-            if (m_uDatabase->m_sModifications.empty()) {
+            if (m_uDatabase->m_sModifications.empty() || m_uDatabase->m_sModifications == "boomlings") {
                 serv = new Backend::GDServer_Boomlings(m_uDatabase->m_sEndpoint);
             } else {
                 serv = new Backend::GDServer_BoomlingsLike22(m_uDatabase->m_sEndpoint);
@@ -582,7 +679,7 @@ void Node::importLevelMetaFromLAPIold(std::string p) {
                 int rating = std::stoi(obj["difficultyRating"].get<std::string>());
                 bool isDemon = std::stoi(obj["isDemon"].get<std::string>());
                 bool commentSectionAvailable = std::stoi(obj["commentSectionAvailable"].get<std::string>());
-                auto level = new Level();
+                auto level = new Level(m_sInternalName);
                 
                 if(accountID == -1) accountID = 0;
                 
