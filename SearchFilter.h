@@ -9,11 +9,6 @@ enum SearchSort {
     SSRecentLevel,
     SSNone
 };
-enum FilterEnum {
-    FEByLevelID = 0,
-    FEByUserID, FEByAccountID, FEByNickname, FEByName, FEByDescription,
-    FENone
-};
 
 class SearchFilter {
 public:
@@ -21,7 +16,6 @@ public:
     int m_nStars = -1;
 
     SearchSort m_eSort = SSNone;
-    // FilterEnum m_eFilter = FENone;
 
     std::string m_sName = "";
     std::string m_sDescription = "";
@@ -31,6 +25,9 @@ public:
 
     int m_nUID = 0;
     int m_nAID = 0;
+
+    std::string m_sReleaseGV = "";
+    int m_nServerGV = 0;
 
     int m_nSID = -1;
     bool m_bSongOfficial = false;

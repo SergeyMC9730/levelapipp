@@ -11,10 +11,12 @@
 
 #include "TestingBoomlings22.h"
 // #include "connection.h"
+#include "requests/api_request.h"
 #include "requests/v1.helloworld.h"
 #include "requests/v1.level.download.h"
 #include "requests/v1.img.request.h"
 #include "requests/v1.res.request.h"
+#include "requests/v1.stats.h"
 
 #include "gmd2pp/gmd2.h"
 
@@ -222,10 +224,22 @@ int main(int argc, char *argv[]) {
         // .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK)
     ;
 
-    ws.register_resource("/api/v1/hello", reinterpret_cast<http_resource *>(new LevelAPI::v1::HelloWorldRequest()));
-    ws.register_resource("/api/v1/level/download", reinterpret_cast<http_resource *>(new LevelAPI::v1::LevelDownloadRequest()));
-    ws.register_resource("/api/v1/img/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::IMGRequest()));
-    ws.register_resource("/api/v1/res/request/{file}", reinterpret_cast<http_resource *>(new LevelAPI::v1::ResourceRequest()));
+    std::vector<APIRequest *> requests = {
+        new LevelAPI::v1::HelloWorldRequest(),
+        new LevelAPI::v1::LevelDownloadRequest(),
+        new LevelAPI::v1::IMGRequest(),
+        new LevelAPI::v1::ResourceRequest(),
+        new LevelAPI::v1::StatsRequest()
+    };
+
+    int i = 0;
+    while (i < requests.size()) {
+        auto req = requests[i];
+
+        ws.register_resource(req->request_url, reinterpret_cast<http_resource *>(req));
+
+        i++;
+    }
 
     std::cout << getByKey("lapi.main.portstart", HttpController::getPort()) << std::endl;
 

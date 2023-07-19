@@ -13,6 +13,7 @@ NodePolicy::NodePolicy() {
     m_nQueueProcessingInterval = 2;
     m_bEnableLinearResolver = false;
     m_bEnableResolver = false;
+    m_bUseProxyOnly = false;
 
     setupJSON();
     save();
@@ -26,6 +27,7 @@ void NodePolicy::save() {
     _jsonObject["enableLinearResolver"] = m_bEnableLinearResolver;
     _jsonObject["enableResolver"] = m_bEnableResolver;
     _jsonObject["noOutput"] = m_bNoOutput;
+    _jsonObject["useProxyOnly"] = m_bUseProxyOnly;
 }
 void NodePolicy::recover() {
     GET_JSON_VALUE(_jsonObject, "enableRecentTab", m_bEnableRecentTab, bool);
@@ -35,6 +37,7 @@ void NodePolicy::recover() {
     GET_JSON_VALUE(_jsonObject, "enableLinearResolver", m_bEnableLinearResolver, bool);
     GET_JSON_VALUE(_jsonObject, "enableResolver", m_bEnableResolver, bool);
     GET_JSON_VALUE(_jsonObject, "noOutput", m_bNoOutput, bool);
+    GET_JSON_VALUE(_jsonObject, "useProxyOnly", m_bUseProxyOnly, bool);
 }
 
 void NodePolicy::setupJSON() {

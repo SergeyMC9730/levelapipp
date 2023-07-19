@@ -29,6 +29,24 @@ std::shared_ptr<http_response> LevelAPI::v1::StatsRequest::render(const http_req
     filter->m_eSort = SearchSort::SSLatestDBApperead;
     
     auto levels = node_object->getLevels(filter);
-    
-    return generateResponse("wip");
+
+    nlohmann::json resp;
+
+    resp["response"] = 0;
+    resp["levels"] = node_object->m_nCachedLevels;
+    resp["latestLevelsDownloaded"] = nlohmann::json::array();
+    resp["queuedJobs"] = node_object->m_uQueue->m_vCommandQueue.size();
+    resp["queuedDownloadJobs"] = node_object->m_uQueue->m_vResolverQueuedLevels.size();
+
+    int i = 0;
+    while(i < levels.size()) {
+        resp["latestLevelsDownloaded"].push_back(levels[i]->_jsonObject);
+
+        delete levels[i];
+        levels[i] = nullptr;
+
+        i++;
+    }
+
+    return generateResponse(resp.dump(), HTTPContentTypeJSON());
 }

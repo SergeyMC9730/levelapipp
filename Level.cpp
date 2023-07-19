@@ -59,7 +59,7 @@ void Level::save(bool onlyLevelString) {
     std::string g2 = m_sLevelPath + "/data.gmd2";
 
     auto lambda_save = [&]() {
-        if (!std::filesystem::exists(g2) && m_bHasLevelString) {
+        if (m_bHasLevelString) {
             auto gmd2file = new GMD2();
             gmd2file->setFileName(g2);
             gmd2file->setDebug(false);

@@ -101,23 +101,23 @@ void Node::save() {
     // if (_jsonObject["queue"].size() != 0) {
 	//     //_jsonObject["queue"].erase(_jsonObject["queue"].begin(), _jsonObject["queue"].end()); 
     // }
-    if (_jsonObject["queue"] != nullptr) {
+    // if (_jsonObject["queue"] != nullptr) {
         try {
-            _jsonObject["queue"] = {};
+            // _jsonObject["queue"] = {};
             // _jsonObject["queue"].clear();
             _jsonObject["queue"] = m_uQueue->_jsonObject;
         } catch (std::bad_alloc e) {
             std::cout << "allocation failed" << std::endl;
             _jsonObject["queue"] = nlohmann::json();
         }
-    } else {
-        std::cout << "queue is nullptr" << std::endl;
-        nlohmann::json j;
-        j["commandQueue"] = {};
-        j["executeQueue"] = false;
-        j["runtimeState"] = 0;
-        _jsonObject["queue"] = j;
-    }
+    // } else {
+        // std::cout << "queue is nullptr" << std::endl;
+        // nlohmann::json j;
+        // j["commandQueue"] = {};
+        // j["executeQueue"] = false;
+        // j["runtimeState"] = 0;
+        // _jsonObject["queue"] = j;
+    // }
     _jsonObject["policy"] = m_pPolicy->_jsonObject;
     _jsonObject["levels"] = m_nCachedLevels;
     _jsonObject["experiment1value"] = m_nExperiment1Value;
@@ -439,7 +439,14 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
         }
     }
 
-    std::string ordering = "levelID";
+    if (filter->m_nServerGV != 0) {
+        rw_condition["fakeGameVersion"] = filter->m_nServerGV;
+    }
+    if (!filter->m_sReleaseGV.empty()) {
+        rw_condition["actualGameVersion"] = filter->m_sReleaseGV;
+    }
+
+    std::string ordering = "-downloads";
 
     if (filter->m_eSort == SearchSort::SSMostLiked) {
         ordering = "-likes";
@@ -462,7 +469,7 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
         auto sqlobj = request[i];
         auto jsonobj = jsonFromSQLLevel(sqlobj);
         auto level = new Level(m_sInternalName);
-
+        
         level->_jsonObject = jsonobj;
         level->recover();
 
@@ -472,111 +479,6 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
     }
 
     return res;
-
-    // int i = 0;
-    // while(i < m_vCachedLevels.size() && i < 8192) {
-    //     bool filter_successful = true;
-    //     auto lvl = getLevel(m_vCachedLevels[i]);
-    //     if(lvl != nullptr) {
-    //         if (filter->m_eFilter != FENone) {
-    //             switch(filter->m_eFilter) {
-    //                 case FEByAccountID: {
-    //                     if(lvl->m_nAccountID == std::stoi(filter->m_sFilterStr)) {
-    //                         if(filter_successful) filter_successful = true;
-    //                     } else {
-    //                         filter_successful = false;
-    //                     }
-    //                     break;
-    //                 }
-    //                 case FEByLevelID: {
-    //                     if(lvl->m_nLevelID == std::stoi(filter->m_sFilterStr)) {
-    //                         if(filter_successful) filter_successful = true;
-    //                     } else {
-    //                         filter_successful = false;
-    //                     }
-    //                     break;
-    //                 }
-    //                 case FEByName: {
-    //                     if(lvl->m_sLevelName.find(filter->m_sFilterStr) != std::string::npos) {
-    //                         filter_successful = true;
-    //                     } else {
-    //                         filter_successful = false;
-    //                     }
-    //                     break;
-    //                 }
-    //                 case FEByDescription: {
-    //                     if(lvl->m_sDescription.find(filter->m_sFilterStr) != std::string::npos) {
-    //                         if(filter_successful) filter_successful = true;
-    //                     } else {
-    //                         filter_successful = false;
-    //                     }
-    //                     break;
-    //                 }
-    //                 case FEByUserID: {
-    //                     if(lvl->m_nPlayerID == std::stoi(filter->m_sFilterStr)) {
-    //                         if(filter_successful) filter_successful = true;
-    //                     } else {
-    //                         filter_successful = false;
-    //                     }
-    //                     break;
-    //                 }
-    //                 case FEByNickname: {
-    //                     if(lvl->m_sUsername.find(filter->m_sFilterStr) != std::string::npos) {
-    //                         if(filter_successful) filter_successful = true;
-    //                     } else {
-    //                         filter_successful = false;
-    //                     }
-    //                     break;
-    //                 }
-    //                 default: {
-    //                     filter_successful = false;
-    //                     break;
-    //                 }
-    //             }
-    //         } else {
-    //             if(filter_successful) filter_successful = true;
-    //         }
-
-    //         if (filter->m_nDifficulty != -1 && (lvl->m_nDifficultyDenominator == filter->m_nDifficulty)) {
-    //             if(filter_successful) filter_successful = true;
-    //         } else {
-    //             filter_successful = false;
-    //         }
-            
-    //         if (filter->m_nStars != -1 && (lvl->m_nStars == filter->m_nStars || lvl->m_nStarsRequested == filter->m_nStars)) {
-    //             if(filter_successful) filter_successful = true;
-    //         } else {
-    //             filter_successful = false;
-    //         }
-
-    //         if(filter_successful == false) {
-    //             delete lvl;
-    //         } else {
-    //             res.push_back(lvl);
-    //         }
-    //     }
-    //     i++;
-    // }
-
-    // if (filter->m_eSort != SSNone) {
-    //     std::sort(res.begin(), res.end(), [=](Level *lhs, Level *rhs) {
-    //         switch(filter->m_eSort) {
-    //             default:
-    //             case SSMostDownloaded: {
-    //                 return lhs->m_nDownloads > rhs->m_nDownloads;
-    //                 break;
-    //             }
-    //             case SSMostLiked: {
-    //                 return (lhs->m_nLikes + lhs->m_nDislikes) > (rhs->m_nLikes + rhs->m_nDislikes);
-    //                 break;
-    //             }
-    //         }
-    //     });
-    // }
-
-    // return res;
-
-    return {}; // TODO: implement search using sql stuff
 }
 
 LevelAPI::Backend::GDServer *Node::createServer() {

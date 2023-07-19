@@ -289,43 +289,52 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondi
 
     std::string eq = "";
 
-    for (auto const [key, val] : condition) {
-        eq += key + " ";
+    if (condition.size() != 0) {
+        for (auto const [key, val] : condition) {
 
-        if (std::holds_alternative<std::string>(val)) {
-            // prevent sql injection
+            eq += key + " ";
 
-            auto buf = (char *)sqlite3_malloc(1024);
-            auto str = std::get<std::string>(val);
+            if (std::holds_alternative<std::string>(val)) {
+                // prevent sql injection
 
-            sqlite3_snprintf(1024, buf, "%q", str.c_str());
+                auto buf = (char *)sqlite3_malloc(1024);
+                auto str = std::get<std::string>(val);
 
-            std::string new_str = buf;
+                sqlite3_snprintf(1024, buf, "%q", str.c_str());
 
-            eq += "LIKE '%" + new_str + "%'";
+                std::string new_str = buf;
 
-            sqlite3_free(buf);
+                eq += "LIKE '%" + new_str + "%'";
+
+                sqlite3_free(buf);
+            }
+            if (std::holds_alternative<int>(val)) {
+                eq += "= " + std::to_string(std::get<int>(val));
+            }
+            if (std::holds_alternative<uint32_t>(val)) {
+                eq += "= " + std::to_string((int)std::get<uint32_t>(val));
+            }
+            if (std::holds_alternative<uint64_t>(val)) {
+                eq += "= " + std::to_string(std::get<uint64_t>(val));
+            }
+            if (std::holds_alternative<bool>(val)) {
+                eq += "= " + std::to_string(std::get<bool>(val));
+            }
+
+            eq += " AND ";
         }
-        if (std::holds_alternative<int>(val)) {
-            eq += "= " + std::to_string(std::get<int>(val));
-        }
-        if (std::holds_alternative<uint32_t>(val)) {
-            eq += "= " + std::to_string((int)std::get<uint32_t>(val));
-        }
-        if (std::holds_alternative<uint64_t>(val)) {
-            eq += "= " + std::to_string(std::get<uint64_t>(val));
-        }
-        if (std::holds_alternative<bool>(val)) {
-            eq += "= " + std::to_string(std::get<bool>(val));
-        }
-
-        eq += " AND ";
     }
 
-    eq.erase(eq.size() - 5);
+    if (eq.size() >= 5) eq.erase(eq.size() - 5);
 
-    char *data1 = sqlite3_mprintf("SELECT * FROM %s WHERE %s ORDER BY %s LIMIT %d OFFSET %d;", table.c_str(), eq.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
-    
+    char *data1 = nullptr;
+
+    if (condition.size() != 0) {
+        data1 = sqlite3_mprintf("SELECT * FROM %s WHERE %s ORDER BY %s LIMIT %d OFFSET %d;", table.c_str(), eq.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
+    } else {
+        data1 = sqlite3_mprintf("SELECT * FROM %s ORDER BY %s LIMIT %d OFFSET %d", table.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
+    }
+
     auto vec = syncQuery(data1);
 
     sqlite3_free(data1);

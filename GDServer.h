@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Account19.h"
+#include "CURLParameter.h"
 #include "curl_backend.h"
 
 #include <string>
 #include <vector>
+#include <optional>
 
+#include "CurlProxy.h"
 
 #include "Level.h"
 #include "LevelRange.h"
@@ -38,6 +41,13 @@ namespace LevelAPI {
             std::vector<LevelAPI::LevelRange *> m_vRanges;
 
 	        bool m_bDebug;
+
+            virtual std::string _getDownloadLevelEndpointName();
+            virtual std::string _getLevelListEndpointName();
+            virtual std::string _getLoginAccountEndpointName();
+
+            virtual std::string _getSecretValueStandard();
+            virtual std::string _getSecretValueExtra();
         public:
             GDServer();
             ~GDServer();
@@ -47,9 +57,9 @@ namespace LevelAPI {
             virtual void setDebug(bool d);
             virtual bool getDebug();
 
-            virtual LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo);
+            virtual LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy = std::nullopt);
             // returns self
-            virtual LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level);
+            virtual LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt);
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type);
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page);
         

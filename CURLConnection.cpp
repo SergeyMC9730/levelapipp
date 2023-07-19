@@ -171,7 +171,7 @@ void CURLConnection::destroy() {
     curl_easy_cleanup(m_pCurl);
 }
 
-void CURLConnection::setProxy(CurlProxy &proxy) {
+void CURLConnection::setProxy(CurlProxy proxy) {
     m_proxy = proxy;
 }
 

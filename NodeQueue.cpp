@@ -63,6 +63,9 @@ void NodeQueue::save() {
     _jsonObject["commandQueue"].clear();
     _jsonObject["executeQueue"] = m_bExecuteQueue;
     _jsonObject["runtimeState"] = m_nRuntimeState;
+    _jsonObject["resolverQueue"] = m_vResolverQueuedLevels;
+
+    // printf("rsize: %d %d\n", _jsonObject["resolverQueue"].size(), m_vResolverQueuedLevels.size());
 
     int i = 0;
     while(i < m_vCommandQueue.size()) {
@@ -81,6 +84,13 @@ void NodeQueue::recover() {
         m_vCommandQueue.push_back(new NodeCommandQueue());
         m_vCommandQueue.at(i)->_jsonObject = _jsonObject["commandQueue"].at(i);
         m_vCommandQueue.at(i)->recover();
+        i++;
+    }
+
+    i = 0;
+    while(i < _jsonObject["resolverQueue"].size()) {
+        m_vResolverQueuedLevels.push_back(_jsonObject["resolverQueue"].at(i).get<int>());
+
         i++;
     }
 }

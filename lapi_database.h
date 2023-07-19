@@ -58,7 +58,9 @@ namespace LevelAPI {
             NodeQueue(bool executeQueue, int runtimeState);
             NodeQueue();
 
-            std::vector<NodeCommandQueue *> m_vCommandQueue;
+            std::vector<NodeCommandQueue *> m_vCommandQueue = {};
+            std::vector<int> m_vResolverQueuedLevels = {};
+    
             bool m_bExecuteQueue;
             int m_nRuntimeState;
 
@@ -114,6 +116,7 @@ namespace LevelAPI {
             bool m_bWaitResolverRL;
             bool m_bEnableLinearResolver;
             bool m_bEnableResolver; // only level meta would be downloaded if resolver is disabled
+            bool m_bUseProxyOnly;
             float m_nResolverInterval;
             float m_nQueueProcessingInterval;
             bool m_bNoOutput;

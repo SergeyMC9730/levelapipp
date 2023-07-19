@@ -1,3 +1,4 @@
+#include "CurlProxy.h"
 #include "DatabaseControllerThreads.h"
 
 #include "json/single_include/nlohmann/json.hpp"
@@ -188,7 +189,15 @@ void DatabaseController::node_runner(Node *nd) {
     int prev_q = NC_NONE;
     std::cout << Translation::getByKey("lapi.noderunner.start", nd->m_sInternalName) << std::endl;
 
-    std::vector<int> recent_downloadedids;
+    std::vector<CurlProxy> proxies = {};
+
+    int i = 0;
+
+    while(i < nd->m_pProxy->m_vProxies.size()) {
+        proxies.push_back(nd->m_pProxy->m_vProxies[i]);
+
+        i++;
+    }
 
     Backend::GDServer *server = nd->createServer();
 
@@ -201,6 +210,99 @@ void DatabaseController::node_runner(Node *nd) {
     rtt.detach();
 
     Level *llevel;
+
+    auto resolver_job = [&](Node *this_node, Backend::GDServer *this_server, std::vector<CurlProxy> proxy_list) {
+        if (!this_node->m_pPolicy->m_bEnableResolver) return;
+
+        while (true) {
+            if (this_node->m_uQueue->m_vResolverQueuedLevels.size() != 0) {
+
+                int i = 0;
+                bool dont_stop = false;
+                while (i < proxy_list.size() && (i < this_node->m_uQueue->m_vResolverQueuedLevels.size() || dont_stop)) {
+                    int id = this_node->m_uQueue->m_vResolverQueuedLevels[0];
+
+                    std::cout << Translation::getByKey("lapi.noderunner.resolver.event.download.progress", this_node->m_sInternalName, id) << std::endl;
+
+                    auto level = this_server->getLevelMetaByID(id, false, proxy_list[i]);
+
+                    if (!level || level->m_nRetryAfter > 0) {
+                        std::cout << "failed to download the level (proxy " << proxy_list[i].getURL() << ")" << std::endl;;
+                        dont_stop = true;
+
+                        if (level != nullptr) {
+                            std::cout << "reason: rate limit " << level->m_nRetryAfter << " seconds" << std::endl;
+                            delete level;
+                            level = nullptr;
+                        }
+                    } else {
+                        if (level->m_nRetryAfter < 0) {
+                            std::cout << "failed to download the level (proxy " << proxy_list[i].getURL() << ") : level does not exist" << std::endl;;
+                        } else {
+                            level->m_bHasLevelString = true;
+                            // std::cout << "level string: " << level->m_sLevelString << std::endl;;
+                            bool exists = this_node->levelExists(id);
+
+                            this_node->initLevel(level);
+                            level->save(exists);
+
+                            std::cout << Translation::getByKey("lapi.noderunner.resolver.event.download.complete", this_node->m_sInternalName, id) << std::endl;
+                        }
+
+                        delete level;
+                        level = nullptr;
+                        
+                        this_node->m_uQueue->m_vResolverQueuedLevels.erase(this_node->m_uQueue->m_vResolverQueuedLevels.begin());
+
+                        dont_stop = false;
+                    }
+
+                    i++;
+                }
+
+                if (this_node->m_uQueue->m_vResolverQueuedLevels.size() != 0 && !this_node->m_pPolicy->m_bUseProxyOnly) {
+                    int id = this_node->m_uQueue->m_vResolverQueuedLevels[0];
+
+                    std::cout << Translation::getByKey("lapi.noderunner.resolver.event.download.progress", this_node->m_sInternalName, id) << std::endl;
+
+                    auto level = this_server->getLevelMetaByID(id, false);
+
+                    if (!level || level->m_nRetryAfter > 0) {
+                        std::cout << "failed to download the level" << std::endl;
+
+                        if (level != nullptr) {
+                            std::cout << "reason: rate limit " << level->m_nRetryAfter << " seconds" << std::endl;
+                            delete level;
+                            level = nullptr;
+                        }
+                    } else {
+                        if (level->m_nRetryAfter < 0) {
+                            std::cout << "failed to download the level (proxy " << proxy_list[i].getURL() << ") : level does not exist" << std::endl;;
+                        } else {
+                            level->m_bHasLevelString = true;
+                            // std::cout << "level string: " << level->m_sLevelString << std::endl;;
+                            bool exists = this_node->levelExists(id);
+
+                            this_node->initLevel(level);
+                            level->save(exists);
+
+                            std::cout << Translation::getByKey("lapi.noderunner.resolver.event.download.complete", this_node->m_sInternalName, id) << std::endl;
+                        }
+
+                        delete level;
+                        level = nullptr;
+                        
+                        this_node->m_uQueue->m_vResolverQueuedLevels.erase(this_node->m_uQueue->m_vResolverQueuedLevels.begin());
+                    }
+                }
+            }
+
+            std::this_thread::sleep_for(std::chrono::seconds((int)this_node->m_pPolicy->m_nResolverInterval));
+        }
+    };
+
+    std::thread resolver_thread(resolver_job, nd, server, proxies);
+    resolver_thread.detach();
 
     auto user_job = [=](std::string uid) {
         if(!nd->m_pPolicy->m_bNoOutput) {
@@ -226,6 +328,7 @@ void DatabaseController::node_runner(Node *nd) {
                     levels[q]->m_sLinkedNode = nd->m_sInternalName;
 
                     if(!nd->levelExists(levelid)) {
+                        nd->m_uQueue->m_vResolverQueuedLevels.push_back(levelid);
                         nd->initLevel(levels[q]);
                         levels[q]->m_bHasLevelString = false;
                         levels[q]->save();
@@ -246,7 +349,7 @@ void DatabaseController::node_runner(Node *nd) {
                     levels[q] = nullptr;
                     q++;
                 }
-                std::cout << skipped << " levels were skipped (already exists)" << std::endl;
+                std::cout << Translation::getByKey("lapi.noderunner.downloader.skipped", nd->m_sInternalName, skipped) << std::endl;
                 levels.clear();
             }
             i++;
@@ -256,7 +359,7 @@ void DatabaseController::node_runner(Node *nd) {
         }
     };
 
-    goto start_linear;
+    goto run_again;
 
 error_ignore:
     if(!nd->m_pPolicy->m_bNoOutput) {
@@ -277,89 +380,11 @@ loop_readonly:
         std::this_thread::sleep_for(std::chrono::seconds(2s));
     }
 run_again:
-    // std::cout << "run-again" << std::endl;
     if(nd->m_bRateLimitApplied) {
         std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, nd->m_nWaitTime);
         rlt.detach();
     }
-start_linear:
-    if (nd->m_uDatabase->m_bReadOnly) goto loop_readonly2;
-
-    if(!nd->m_pPolicy->m_bEnableLinearResolver) goto start;
-    nd->m_uQueue->m_bExecuteQueue = !nd->m_uQueue->m_bExecuteQueue;
-    nd->m_uQueue->save();
-    if(nd->m_uQueue->m_bExecuteQueue || nd->m_bRateLimitApplied) goto start;
-    else {
-        if(nd->m_pPolicy->m_bEnableResolver) {
-            if(!nd->m_pPolicy->m_bNoOutput) {
-                std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.wait", nd->m_sInternalName, nd->m_pPolicy->m_nResolverInterval) << std::endl;
-            }
-
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds(
-                    (int)(nd->m_pPolicy->m_nResolverInterval * 1000.f)
-                )
-            );
-
-            if(!nd->m_pPolicy->m_bNoOutput) {
-                std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.fetch", nd->m_sInternalName, nd->m_uQueue->m_nRuntimeState) << std::endl;
-            }
-
-            llevel = server->getLevelMetaByID(nd->m_uQueue->m_nRuntimeState, false);
-
-            if(server->m_eStatus == GSS_PERMANENT_BAN) {
-                int i = 0;
-                while(i < 32) {
-                    std::cout << Translation::getByKey("lapi.noderunner.error.pban", nd->m_sInternalName) << std::endl;
-                    i++;
-                }
-                std::cout << Translation::getByKey("lapi.noderunner.error.pban.halt", nd->m_sInternalName) << std::endl;
-                while(1);
-            }
-
-            if (llevel->m_nRetryAfter == 0) {
-                nd->initLevel(llevel);
-                llevel->m_bHasLevelString = true;
-                llevel->save();
-                nd->m_jLastDownloadedLevel = llevel->_jsonObject;
-                delete llevel;
-                llevel = nullptr;
-                //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << nd->m_sInternalName << "] Fetched level " << nd->m_uQueue->m_nRuntimeState << std::endl;
-                if(!nd->m_pPolicy->m_bNoOutput) {
-                    std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.event.fetch.end", nd->m_sInternalName, nd->m_uQueue->m_nRuntimeState) << std::endl;
-                }
-            } else if (llevel->m_nRetryAfter > 0 && nd->m_pPolicy->m_bWaitResolverRL) {
-                nd->m_nWaitTime = llevel->m_nRetryAfter;
-                //if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI linear resolver " << nd->m_sInternalName << "] RATE LIMIT for " << nd->m_nWaitTime << "s" << std::endl;
-                if(!nd->m_pPolicy->m_bNoOutput) {
-                    std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.event.ratelimit", nd->m_sInternalName, nd->m_nWaitTime) << std::endl;
-                }
-                nd->m_bRateLimitApplied = true;
-                delete llevel;
-                llevel = nullptr;
-            }
-
-            nd->m_uQueue->m_nRuntimeState++;   
-        } else {
-            if(!nd->m_pPolicy->m_bNoOutput) {
-                std::cout << Translation::getByKey("lapi.noderunner.resolver.linear.error.disabled", nd->m_sInternalName) << std::endl;
-            }
-        }
-        goto run_again;
-    }
 start:
-    if(!nd->m_pPolicy->m_bEnableLinearResolver) {
-        float t = (prev_q != NC_ID && prev_q != NC_NONE) ? nd->m_pPolicy->m_nQueueProcessingInterval : 0.0f; 
-        // if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << nd->m_sInternalName << "] Waiting " << nd->m_pPolicy->m_nQueueProcessingInterval << "s" << std::endl;
-        if(!nd->m_pPolicy->m_bNoOutput) {
-                //std::cout << Translation::getByKey("lapi.noderunner.downloader.wait", nd->m_sInternalName, t) << std::endl;
-            }
-        
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds((int)(t * 1000.f))
-            );
-    }
-
     if(nd->m_uQueue->m_vCommandQueue.size() == 0) goto error_ignore;
 
     auto q = nd->m_uQueue->m_vCommandQueue.at(0);
@@ -367,19 +392,20 @@ start:
     nd->m_uQueue->currentState = q->m_nCommand;
     prev_q = q->m_nCommand;
 
-    // std::cout << 1 << std::endl;
+    bool wait_after_command = true;
 
     switch(q->m_nCommand) {
-        case NC_EXPERIMENT1: { // downloads levels from all gd users (or, atleast, tries to do so)
-            if(nd->m_nExperiment1Value < 0) nd->m_nExperiment1Value = 0;
-            int n = nd->m_nExperiment1Value;
-            for(;;) {
-                user_job(std::to_string(n));
-                n++;
-                nd->m_nExperiment1Value = n;
-            }
-            break;
-        }
+        // case NC_EXPERIMENT1: { // downloads levels from all gd users (or, atleast, tries to do so)
+            // break;
+            // if(nd->m_nExperiment1Value < 0) nd->m_nExperiment1Value = 0;
+            // int n = nd->m_nExperiment1Value;
+            // for(;;) {
+                // user_job(std::to_string(n));
+                // n++;
+                // nd->m_nExperiment1Value = n;
+            // }
+            // break;
+        // }
         case NC_USER: {
             //if(server->m_eStatus == GSS_PERMANENT_BAN) break;
 
@@ -388,7 +414,6 @@ start:
             break;
         }
         case NC_RECENT: {
-            // std::cout << "test " << std::endl;
             if(!nd->m_pPolicy->m_bEnableRecentTab) break;
 
             if(!nd->m_pPolicy->m_bNoOutput) {
@@ -401,70 +426,52 @@ start:
                     std::cout << Translation::getByKey("lapi.noderunner.error.pban", nd->m_sInternalName) << std::endl;
                     i++;
                 }
+
                 std::cout << Translation::getByKey("lapi.noderunner.error.pban.halt", nd->m_sInternalName) << std::endl;
-                // rcbt.
                 for(;;);
             }
 
             while(i < levels.size()) {
-                // printf("loop %d %ld\n", i, levels.size());
-                int levelid;
-                std::string levelname;
-                levelid = levels[i]->m_nLevelID;
-                levelname = levels[i]->m_sLevelName;
+                int levelid = levels[i]->m_nLevelID;
+                std::string levelname = levels[i]->m_sLevelName;
+
                 levels[i]->m_sLinkedNode = nd->m_sInternalName;
 
-                // std::cout << "requesting level" << std::endl;
-
                 if(!nd->levelExists(levelid)) {
-                    // std::cout << "level does not exist" << std::endl;
-
                     bool userIDExists = nd->userIDExists(levels[i]->m_nPlayerID);
                     auto identifier = server->getServerIdentifier();
                     
-                    // printf("%d %s\n\n", userIDExists, identifier.c_str());
-
-                    if(!userIDExists && identifier == "gdserver_boomlings") {
+                    if(!userIDExists && identifier == "gdserver_boomlings" && false) {
                         nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
                     }
-                    // std::cout << "level init" << std::endl;
+
                     nd->initLevel(levels[i]);
                     levels[i]->m_bHasLevelString = false;
-                    // std::cout << "level save" << std::endl;
                     levels[i]->save();
-                    nd->m_jLastDownloadedLevel = levels[i]->_jsonObject;
-                    recent_downloadedids.push_back(levelid);
+                    // nd->m_jLastDownloadedLevel = levels[i]->_jsonObject;
+                    // recent_downloadedids.push_back(levelid);
                     if(!nd->m_bRateLimitApplied && nd->m_pPolicy->m_bEnableResolver) {
-                        // std::cout << "do resolver" << std::endl;
                         nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));
                     }
                     if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady && DatabaseController::database->m_pLinkedBot->m_pBot != nullptr) {
-                        // std::cout << "try to send message idk" << std::endl;
                         DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
                             dpp::snowflake(DatabaseController::database->m_sRegisteredCID), levels[i]->getAsEmbed(E_RECENT)
                         ));
                     }
                     if(!nd->m_pPolicy->m_bNoOutput) {
-                        // std::cout << "level success print" << std::endl;
                         std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
                     }
-                    // std::cout << "end" << std::endl;
+                    // printf("level %d does not exist\n", levelid);
+                    nd->m_uQueue->m_vResolverQueuedLevels.push_back(levelid);
                 } else {
-                    // std::cout << "level exists" << std::endl;
                     if(nd->m_pPolicy->m_bEnableResolver && !levels[i]->m_bHasLevelString) {
-                        // std::cout << "do resolver" << std::endl;
-                        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));
+                        // nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));
                     }
 		        }
 
-                // std::cout << "if end" << std::endl;
-
-                // std::cout << "delete level" << std::endl;
                 delete levels[i];
-                // std::cout << "deleted" << std::endl;
                 levels[i] = nullptr;
 
-                // std::cout << "i++" << std::endl;
                 // if(!nd->m_pPolicy->m_bNoOutput) std::cout << "[LevelAPI downloader " << nd->m_sInternalName << "] Level saved without level string: " << levelid << " \"" << levelname << "\"" << std::endl;
                 i++;
             }
@@ -472,24 +479,24 @@ start:
 
             break;
         }
-        case NC_ID: {
-            if(!nd->m_bResolverIsActive) {
-                std::thread rlt(DatabaseController::node_runner_resolve_level, nd, q, server);
-                rlt.detach();
-            }
 
-            break;
+        case NC_ID: {
+            nd->m_uQueue->m_vResolverQueuedLevels.push_back(std::stoi(q->m_sText));
         }
         default:
         case NC_NONE:
-        case NC_IDLE: break;
+        case NC_IDLE: {
+            wait_after_command = false;
+
+            break;
+        }
     }
-    if(q->m_nCommand != NC_ID) {
-        delete q;
-        q = nullptr;
-    }
+    
+    delete q;
+    q = nullptr;
+    
     nd->m_uQueue->m_vCommandQueue.erase(nd->m_uQueue->m_vCommandQueue.begin());
-    nd->m_uQueue->save();
+    // nd->m_uQueue->save();
 
     nd->m_uQueue->currentState = NC_NONE;
 

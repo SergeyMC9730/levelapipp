@@ -3,7 +3,6 @@
 
 #include "Translation.h"
 
-//#include "Include/GDCrypto/RobTopCipher.hpp"
 #include "GDCrypto-patched/Include/GDCrypto/RobTopCipher.hpp"
 
 using namespace gdcrypto;
@@ -15,7 +14,7 @@ GDServer::GDServer() {
 GDServer::~GDServer() {
     m_eStatus = GSS_OFFLINE;
 }
-LevelAPI::DatabaseController::Level *GDServer::getLevelMetaByID(int id, bool resolveAccountInfo) {
+LevelAPI::DatabaseController::Level *GDServer::getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy) {
     return nullptr;
 }
 
@@ -26,7 +25,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchTy
     return getLevelsBySearchType(type, "", 0);
 }
 
-LevelAPI::DatabaseController::Level *GDServer::resolveLevelData(LevelAPI::DatabaseController::Level *level) {
+LevelAPI::DatabaseController::Level *GDServer::resolveLevelData(LevelAPI::DatabaseController::Level *level, std::optional<CurlProxy> proxy) {
     return nullptr;
 }
 
@@ -54,6 +53,22 @@ bool GDServer::login() {
 
 int GDServer::getGameVersion() {
     return 0;
+}
+
+std::string GDServer::_getDownloadLevelEndpointName() {
+    return "";
+}
+std::string GDServer::_getLevelListEndpointName() {
+    return "";
+}
+std::string GDServer::_getLoginAccountEndpointName() {
+    return "";
+}
+std::string GDServer::_getSecretValueStandard() {
+    return "";
+}
+std::string GDServer::_getSecretValueExtra() {
+    return "";
 }
 
 std::string GDServer::determineGVFromID(int id) {
