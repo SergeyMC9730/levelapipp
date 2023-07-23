@@ -460,6 +460,9 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
     if (filter->m_eSort == SearchSort::SSRecentLevel) {
         ordering = "-levelID";
     }
+    if (filter->m_eSort == SearchSort::SSOldestLevel) {
+        ordering = "levelID";
+    }
 
     auto request = _sqliteObject->getTableWithCondition("levels", ordering, filter->m_nLevelsPerPage, filter->m_nPage, rw_condition);
 

@@ -11,12 +11,7 @@
 
 #include "TestingBoomlings22.h"
 // #include "connection.h"
-#include "requests/api_request.h"
-#include "requests/v1.helloworld.h"
-#include "requests/v1.level.download.h"
-#include "requests/v1.img.request.h"
-#include "requests/v1.res.request.h"
-#include "requests/v1.stats.h"
+#include "requests/requests.h"
 
 #include "gmd2pp/gmd2.h"
 
@@ -36,6 +31,7 @@
 
 #include "SQLiteManager.h"
 
+#include "requests/v1.level.search.h"
 #include "tests.h"
 
 #include "Translation.h"
@@ -168,17 +164,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    auto manager = SQLiteManager::create("database/test.db");
-
-    manager->updateRow("comments", {
-        {"message", "hi"},
-        {"percentage", 100},
-        {"userID", 1},
-        {"levelID", 1}
-    }, {
-        {"message", "hi"}
-    });
-
     // manager->wipeTable("comments");
 
     // int i = 0;
@@ -207,8 +192,6 @@ int main(int argc, char *argv[]) {
     //     i++;
     // }
 
-    delete manager;
-
     DatabaseController::setup();
     HttpController::setup();
     HttpController::parse();
@@ -229,7 +212,8 @@ int main(int argc, char *argv[]) {
         new LevelAPI::v1::LevelDownloadRequest(),
         new LevelAPI::v1::IMGRequest(),
         new LevelAPI::v1::ResourceRequest(),
-        new LevelAPI::v1::StatsRequest()
+        new LevelAPI::v1::StatsRequest(),
+        new LevelAPI::v1::LevelSearchRequest()
     };
 
     int i = 0;

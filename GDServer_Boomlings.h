@@ -1,3 +1,5 @@
+#pragma once
+
 #include "GDServer_BoomlingsLike21.h"
 
 namespace LevelAPI {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CurlProxy.h"
 #include "GDServer.h"
 
 namespace LevelAPI {

@@ -1,4 +1,5 @@
-#include "api_request.h"
+#include "APIRequest.h"
+#include <optional>
 
 std::shared_ptr<httpserver::http_response> APIRequest::generateResponse(std::string data, int status) {
     return std::shared_ptr<httpserver::http_response>(new httpserver::string_response(data, status));
@@ -36,4 +37,14 @@ std::shared_ptr<httpserver::file_response> APIRequest::sendFile(std::string path
 
 httpserver::http_resource *APIRequest::getAsResource() {
     return dynamic_cast<httpserver::http_resource *>(this);
+}
+
+std::optional<std::string> APIRequest::getArgument(std::string key, const httpserver::http_request &req) {
+    auto data = req.get_arg(key);
+
+    if (data.get_all_values().size() == 0) return std::nullopt;
+
+    std::string data_str = data.get_flat_value().data();
+
+    return data_str;
 }

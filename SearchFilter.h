@@ -7,6 +7,7 @@ enum SearchSort {
     SSMostDownloaded,
     SSLatestDBApperead,
     SSRecentLevel,
+    SSOldestLevel,
     SSNone
 };
 

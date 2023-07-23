@@ -12,10 +12,10 @@
 
 #include <cstdint>
 
-#define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::vector<std::map<std::string, std::string>>, bool)
-
 using SQLiteRow = std::map<std::string, std::variant<std::string, int, bool, uint32_t, uint64_t>>;
 using SQLiteServerRow = std::map<std::string, std::string>;
+
+#define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::vector<SQLiteServerRow>, bool)
 
 class SQLiteManager {
 protected:

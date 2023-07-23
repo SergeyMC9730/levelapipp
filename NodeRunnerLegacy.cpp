@@ -224,16 +224,18 @@ void DatabaseController::node_runner(Node *nd) {
                 while (i < proxy_list.size() && (i < this_node->m_uQueue->m_vResolverQueuedLevels.size() || dont_stop)) {
                     int id = this_node->m_uQueue->m_vResolverQueuedLevels[0];
 
+                    auto selected_proxy = proxy_list[i];
+
                     std::string datapath = "database/nodes/" + this_node->m_sInternalName + "/" + this_node->m_sLevelDataPath + "/Level_" + std::to_string(id) + "/data.gmd2";
 
                     if (!std::filesystem::exists(datapath)) {
-                        std::cout << "Selecting proxy " << proxy_list[i].getURL() << std::endl;
+                        std::cout << "Selecting proxy " << selected_proxy.getURL() << std::endl;
                         std::cout << Translation::getByKey("lapi.noderunner.resolver.event.download.progress", this_node->m_sInternalName, id) << std::endl;
 
-                        auto level = this_server->getLevelMetaByID(id, false, proxy_list[i]);
+                        auto level = this_server->getLevelMetaByID(id, false, selected_proxy);
 
                         if (!level || level->m_nRetryAfter > 0) {
-                            std::cout << "failed to download the level (proxy " << proxy_list[i].getURL() << ")" << std::endl;;
+                            std::cout << "failed to download the level (proxy " << selected_proxy.getURL() << ")" << std::endl;;
                             dont_stop = true;
 
                             if (level != nullptr) {
@@ -243,7 +245,7 @@ void DatabaseController::node_runner(Node *nd) {
                             }
                         } else {
                             if (level->m_nRetryAfter < 0) {
-                                std::cout << "failed to download the level (proxy " << proxy_list[i].getURL() << ") : level does not exist" << std::endl;;
+                                std::cout << "failed to download the level (proxy " << selected_proxy.getURL() << ") : level does not exist" << std::endl;;
                             } else {
                                 level->m_bHasLevelString = true;
                                 // std::cout << "level string: " << level->m_sLevelString << std::endl;;
@@ -289,7 +291,7 @@ void DatabaseController::node_runner(Node *nd) {
                             }
                         } else {
                             if (level->m_nRetryAfter < 0) {
-                                std::cout << "failed to download the level (proxy " << proxy_list[i].getURL() << ") : level does not exist" << std::endl;;
+                                std::cout << "failed to download the level : level does not exist" << std::endl;;
                             } else {
                                 level->m_bHasLevelString = true;
                                 // std::cout << "level string: " << level->m_sLevelString << std::endl;;
@@ -458,7 +460,7 @@ start:
                     bool userIDExists = nd->userIDExists(levels[i]->m_nPlayerID);
                     auto identifier = server->getServerIdentifier();
                     
-                    if(!userIDExists && identifier == "gdserver_boomlings" && false) {
+                    if(!userIDExists && identifier == "gdserver_boomlings") {
                         nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
                     }
 
@@ -479,7 +481,7 @@ start:
                         std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
                     }
                     // printf("level %d does not exist\n", levelid);
-                    nd->m_uQueue->m_vResolverQueuedLevels.push_back(levelid);
+                    if(nd->m_pPolicy->m_bEnableResolver) nd->m_uQueue->m_vResolverQueuedLevels.push_back(levelid);
                 } else {
                     if(nd->m_pPolicy->m_bEnableResolver && !levels[i]->m_bHasLevelString) {
                         // nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));

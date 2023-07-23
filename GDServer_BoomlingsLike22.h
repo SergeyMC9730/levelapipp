@@ -1,9 +1,6 @@
 #pragma once
 
-#include "GDServer.h"
 #include "GDServer_BoomlingsLike21.h"
-#include "Level.h"
-#include <vector>
 
 namespace LevelAPI {
     namespace Backend {
