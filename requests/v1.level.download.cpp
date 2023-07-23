@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "HTTPContentTypeText.h"
+#include "HTTPContentTypeJSON.h"
 #include "HTTPContentTypeZip.h"
 
 #define file_exists(cstr) (stat(cstr, &buffer) == 0)
@@ -23,7 +24,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
     int type = 0;
 
     try {
-        if(!type1.empty()) {
+        if(!type1.get_flat_value().empty()) {
             type = std::stoi(std::string(type1));
         }
     } catch (std::invalid_argument &e) {
@@ -42,20 +43,20 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
             auto nodepointer = LevelAPI::DatabaseController::database->getNode(std::string(node));
 
             if(nodepointer == nullptr) {
-                return generateResponse(response_fail.dump());
+                return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
             }
 
             auto level = nodepointer->getLevel(std::stoi(std::string(id)));
 
             if(level == nullptr) {
                 response_fail["response"] = -2;
-                return generateResponse(response_fail.dump());
+                return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
             }
 
-            level->levelJson["response"] = 0U;
-            level->levelJson["hasLevelString"] = level->m_bHasLevelString;
+            level->_jsonObject["response"] = 0U;
+            level->_jsonObject["hasLevelString"] = level->m_bHasLevelString;
             
-            auto resp = generateResponse(level->levelJson.dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore), "application/json");
+            auto resp = generateResponse(level->_jsonObject.dump(-1, ' ', false, nlohmann::json::error_handler_t::ignore), HTTPContentTypeJSON());
             
             delete level;
             level = nullptr;
@@ -68,13 +69,13 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
             auto nodepointer = LevelAPI::DatabaseController::database->getNode(std::string(node));
 
             if(nodepointer == nullptr) {
-                return generateResponse("404 Node Not Found");
+                return generateResponse("404 Node Not Found", 404);
             }
 
             auto level = nodepointer->getLevel(std::stoi(std::string(id)));
 
             if(level == nullptr) {
-                return generateResponse("404 Level Not Found");
+                return generateResponse("404 Level Not Found", 404);
             }
 
             std::string path = level->m_sLevelPath + "/data.gmd2";
@@ -83,28 +84,6 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
             level = nullptr;
 
             return sendFile(path, HTTPContentTypeZip());
-
-            break;
-        }
-        case 2: { // raw data
-            auto nodepointer = LevelAPI::DatabaseController::database->getNode(std::string(node));
-
-            if(nodepointer == nullptr) {
-                return generateResponse("404 Node Not Found");
-            }
-
-            auto level = nodepointer->getLevel(std::stoi(std::string(id)));
-
-            if(level == nullptr) {
-                return generateResponse("404 Level Not Found");
-            }
-
-            std::string path = level->m_sLevelPath + "/raw.txt";
-
-            delete level;
-            level = nullptr;
-
-            return sendFile(path, HTTPContentTypeText());
 
             break;
         }

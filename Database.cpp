@@ -33,8 +33,8 @@ Database::Database(std::vector<Node *> nodes) {
 
     setupJSON();
 
-    databaseJson["nodes"] = nlohmann::json::array();
-    databaseJson["nodeSize"] = m_nNodeSize;
+    _jsonObject["nodes"] = nlohmann::json::array();
+    _jsonObject["nodeSize"] = m_nNodeSize;
 
     save();
 
@@ -46,8 +46,8 @@ Database::Database(Node *node) {
 
     setupJSON();
 
-    databaseJson["nodes"] = nlohmann::json::array();
-    databaseJson["nodeSize"] = m_nNodeSize;
+    _jsonObject["nodes"] = nlohmann::json::array();
+    _jsonObject["nodeSize"] = m_nNodeSize;
 
     save();
 
@@ -57,14 +57,15 @@ Database::Database(std::string path) {
     databasePath = path;
 
     std::string p1 = path + "/info.json";
+    std::string p2 = path + "/info_backup.json";
 
     m_nNodeSize = m_vNodes.size();
 
     if(!std::filesystem::exists(p1)) {
         setupJSON();
 
-        databaseJson["nodes"] = nlohmann::json::array();
-        databaseJson["nodeSize"] = m_nNodeSize;
+        _jsonObject["nodes"] = nlohmann::json::array();
+        _jsonObject["nodeSize"] = m_nNodeSize;
 
         save();
 
@@ -72,27 +73,48 @@ Database::Database(std::string path) {
     }
 
     std::ifstream i(p1);
-    databaseJson = nlohmann::json::parse(i);
+    try {
+        _jsonObject = nlohmann::json::parse(i);
+    } catch (nlohmann::detail::parse_error e) {
+        if (std::filesystem::exists(p2)) {
+            std::cout << "Loading from the backup file" << std::endl;
 
-    GET_JSON_VALUE(databaseJson, "nodeSize", m_nNodeSize, int);
+            m_bLoadedFromBackup = true;
+
+            std::ifstream i2(p2);
+            _jsonObject = nlohmann::json::parse(i2);
+
+            i2.close();
+        }
+    }
+
+    i.close();
+
+    GET_JSON_VALUE(_jsonObject, "nodeSize", m_nNodeSize, int);
     int ii = 0;
-    while(ii < databaseJson["nodes"].size()) {
-        m_vNodes.push_back(new Node());
-        m_vNodes.at(ii)->nodeJson = databaseJson["nodes"].at(ii);
-        m_vNodes.at(ii)->recover();
+    while(ii < _jsonObject["nodes"].size()) {
+        auto json_object = _jsonObject["nodes"].at(ii);
+
+        auto createdNode = new Node(json_object["internalName"].get<std::string>());
+
+        m_vNodes.push_back(createdNode);
+
+        createdNode->_jsonObject = json_object;
+        createdNode->recover();
+
         ii++;
     }
 
     recalculate();
 
-    if (databaseJson.contains("botToken")) {
+    if (_jsonObject.contains("botToken")) {
         m_bEnableBot = true;
-        GET_JSON_VALUE(databaseJson, "botToken", m_sBotToken, std::string);
+        GET_JSON_VALUE(_jsonObject, "botToken", m_sBotToken, std::string);
     }
-    GET_JSON_VALUE(databaseJson, "registeredCID", m_sRegisteredCID, std::string);
-    GET_JSON_VALUE(databaseJson, "registeredCID2", m_sRegisteredCID2, std::string);
+    GET_JSON_VALUE(_jsonObject, "registeredCID", m_sRegisteredCID, std::string);
+    GET_JSON_VALUE(_jsonObject, "registeredCID2", m_sRegisteredCID2, std::string);
     
-    GET_JSON_VALUE(databaseJson, "language", translation_language, std::string);
+    GET_JSON_VALUE(_jsonObject, "language", translation_language, std::string);
 
     if(m_bEnableBot && !m_sBotToken.empty()) {
         m_pLinkedBot = new LevelAPI::DiscordController::DiscordInstance(this);
@@ -108,8 +130,8 @@ Database::Database() {
 
     setupJSON();
 
-    databaseJson["nodes"] = nlohmann::json::array();
-    databaseJson["nodeSize"] = m_nNodeSize;
+    _jsonObject["nodes"] = nlohmann::json::array();
+    _jsonObject["nodeSize"] = m_nNodeSize;
 
     save();
 
@@ -121,28 +143,33 @@ void Database::recalculate() {
 }
 
 void Database::save() {
+    if (!m_bLoadedFromBackup) {
+        std::filesystem::copy(databasePath + "/info.json", databasePath + "/info_backup.json", std::filesystem::copy_options::overwrite_existing);
+    } else {
+        std::filesystem::copy(databasePath + "/info_backup.json", databasePath + "/info.json", std::filesystem::copy_options::overwrite_existing);
+    }
     //auto start = std::chrono::high_resolution_clock::now();
 
     recalculate();
 
-    databaseJson["nodes"] = nlohmann::json::array();
-    databaseJson["nodeSize"] = m_nNodeSize;
-    if(m_bEnableBot) databaseJson["botToken"] = m_sBotToken;
-    databaseJson["registeredCID"] = m_sRegisteredCID;
-    databaseJson["registeredCID2"] = m_sRegisteredCID2;
+    _jsonObject["nodes"] = nlohmann::json::array();
+    _jsonObject["nodeSize"] = m_nNodeSize;
+    if(m_bEnableBot) _jsonObject["botToken"] = m_sBotToken;
+    _jsonObject["registeredCID"] = m_sRegisteredCID;
+    _jsonObject["registeredCID2"] = m_sRegisteredCID2;
 
     int i = 0;
     while(i < m_vNodes.size()) {
         m_vNodes.at(i)->save();
 
-        databaseJson["nodes"].push_back(m_vNodes.at(i)->nodeJson);
+        _jsonObject["nodes"].push_back(m_vNodes.at(i)->_jsonObject);
         i++;
     }
 
     std::string p1 = databasePath + "/info.json";
 
     std::ofstream file(p1);
-    file << databaseJson.dump(4);
+    file << _jsonObject.dump(4);
 
     //auto end = std::chrono::high_resolution_clock::now();
 
@@ -151,7 +178,7 @@ void Database::save() {
 }
 
 void Database::setupJSON() {
-    databaseJson = nlohmann::json();
+    _jsonObject = nlohmann::json();
 }
 
 Node *Database::getNode(std::string internalName) {

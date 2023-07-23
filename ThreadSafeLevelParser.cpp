@@ -14,7 +14,7 @@ using namespace LevelAPI::Frontend;
 
 LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string response, bool decrypt_description) {
     //printf("response: %s\n", response);
-    DatabaseController::Level *level = new DatabaseController::Level();
+    DatabaseController::Level *level = new DatabaseController::Level("");
     RobTopStringContainer *container = new RobTopStringContainer(response);
 
     container->setParserForVariable(

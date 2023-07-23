@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 enum GDPSActionType {
     GATRate = 0,
     GATFeature, GATEpic, GATGodlike, GATLegendary,

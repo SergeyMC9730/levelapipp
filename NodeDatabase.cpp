@@ -21,25 +21,25 @@ NodeDatabase::NodeDatabase() {
 }
 
 void NodeDatabase::save() {
-    ndJson["endpoint"] = m_sEndpoint;
-    ndJson["featureSet"] = m_nFeatureSet;
-    ndJson["readOnly"] = m_bReadOnly;
-    ndJson["playerLogin"] = m_sPlayerLogin;
-    ndJson["playerPassword"] = m_sPlayerPassword;
-    if(!m_sModifications.empty()) ndJson["modifications"] = m_sModifications;
+    _jsonObject["endpoint"] = m_sEndpoint;
+    _jsonObject["featureSet"] = m_nFeatureSet;
+    _jsonObject["readOnly"] = m_bReadOnly;
+    _jsonObject["playerLogin"] = m_sPlayerLogin;
+    _jsonObject["playerPassword"] = m_sPlayerPassword;
+    if(!m_sModifications.empty()) _jsonObject["modifications"] = m_sModifications;
 }
 
 void NodeDatabase::recover() {
-    GET_JSON_VALUE(ndJson, "endpoint", m_sEndpoint, std::string);
-    GET_JSON_VALUE(ndJson, "featureSet", m_nFeatureSet, int);
-    GET_JSON_VALUE(ndJson, "readOnly", m_bReadOnly, bool);
-    GET_JSON_VALUE(ndJson, "modifications", m_sModifications, std::string);
-    GET_JSON_VALUE(ndJson, "playerLogin", m_sPlayerLogin, std::string);
-    GET_JSON_VALUE(ndJson, "playerPassword", m_sPlayerPassword, std::string);
+    GET_JSON_VALUE(_jsonObject, "endpoint", m_sEndpoint, std::string);
+    GET_JSON_VALUE(_jsonObject, "featureSet", m_nFeatureSet, int);
+    GET_JSON_VALUE(_jsonObject, "readOnly", m_bReadOnly, bool);
+    GET_JSON_VALUE(_jsonObject, "modifications", m_sModifications, std::string);
+    GET_JSON_VALUE(_jsonObject, "playerLogin", m_sPlayerLogin, std::string);
+    GET_JSON_VALUE(_jsonObject, "playerPassword", m_sPlayerPassword, std::string);
 }
 
 void NodeDatabase::setupJSON() {
-    ndJson = nlohmann::json();
+    _jsonObject = nlohmann::json();
 }
 
 NodeDatabase::~NodeDatabase() {}

@@ -8,5 +8,5 @@ LevelAPI::v1::HelloWorldRequest::HelloWorldRequest() {
 std::shared_ptr<http_response> LevelAPI::v1::HelloWorldRequest::render(const http_request &req) {
     auto a = req.get_arg("mykey");
 
-    return generateResponse(a);
+    return generateResponse(a.get_flat_value());
 }

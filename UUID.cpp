@@ -1,5 +1,4 @@
 #include "UUID.h"
-#include <ctime>
 #include <vector>
 
 using namespace LevelAPI::Backend;
@@ -13,8 +12,6 @@ std::string ConnectionCrypt::createUUID() {
     };
     int i = 0;
     std::string res = "";
-
-    srand(time(nullptr));
 
     while(i < 8) {
         res += table.at(rand() % table.size());

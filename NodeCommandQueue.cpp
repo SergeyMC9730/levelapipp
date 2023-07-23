@@ -23,17 +23,17 @@ NodeCommandQueue::NodeCommandQueue() {
 }
 
 void NodeCommandQueue::save() {
-    commandJson["type"] = m_nCommand;
-    commandJson["data"] = m_sText;
+    _jsonObject["type"] = m_nCommand;
+    _jsonObject["data"] = m_sText;
 }
 
 void NodeCommandQueue::recover() {
-    GET_JSON_VALUE(commandJson, "type", m_nCommand, int);
-    GET_JSON_VALUE(commandJson, "data", m_sText, std::string);
+    GET_JSON_VALUE(_jsonObject, "type", m_nCommand, int);
+    GET_JSON_VALUE(_jsonObject, "data", m_sText, std::string);
 }
 
 void NodeCommandQueue::setupJSON() {
-    commandJson = nlohmann::json();
+    _jsonObject = nlohmann::json();
 }
 
 NodeCommandQueue::~NodeCommandQueue() {}

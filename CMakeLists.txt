@@ -44,9 +44,11 @@ include_directories(httpserver
     GDCrypto-patched/Include
     GDCrypto-patched/Include/GDCrypto
 )
-# include_directories(levelapi_server PRIVATE
-
-# )
+#include_directories(levelapi_server
+#    sqlpp11/include
+#    sqlpp11/include/sqlpp11
+#    # sqlpp11/include/sqlpp11/sqlite3
+#)
 
 add_compile_definitions(_HTTPSERVER_HPP_INSIDE_)
 add_library(httpserver ${httpserver_src})
@@ -64,8 +66,13 @@ add_subdirectory(gmd2pp)
 add_subdirectory(GDCrypto-patched)
 add_subdirectory(DPP)
 
+#set(BUILD_SQLITE3_CONNECTOR ON)
+#add_subdirectory(sqlpp11)
+
 install(TARGETS gmd2 EXPORT levelapi_workarounds)
 install(EXPORT levelapi_workarounds DESTINATION "./")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 add_executable(levelapi_server 
     ${levelapi_base}
@@ -77,4 +84,4 @@ add_executable(levelapi_test_folders
 
 file(COPY resources DESTINATION .)
 
-target_link_libraries(levelapi_server httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto)
+target_link_libraries(levelapi_server httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto sqlite3)

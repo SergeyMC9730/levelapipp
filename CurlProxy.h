@@ -18,4 +18,5 @@ public:
     virtual ProxyType getType();
 
     CurlProxy(std::string url);
+    CurlProxy(const char * url);
 };

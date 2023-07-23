@@ -51,6 +51,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
     curl_easy_setopt(m_pCurl, CURLOPT_WRITEFUNCTION, CURLConnection::write_data);
     curl_easy_setopt(m_pCurl, CURLOPT_WRITEDATA, settings);
     curl_easy_setopt(m_pCurl, CURLOPT_VERBOSE, m_bDebug);
+    curl_easy_setopt(m_pCurl, CURLOPT_TIMEOUT, 10);
     if(m_proxy.getType() != PT_NONE) {
         curl_easy_setopt(m_pCurl, CURLOPT_PROXY, m_proxy.getURL().c_str());
     }
@@ -118,6 +119,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method, FIL
     curl_easy_setopt(m_pCurl, CURLOPT_VERBOSE, true);
     curl_easy_setopt(m_pCurl, CURLOPT_FOLLOWLOCATION, true);
     curl_easy_setopt(m_pCurl, CURLOPT_HTTPPROXYTUNNEL, true);
+    curl_easy_setopt(m_pCurl, CURLOPT_TIMEOUT, 10);
     if(m_proxy.getType() != PT_NONE) {
         curl_easy_setopt(m_pCurl, CURLOPT_PROXY, m_proxy.getURL().c_str());
     }
@@ -171,7 +173,7 @@ void CURLConnection::destroy() {
     curl_easy_cleanup(m_pCurl);
 }
 
-void CURLConnection::setProxy(CurlProxy &proxy) {
+void CURLConnection::setProxy(CurlProxy proxy) {
     m_proxy = proxy;
 }
 

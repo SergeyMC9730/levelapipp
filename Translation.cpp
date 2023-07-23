@@ -438,6 +438,24 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "[LevelAPI downloader {}] Сохранён уровень без его строки: {} \"{}\""
         }
     },
+    {
+        "lapi.noderunner.resolver.event.download.progress", {
+            "[LevelAPI resolver {}] Downloading level {}",
+            "[LevelAPI resolver {}] Скачивание уровня {}"
+        }
+    },
+    {
+        "lapi.noderunner.resolver.event.download.complete", {
+            "[LevelAPI resolver {}] Level {} have been downloaded and saved",
+            "[LevelAPI resolver {}] Уровень {} был скачан и сохранён"
+        }
+    },
+    {
+        "lapi.noderunner.downloader.skipped", {
+            "[LevelAPI downloader {}] {} levels were skipped (already exists)",
+            "[LevelAPI downloader {}] {} уровней было пропущено (уже существуют)"
+        }
+    },
     // from Level.cpp
     {
         "lapi.level.embed.title", {

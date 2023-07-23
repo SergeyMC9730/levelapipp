@@ -48,7 +48,7 @@ namespace LevelAPI {
         public:
             void setDebug(bool d);
             void setData(std::vector<CURLParameter*> parameters);
-            void setProxy(CurlProxy &proxy);
+            void setProxy(CurlProxy proxy);
 
             virtual CURLResult *access_page(const char *url);
             virtual CURLResult *access_page(const char *url, FILE *file);

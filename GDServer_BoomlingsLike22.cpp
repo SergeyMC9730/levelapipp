@@ -1,22 +1,5 @@
 #include "GDServer_BoomlingsLike22.h"
-#include "CURLParameter.h"
-#include "GDServer.h"
-#include "curl_backend.h"
-#include "ThreadSafeLevelParser.h"
-#include "lapi_database.h"
-#include "Account21.h"
-#include "StringSplit.h"
-#include "UUID.h"
 #include "Translation.h"
-
-#include "TestingBoomlings22.h"
-
-#include <cstdint>
-#include <cstring>
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <algorithm>
 
 using namespace LevelAPI::Backend;
 
