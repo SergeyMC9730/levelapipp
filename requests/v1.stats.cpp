@@ -48,5 +48,8 @@ std::shared_ptr<http_response> LevelAPI::v1::StatsRequest::render(const http_req
         i++;
     }
 
+    delete filter;
+    filter = nullptr;
+
     return generateResponse(resp.dump(), HTTPContentTypeJSON());
 }

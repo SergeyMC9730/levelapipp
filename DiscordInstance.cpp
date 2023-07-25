@@ -1,10 +1,13 @@
 #include "DiscordInstance.h"
+#include "DCommand.h"
 #include "appcommand.h"
 #include "cluster.h"
 #include "lapi_database.h"
 #include "Translation.h"
 #include "presence.h"
 #include "iAndy.h"
+
+#include "DCommandStats.h"
 
 using namespace LevelAPI::DiscordController;
 using namespace std::chrono_literals;
@@ -15,6 +18,7 @@ DiscordInstance::DiscordInstance(void *db) {
     auto dbA = reinterpret_cast<LevelAPI::DatabaseController::Database *>(db);
     m_pBot = new dpp::cluster(dbA->m_sBotToken, dpp::i_default_intents | dpp::i_message_content);
     m_pBot->on_log(dpp::utility::cout_logger());
+
 }
 
 std::thread *DiscordInstance::start() {
@@ -34,10 +38,29 @@ void DiscordInstance::setStatus(std::string status) {
 void DiscordInstance::dthread(DiscordInstance *instance) {
     auto dbA = reinterpret_cast<LevelAPI::DatabaseController::Database *>(instance->m_pDB);
     auto bot = instance->m_pBot;
+
+    std::vector<DCommand *> commandList = {};
+
     bot->on_ready([&](const dpp::ready_t& event) {
+        std::cout << Translation::getByKey("lapi.bot.command.create") << std::endl;
+
+        commandList.push_back(new DCommandStats(instance->m_pBot->me.id));
+
+        int i = 0;
+        while (i < commandList.size()) {
+            std::cout << Translation::getByKey("lapi.bot.command.register", commandList[i]->getCommandName()) << std::endl;
+
+            auto cmd = commandList[i]->getCommand();
+
+            bot->global_command_create_sync(cmd);
+
+            i++;
+        }
+
         dbA->m_bBotReady = true;
         std::cout << Translation::getByKey("lapi.bot.ready") << std::endl;
 	});
+
     instance->m_pBot->on_message_create([&](const dpp::message_create_t& event) {
         if(!event.msg.author.is_bot() && !event.msg.is_dm()) {
             if(event.msg.content == "lapi:registerchannel") {
@@ -50,11 +73,16 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
             }
         }
 	});
-    bot->on_slashcommand([&bot](const dpp::slashcommand_t & event) {
-	    // if (event.command.get_command_name() == "lapiget") {
-	    //     std::string animal = std::get<std::string>(event.get_parameter("str"));
-	    //     event.reply(Translation::getByKey("lapi.bot.command.lapiget.output.test", animal));
-	    // }
+    bot->on_slashcommand([&](const dpp::slashcommand_t & event) {
+        int i = 0;
+        while (i < commandList.size()) {
+            if (event.command.get_command_name() == commandList[i]->getCommandName()) {
+                std::cout << Translation::getByKey("lapi.bot.command.run", commandList[i]->getCommandName()) << std::endl;
+                commandList[i]->run(event);
+            }
+
+            i++;
+        }
 	});
 
     instance->m_pBot->start(dpp::st_return);

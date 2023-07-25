@@ -530,11 +530,84 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             " тыс."
         }
     },
+    // FROM DCommandStats.cpp
+    {
+        "lapi.command.stats.execute.error.title", {
+            "Error!",
+            "Ошибка"
+        }
+    },
+    {
+        "lapi.command.stats.execute.error.description", {
+            "**Node doesn't exist!** Select a different one.",
+            "**Узел не существует!** Выберите другой."
+        }
+    },
+    {
+        "lapi.command.stats.execute.success.title", {
+            "Statistics",
+            "Статистика"
+        }
+    },
+    {
+        "lapi.command.stats.execute.success.field.levels", {
+            "Levels",
+            "Уровней"
+        }
+    },
+    {
+        "lapi.command.stats.execute.success.field.qjobs", {
+            "Queued Jobs",
+            "Запланированных задач"
+        }
+    },
+    {
+        "lapi.command.stats.execute.success.field.qdjobs", {
+            "Queued Download Jobs",
+            "Запланированных задач загрузчика"
+        }
+    },
+    {
+        "lapi.command.stats.execute.success.ldl", {
+            "Latest Downloaded Levels:",
+            "Последние скачанные уровни:"
+        }
+    },
+    {
+        "lapi.command.stats.description", {
+            "Get Node statistics",
+            "Получить статистику Узла"
+        }
+    },
+    {
+        "lapi.command.stats.node.description", {
+            "Selected node",
+            "Выбранный узел"
+        }
+    },
     // from DiscordInstance.cpp
     {
         "lapi.bot.ready", {
             "[LevelAPI DiscordInstance] Bot is ready!",
             "[LevelAPI DiscordInstance] Бот запущен!"
+        }
+    },
+    {
+        "lapi.bot.command.create", {
+            "[LevelAPI DiscordInstance] Creating commands..",
+            "[LevelAPI DiscordInstance] Создание команд.."
+        }
+    },
+    {
+        "lapi.bot.command.register", {
+            "[LevelAPI DiscordInstance] Registering command {}",
+            "[LevelAPI DiscordInstance] Регистрация команды {}"
+        }
+    },
+    {
+        "lapi.bot.command.run", {
+            "[LevelAPI DiscordInstance] Running command {}",
+            "[LevelAPI DiscordInstance] Запуск команды {}"
         }
     },
     {

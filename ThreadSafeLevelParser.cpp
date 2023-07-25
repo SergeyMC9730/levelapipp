@@ -68,7 +68,14 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
             try {
                 if(carg) {
                     if(input.compare("")) {
-                        std::string decoded = base64_decode(input);
+                        std::string decoded = "";
+
+                        try {
+                            decoded = base64_decode(input);
+                        } catch (std::runtime_error err) {
+                            std::cout << err.what() << std::endl;
+                        }
+                        
                         return decoded;
                     }
                 } else {
