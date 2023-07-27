@@ -218,6 +218,7 @@ Level *Node::getLevel(int id) {
         int gv = (int)(std::stof(level->m_uRelease->m_fActualVersion) * 10.f);
 
         level->m_bHasLevelString = true;
+        level->m_sLinkedNode = m_sInternalName;
         level->m_sLevelPath = p1;
         level->m_nLevelID = id;
         level->m_nVersion = 1;
@@ -238,70 +239,14 @@ Level *Node::getLevel(int id) {
 
         level->_jsonObject = jsonFromSQLLevel(sqlobj);
 
+        level->m_sLevelPath = p1;
+        level->m_sLinkedNode = m_sInternalName;
         level->recover();
 
         return level;
     }
 
     return nullptr;
-
-    // #define file_exists(cstr) (stat(cstr, &buffer) == 0)
-
-    // bool use_gmd2 = false;
-    // bool nometa = false;
-
-    // struct stat buffer;
-    // std::string p1 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
-    // std::string p2 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id) + "/data.gmd2";
-    
-    // // TODO: comment registering
-
-    // use_gmd2 = file_exists(p2.c_str());
-
-    // if(!file_exists(p1.c_str()) && !use_gmd2) return nullptr;
-    // if(!file_exists(p3.c_str()) && !use_gmd2) return nullptr;
-
-    // nometa = !file_exists(p3.c_str());
-
-    // if (use_gmd2 && nometa) {
-    //     auto ref = new GMD2();
-    //     auto level = new Level();
-    //     ref->setFileName(p2);
-    //     ref->setLevel(level);
-    //     ref->parse();
-    //     level->m_bHasLevelString = true;
-    //     level->m_sLevelPath = p1;
-    //     level->m_nLevelID = id;
-    //     level->m_nVersion = 1;
-    //     level->m_sUsername = "-";
-    //     level->m_uRelease->m_fActualVersion = createServer()->determineGVFromID(id);
-    //     int gv = (int)(std::stof(level->m_uRelease->m_fActualVersion) * 10.f);
-    //     level->m_nGameVersion = gv;
-    //     level->m_uRelease->m_nGameVersion = gv;
-    //     level->save();
-    //     delete ref;
-    //     ref = nullptr;
-    //     return level;
-    // } else {
-    //     Level *l = new Level();
-    //     try {
-    //         std::ifstream i(p3);
-    //         nlohmann::json file = nlohmann::json::parse(i);
-            
-    //         l->_jsonObject = file;
-    //         l->m_sLevelPath = p1;
-    //         l->recover();
-
-    //         l->m_bHasLevelString = file_exists(p2.c_str());
-    //         l->m_bHasRawData = file_exists(p4.c_str());
-
-    //         return l;
-    //     } catch (nlohmann::json::exception &e) {
-    //         delete l;
-    //         l = nullptr;
-    //         return nullptr;
-    //     }
-    // }
 }
 
 Node::~Node() {
@@ -341,61 +286,6 @@ void Node::initLevel(Level *level) {
             {"userID", level->m_nPlayerID}
         }, "accounts");
     }
-
-    // if(std::filesystem::exists(p2)) {
-    //     std::fstream f(p2);
-
-    //     nlohmann::json fj;
-    //     std::vector<int> list;
-
-    //     if (std::filesystem::file_size(p2) != 0) {
-    //         fj = nlohmann::json::parse(f);
-    //         int i = 0;
-    //         while(i < fj["levels"].size()) {
-    //             int id = fj["levels"].at(i).get<int>();
-                
-    //             if(id > 0) {
-    //                 list.push_back(fj["levels"].at(i).get<int>());
-    //             }
-                
-    //             i++;
-    //         }
-    //     }
-
-    //     if(!std::count(list.begin(), list.end(), level->m_nLevelID)) {
-    //         list.push_back(level->m_nLevelID);
-    //     }
-    //     fj["account_id"] = level->m_nAccountID;
-    //     fj["username"] = level->m_sUsername;
-    //     fj["user_id"] = level->m_nPlayerID;
-    //     fj["levels"] = list;
-
-    //     int size = fj["levels"].size();
-    //     std::cout << "Levels: " << size << " | User ID: " << level->m_nPlayerID << std::endl;
-    //     int i = 0;
-    //     while(i < size) {
-    //         std::cout << "  - Level : " << fj["levels"].at(i).get<int>() << std::endl;
-    //         i++;    
-    //     }
-
-    //     f << fj.dump();
-
-    //     f.close();
-    // } else {
-    //     std::ofstream f(p2);
-
-    //     nlohmann::json fj;
-    //     std::vector<int> list = { level->m_nLevelID };
-
-    //     fj["account_id"] = level->m_nAccountID;
-    //     fj["username"] = level->m_sUsername;
-    //     fj["user_id"] = level->m_nPlayerID;
-    //     fj["levels"] = list;
-
-    //     f << fj.dump();
-
-    //     f.close();
-    // }
 }
 bool Node::userIDExists(int uid) {
     auto user = _sqliteObject->getTableWithCondition("accounts", "userID", 10, 1, {
@@ -414,7 +304,7 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
         rw_condition["stars"] = filter->m_nStars;
     }
     if (filter->m_nDifficulty != -1) {
-        rw_condition["difficulty_denominator"] = filter->m_nDifficulty;
+        rw_condition["difficulty_numenator"] = filter->m_nDifficulty;
     }
 
     if (!filter->m_sName.empty()) {
@@ -429,6 +319,10 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
     }
     if (filter->m_nAID != 0) {
         rw_condition["accountID"] = filter->m_nAID;
+    }
+
+    if (!filter->m_sUsername.empty()) {
+        rw_condition["username"] = filter->m_sUsername;
     }
 
     if (filter->m_nSID != -1) {
@@ -472,8 +366,9 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
         auto sqlobj = request[i];
         auto jsonobj = jsonFromSQLLevel(sqlobj);
         auto level = new Level(m_sInternalName);
-        
+
         level->_jsonObject = jsonobj;
+        level->m_sLinkedNode = m_sInternalName;
         level->recover();
 
         res.push_back(level);

@@ -119,46 +119,6 @@ void Level::save(bool onlyLevelString) {
         {"levelID", m_nLevelID}
     };
 
-    // fill("levelID", m_nLevelID)
-    // fill("version", m_nVersion)
-    // fill("playerID", m_nPlayerID)
-    // fill("accountID", m_nAccountID)
-    // fill("downloads", m_nDownloads)
-    // fill("musicID", m_nMusicID)
-    // fill("likes", m_nLikes)
-    // fill("length", m_nLength)
-    // fill("difficulty_denominator", m_nDifficultyDenominator)
-    // fill("difficulty_numerator", m_nDifficultyNumerator)
-    // fill("fakeGameVersion", m_nGameVersion)
-    // fill("dislikes", m_nDislikes)
-    // fill("stars", m_nStars)
-    // fill("featureScore", m_nFeatureScore)
-    // fill("copiedFrom", m_nCopiedID)
-    // fill("dailyNumber", m_nDailyNumber)
-    // fill("coins", m_nCoins)
-    // fill("starsRequested", m_nStarsRequested)
-    // fill("isEpic", (bool)m_nEpic)
-    // fill("demonDifficulty", m_nDemonDifficulty)
-    // fill("editorTime", m_nEditorTime)
-    // fill("editorTimeTotal", m_nEditorTimeTotal)
-    // fill("songID", m_nSongID)
-    // fill("objects", m_nObjects);
-    // fill("moons", m_nMoons);
-
-    // fill("isAuto", m_bAuto)
-    // fill("isDemon", m_bDemon)
-    // fill("areCoinsVerified", m_bVerifiedCoins)
-    // fill("ldmAvailable", m_bLDM)
-    // fill("is2P", m_b2P)
-
-    // fill("levelName", m_sLevelName)
-    // fill("levelDescription", m_sDescription)
-    // fill("uploadDate", m_sUploadDate)
-    // fill("updateDate", m_sUpdateDate)
-    // fill("username", m_sUsername);
-    // fill("actualGameVersion", m_uRelease->m_fActualVersion)
-    // fill("publicationDate", m_sCreatedTimestamp);
-
     lambda_save();
 
     std::string g = m_sLevelPath + "/meta.json";
@@ -167,9 +127,6 @@ void Level::save(bool onlyLevelString) {
         auto node = DatabaseController::database->getNode(m_sLinkedNode);
 
         node->_sqliteObject->pushRow(rw, "levels");
-	    // std::ofstream file(g);
-    	// file << _jsonObject.dump(4, ' ', false, nlohmann::json::error_handler_t::ignore);
-	    // file.close();
     }
 
     return;
@@ -240,24 +197,34 @@ void Level::recover() {
     RS(std::string, "actualGameVersion", m_uRelease->m_fActualVersion)
     RS(std::string, "publicationDate", m_sCreatedTimestamp);
 
-    auto time_legacy = getTimeLegacy();
+    if (m_nAppereanceTimestamp != 0) {
+        Time *t = new Time(m_nAppereanceTimestamp);
 
-    if (time_legacy) {
-        m_nAppereanceTimestamp = time_legacy->unixTime;
+        m_sCreatedTimestamp = t->getAsString();
 
-        delete time_legacy;
-        time_legacy = nullptr;
+        delete t;
+        t = nullptr;
+    } else {
+        auto time_legacy = getTimeLegacy();
+
+        if (time_legacy) {
+            m_nAppereanceTimestamp = time_legacy->unixTime;
+
+            delete time_legacy;
+            time_legacy = nullptr;
+        }
+    }
+
+    if (std::filesystem::exists("database/nodes/" + m_sLinkedNode + "/levels/Level_" + std::to_string(m_nLevelID) + "/data.gmd2")) {
+        m_bHasLevelString = true;
     }
 
     return;
 }
 
 Level::~Level() {
-    // std::cout << "~Level" << std::endl;
     delete m_uRelease;
-    // std::cout << "release deleted" << std::endl;
     m_uRelease = nullptr;
-    // std::cout << "end" << std::endl;
 }
 
 void merge_images(cv::Mat* background, cv::Mat* upcoming, int x, int y)
@@ -418,6 +385,14 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
         "lapi.level.embed.description",
         "lapi.level.register.embed.description",
         "lapi.level.rate.embed.description",
+        "lapi.level.info.embed.description",
+    };
+
+    std::vector<std::string> titletable = {
+        "lapi.level.embed.title",
+        "lapi.level.embed.title",
+        "lapi.level.embed.rate.title",
+        "lapi.level.embed.info.title",
     };
 
     std::string url = HttpController::getURL();
@@ -435,19 +410,13 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
     std::random_device rd;
     std::uniform_int_distribution<int> uid(0, m_nLevelID);
     
-    std::cout << "Level info:" << std::endl;
-    std::cout << "  - Name: " << this->m_sLevelName << std::endl;
-    std::cout << "  - Author: " << this->m_sUsername << std::endl;
-    std::cout << "  - ID: " << this->m_nLevelID << std::endl;
-    std::cout << "  - Node: " << this->m_sLinkedNode << std::endl;
-    
     dpp::embed embed = dpp::embed().
         set_color(uid(rd)).
-        set_title(Translation::getByKey("lapi.level.embed.title")).
+        set_title(Translation::getByKey(titletable[e])).
         set_description(msg).
         add_field(
             Translation::getByKey("lapi.level.embed.field.id"),
-            "**" + std::to_string(this->m_nLevelID) + "**",
+            "**`" + std::to_string(this->m_nLevelID) + "`**",
             true
         ).
         add_field(
@@ -460,14 +429,35 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
             "**" + this->m_sUsername + "**",
             true
         ).
-        add_field(
-            Translation::getByKey("lapi.level.embed.field.info"),
-            getDownloadLinks(true),
-            true
-        ).
         set_thumbnail(thumbnail).
         set_footer(dpp::embed_footer().set_text("LevelAPI  •  " + m_sLinkedNode)).
-        set_timestamp(time(0)
+        set_timestamp(this->m_nAppereanceTimestamp
+    );
+
+    if (e == LevelAppearanceEvent::E_INFORMATION) {
+        embed.add_field(
+            Translation::getByKey("lapi.level.embed.field.downloads"),
+            "**`" + std::to_string(this->m_nDownloads) + "`**",
+            true
+        );
+
+        embed.add_field(
+            Translation::getByKey("lapi.level.embed.field.likes"),
+            "**`" + std::to_string(this->m_nLikes) + "`**",
+            true
+        );
+
+        embed.add_field(
+            Translation::getByKey("lapi.level.embed.field.gv"),
+            "**`" + this->m_uRelease->m_fActualVersion + "`**",
+            true
+        );
+    }
+
+    embed.add_field(
+        Translation::getByKey("lapi.level.embed.field.info"),
+        getDownloadLinks(true),
+        true
     );
 
     return embed;

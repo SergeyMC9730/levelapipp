@@ -42,7 +42,7 @@ DCommand::DCommandCallback DCommandStats::getDefaultCallback() {
             msg.add_embed(emb);
             msg.set_flags(dpp::message_flags::m_ephemeral);
 
-            event->_event.reply(msg);
+            event->getCommandEvent().reply(msg);
 
             return;
         }
@@ -125,7 +125,7 @@ DCommand::DCommandCallback DCommandStats::getDefaultCallback() {
         msg.add_component(actionrow1);
         msg.add_component(actionrow2);
 
-        event->_event.reply(msg);
+        event->getCommandEvent().reply(msg);
 
         return;
     };

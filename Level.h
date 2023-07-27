@@ -16,7 +16,8 @@ namespace LevelAPI {
     namespace DatabaseController {
         enum LevelAppearanceEvent {
             E_RECENT = 0,
-            E_REGISTERED, E_RATE
+            E_REGISTERED, E_RATE,
+            E_INFORMATION
         };
 
         class Level : public GJGameLevel, public DatabaseCell {

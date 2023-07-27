@@ -10,7 +10,7 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     // from main.cpp
     {
         "lapi.main.alpha", {
-            "LevelAPI is in alpha state so please report any bugs to my GitHub repository!",
+            "LeveflAPI is in alpha state so please report any bugs to my GitHub repository!",
             "LevelAPI находится в стадии альфы, поэтому прошу репортить об каких либо багах на мой Гитхаб репозиторий!"
         }
     },
@@ -464,6 +464,18 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         }
     },
     {
+        "lapi.level.embed.info.title", {
+            "Level Information",
+            "Информация об уровне"
+        }
+    },
+    {
+        "lapi.level.embed.rate.title", {
+            "Level has been Rated",
+            "Уровень был оценён"
+        }
+    },
+    {
         "lapi.level.embed.description", {
             "**New {} level** appeared on the server on `{}`!",
             "**Новый {} уровень** появился на сервере: опубликован `{}`."
@@ -473,6 +485,12 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.level.register.embed.description", {
             "**This {} level** was registered by LevelAPI on `{}`.",
             "**Данный {} уровень** был зарегистрирован с помощью LevelAPI `{}`."
+        }
+    },
+    {
+        "lapi.level.info.embed.description", {
+            "**This {} level** appeared in the database on `{}`.",
+            "**Данный {} уровень** появился в базе данных `{}`."
         }
     },
     {
@@ -500,6 +518,24 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         }
     },
     {
+        "lapi.level.embed.field.downloads", {
+            "Downloads:",
+            "Скачиваний:"
+        }
+    },
+    {
+        "lapi.level.embed.field.likes", {
+            "Likes:",
+            "Лайков:"
+        }
+    },
+    {
+        "lapi.level.embed.field.gv", {
+            "Upload Game Version:",
+            "Версия игры на момент загрузки:"
+        }
+    },
+    {
         "lapi.level.embed.field.info", {
             "**More Info:**",
             "**Подробности:**"
@@ -515,6 +551,223 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.level.embed.field.info.value.rawdata", {
             "Raw Data",
             "Исходник"
+        }
+    },
+    // from DCommandSearch.cpp
+    {
+        "lapi.command.search.morelevels", {
+            "Get More Levels from this Player",
+            "Получить больше уровней от этого игрока"
+        }
+    },
+    {
+        "lapi.command.search.id.error.title", {
+            "Oops!",
+            "Упс!"
+        }
+    },
+    {
+        "lapi.command.search.id.error.description", {
+            "**Level doesn't exist!**",
+            "**Уровень не существует!**"
+        }
+    },
+    {
+        "lapi.command.search.page", {
+            "# *`Page {}`*\n\n",
+            "# *`Страница {}`*\n\n"
+        }
+    },
+    {
+        "lapi.command.search.button.prevpage", {
+            "Previous Page",
+            "Предыдущая страница"
+        }
+    },
+    {
+        "lapi.command.search.button.nextpage", {
+            "Next Page",
+            "Следующая страница"
+        }
+    },
+    {
+        "lapi.command.search.selectmenu.levels", {
+            "Select any level to get more info.",
+            "Выберите какой-либо уровень, чтобы узнать подробнее."
+        }
+    },
+    {
+        "lapi.command.search.list.level", {
+            "- **{}** by **{}**  •  `{}`\n\n",
+            "- **{}** от **{}**  •  `{}`\n\n"
+        }
+    },
+    {
+        "lapi.command.search.list.title", {
+            "Levels",
+            "Уровни"
+        }
+    },
+    {
+        "lapi.command.search.description", {
+            "Search levels by using filters with additional sort appliying",
+            "Поиск уровней по фильтрам с дополнительным применением сортировки"
+        }
+    },
+    {
+        "lapi.command.search.difficulty", {
+            "Difficulty",
+            "Сложность"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.na", {
+            "N/A",
+            "Н/Д"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.auto", {
+            "Auto",
+            "Авто"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.easy", {
+            "Easy",
+            "Лёгкий"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.normal", {
+            "Normal",
+            "Средний"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.hard", {
+            "Hard",
+            "Сложный"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.harder", {
+            "Harder",
+            "Сложнее"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.insane", {
+            "Insane",
+            "Безумный"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.edemon", {
+            "Easy Demon",
+            "Лёгкий демон"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.mdemon", {
+            "Medium Demon",
+            "Средний демон"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.hdemon", {
+            "Hard Demon",
+            "Сложный демон"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.idemon", {
+            "Insane Demon",
+            "Безумный демон"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.exdemon", {
+            "Extreme Demon",
+            "Экстремальный демон"
+        }
+    },
+    {
+        "lapi.command.search.difficulty.demon", {
+            "Demon",
+            "Демон"
+        }
+    },
+    {
+        "lapi.command.search.stars", {
+            "Stars",
+            "Звёзды"
+        }
+    },
+    {
+        "lapi.command.search.name", {
+            "Level Name",
+            "Название уровня"
+        }
+    },
+    {
+        "lapi.command.search.leveldescription", {
+            "Level Description",
+            "Описание уровня"
+        }
+    },
+    {
+        "lapi.command.search.username", {
+            "Username",
+            "Ник игрока"
+        }
+    },
+    {
+        "lapi.command.search.id", {
+            "Level ID",
+            "ID уровня"
+        }
+    },
+    {
+        "lapi.command.search.sort", {
+            "Sorting Method",
+            "Метод сортировки"
+        }
+    },
+    {
+        "lapi.command.search.sort.most-liked", {
+            "Most Liked",
+            "Самый залайканный"
+        }
+    },
+    {
+        "lapi.command.search.sort.most-downloaded", {
+            "Most Downloaded",
+            "Самый популярный"
+        }
+    },
+    {
+        "lapi.command.search.sort.last-appeared", {
+            "Last Appeared in the DB",
+            "Последний появившийся в БД"
+        }
+    },
+    {
+        "lapi.command.search.sort.recent", {
+            "Recent Levels",
+            "Недавние уровни"
+        }
+    },
+    {
+        "lapi.command.search.sort.oldest", {
+            "Oldest Levels",
+            "Самые старые уровни"
+        }
+    },
+    {
+        "lapi.command.search.sort.none", {
+            "None",
+            "Никакой"
         }
     },
     // from iAndy.cpp

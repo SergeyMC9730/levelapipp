@@ -32,7 +32,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
     }
     
     switch (type) {
-        default: // fail to json
+        default: // failback to json
         case 0: { // json
             nlohmann::json response_fail;
 
@@ -83,7 +83,9 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
             delete level;
             level = nullptr;
 
-            return sendFile(path, HTTPContentTypeZip());
+            std::string filename = nodepointer->m_sInternalName + "_" + std::string(id.get_flat_value()) + ".gmd2";
+
+            return sendFile(path, filename, HTTPContentTypeText());
 
             break;
         }

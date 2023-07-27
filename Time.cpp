@@ -13,10 +13,19 @@
 
 using namespace LevelAPI::Frontend;
 
-Time::Time() {
+Time::Time(uint64_t unixTimestamp) {
     using namespace std::chrono;
 
-    auto now = system_clock::now();
+    auto t = time(0);
+
+    if (unixTimestamp != 0) {
+        t = unixTimestamp;
+    }
+
+    auto now = system_clock::from_time_t(t);
+
+    unixTime = t;
+
     auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
     auto timer = system_clock::to_time_t(now);
 

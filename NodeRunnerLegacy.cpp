@@ -399,10 +399,10 @@ loop_readonly:
         std::this_thread::sleep_for(std::chrono::seconds(2s));
     }
 run_again:
-    if(nd->m_bRateLimitApplied) {
-        std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, nd->m_nWaitTime);
-        rlt.detach();
-    }
+    // if(nd->m_bRateLimitApplied) {
+    //     std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, nd->m_nWaitTime);
+    //     rlt.detach();
+    // }
 start:
     if(nd->m_uQueue->m_vCommandQueue.size() == 0) goto error_ignore;
 
@@ -460,7 +460,7 @@ start:
                     bool userIDExists = nd->userIDExists(levels[i]->m_nPlayerID);
                     auto identifier = server->getServerIdentifier();
                     
-                    if(!userIDExists && identifier == "gdserver_boomlings") {
+                    if(!userIDExists) {
                         nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
                     }
 

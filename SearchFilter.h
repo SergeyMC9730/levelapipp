@@ -20,6 +20,7 @@ public:
 
     std::string m_sName = "";
     std::string m_sDescription = "";
+    std::string m_sUsername = "";
 
     int m_nPage = 1;
     int m_nLevelsPerPage = 10;

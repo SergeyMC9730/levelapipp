@@ -12,8 +12,8 @@ namespace LevelAPI {
             int time_h;
             int time_m;
             int time_s;
-
-            Time();
+        public:
+            Time(uint64_t unixTimestamp = 0);
         public:
             uint64_t unixTime;
 

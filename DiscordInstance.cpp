@@ -2,12 +2,15 @@
 #include "DCommand.h"
 #include "appcommand.h"
 #include "cluster.h"
+#include "dispatcher.h"
 #include "lapi_database.h"
 #include "Translation.h"
 #include "presence.h"
 #include "iAndy.h"
 
 #include "DCommandStats.h"
+#include "DCommandSearch.h"
+#include "restresults.h"
 
 using namespace LevelAPI::DiscordController;
 using namespace std::chrono_literals;
@@ -45,6 +48,7 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
         std::cout << Translation::getByKey("lapi.bot.command.create") << std::endl;
 
         commandList.push_back(new DCommandStats(instance->m_pBot->me.id));
+        commandList.push_back(new DCommandSearch(instance->m_pBot->me.id));
 
         int i = 0;
         while (i < commandList.size()) {
@@ -52,7 +56,7 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
 
             auto cmd = commandList[i]->getCommand();
 
-            bot->global_command_create_sync(cmd);
+            bot->global_command_create(cmd);
 
             i++;
         }
@@ -78,7 +82,46 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
         while (i < commandList.size()) {
             if (event.command.get_command_name() == commandList[i]->getCommandName()) {
                 std::cout << Translation::getByKey("lapi.bot.command.run", commandList[i]->getCommandName()) << std::endl;
+                commandList[i]->_cluster = bot;
                 commandList[i]->run(event);
+            }
+
+            i++;
+        }
+	});
+    bot->on_button_click([&](const dpp::button_click_t & event) {
+        int i = 0;
+
+        while (i < commandList.size()) {
+            auto event_list = commandList[i]->getRegistedEvents();
+
+            int j = 0;
+            while (j < event_list.size()) {
+                if (event.custom_id == event_list[j].first) {
+                    commandList[i]->_cluster = bot;
+                    commandList[i]->run(event);
+                }
+
+                j++;
+            }
+
+            i++;
+        }
+	});
+    bot->on_select_click([&](const dpp::select_click_t & event) {
+	    int i = 0;
+
+        while (i < commandList.size()) {
+            auto event_list = commandList[i]->getRegistedEvents();
+
+            int j = 0;
+            while (j < event_list.size()) {
+                if (event.custom_id == event_list[j].first) {
+                    commandList[i]->_cluster = bot;
+                    commandList[i]->run(event);
+                }
+
+                j++;
             }
 
             i++;
