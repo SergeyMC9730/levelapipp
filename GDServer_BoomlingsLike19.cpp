@@ -30,6 +30,13 @@ std::string GDServer_BoomlingsLike19::_getLevelListEndpointName() {
     return "getGJLevels19.php";
 }
 
+int GDServer_BoomlingsLike19::getMaxLevelPageSize() {
+    return 10;
+}
+int GDServer_BoomlingsLike19::getMaxMapPackPageSize() {
+    return 5;
+};
+
 bool GDServer_BoomlingsLike19::login() {
     auto m_pLinkedCURL = new CURLConnection();
 

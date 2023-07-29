@@ -458,6 +458,12 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     // from Level.cpp
     {
+        "lapi.level.embed.gmd2.download", {
+            "Download Level",
+            "Скачать уровень"
+        }
+    },
+    {
         "lapi.level.embed.title", {
             "New Level",
             "Новый уровень"
@@ -598,8 +604,8 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     {
         "lapi.command.search.list.level", {
-            "- **{}** by **{}**  •  `{}`\n\n",
-            "- **{}** от **{}**  •  `{}`\n\n"
+            "- ▶️ **{}**  by  👤 **{}**    •    `{}`\n",
+            "- ▶️ **{}**  от  👤 **{}**    •    `{}`\n"
         }
     },
     {
@@ -1063,21 +1069,3 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         }
     }
 };
-
-// template <typename... Args>
-// std::string Translation::getByKey(std::string key, Args... args) {
-//     std::string str = "";
-//     if (Translation::translation_keymap.find(key) == Translation::translation_keymap.end()) {
-//         str = key;
-//     } else {
-//         auto multistr = Translation::translation_keymap[key];
-//         if (translation_language == "en") {
-//             str = multistr.en;
-//         }
-//         if (translation_language == "ru") {
-//             str = multistr.ru;
-//         }
-//     }
-//     fmt::format_string<Args...> data = str;
-//     return fmt::format(data, std::forward<Args>(args)...);
-// }

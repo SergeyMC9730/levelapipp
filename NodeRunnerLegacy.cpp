@@ -349,7 +349,6 @@ start:
             break;
         }
         case NC_RECENT: {
-            std::cout << "recent tab" << std::endl;
             if(!nd->m_pPolicy->m_bEnableRecentTab) break;
 
             if(!nd->m_pPolicy->m_bNoOutput) {

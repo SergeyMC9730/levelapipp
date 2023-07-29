@@ -18,6 +18,13 @@ LevelAPI::DatabaseController::Level *GDServer::getLevelMetaByID(int id, bool res
     return nullptr;
 }
 
+int GDServer::getMaxLevelPageSize() {
+    return 0;
+}
+int GDServer::getMaxMapPackPageSize() {
+    return 0;
+}
+
 std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchType(int type, std::string str, int page) {
     return {};
 }

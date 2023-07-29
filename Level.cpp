@@ -1,5 +1,6 @@
 #include "Level.h"
 #include "SQLiteManager.h"
+#include "core.h"
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
 #include "gmd2pp/gmd2.h"
@@ -133,21 +134,25 @@ void Level::save(bool onlyLevelString) {
 }
 
 std::string Level::getDownloadLinks(bool embed) {
-    std::string result;
     std::string url = HttpController::getURL();
 
     bool hasGMD2 = m_bHasLevelString;
-    bool hasRaw = true;
 
-    result = "[" + Translation::getByKey("lapi.level.embed.field.info.value.metadata") + "](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + ")";
+    std::string result = fmt::format("[{}]({}/api/v1/level/download?id={}&node={})",
+        Translation::getByKey("lapi.level.embed.field.info.value.metadata"),
+        url,
+        this->m_nLevelID,
+        m_sLinkedNode
+    );
 
     if (hasGMD2) {
-        result += " | [GMD2](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&type=1)";
+        result += fmt::format(" | [{}]({}/api/v1/level/download?id={}&node={}&type=1)",
+            Translation::getByKey("lapi.level.embed.gmd2.download"),
+            url,
+            this->m_nLevelID,
+            m_sLinkedNode
+        );
     }
-
-    // if (hasRaw) {
-    //     result += " | [" + Translation::getByKey("lapi.level.embed.field.info.value.rawdata") + "](" + url + "/api/v1/level/download?id=" + std::to_string(this->m_nLevelID) + "&node=" + m_sLinkedNode + "&type=2)";
-    // }
 
     return result;
 }

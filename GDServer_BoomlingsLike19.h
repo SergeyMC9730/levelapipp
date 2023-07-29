@@ -22,6 +22,9 @@ namespace LevelAPI {
 
             bool login() override;
 
+            int getMaxLevelPageSize() override;
+            int getMaxMapPackPageSize() override;
+
             GDServerUploadResult *uploadLevel(DatabaseController::Level *level) override;
 
             int getGameVersion() override;

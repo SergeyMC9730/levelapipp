@@ -66,6 +66,9 @@ namespace LevelAPI {
             virtual void setCredentials(std::string u, std::string p);
             virtual bool login();
 
+            virtual int getMaxLevelPageSize();
+            virtual int getMaxMapPackPageSize();
+
             virtual int getGameVersion();
             virtual std::string getServerName();
             virtual std::string getServerIdentifier();
