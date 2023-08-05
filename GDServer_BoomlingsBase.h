@@ -16,15 +16,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "GDServer_Boomlings.h"
-#include "Translation.h"
+#pragma once
 
-LevelAPI::Backend::GDServer_Boomlings::GDServer_Boomlings(std::string endpoint) : GDServer_BoomlingsBase(), GDServer_BoomlingsLike21(endpoint, getRanges()) {}
+#include "ModuleGDHistory.h"
+#include "LevelRangeList.h"
+#include <vector>
 
-std::string LevelAPI::Backend::GDServer_Boomlings::getServerName() {
-    return Frontend::Translation::getByKey("lapi.gdserver_boomlings.name");
-}
+class GDServer_BoomlingsBase : public ModuleGDHistory {
+protected:
+    LevelAPI::LevelRangeList getRanges();
+public:
+    GDServer_BoomlingsBase();
 
-std::string LevelAPI::Backend::GDServer_Boomlings::getServerIdentifier() {
-    return "gdserver_boomlings";
-}
+    LevelAPI::DatabaseController::Level *downloadArchivedLevel(int id) override;
+};

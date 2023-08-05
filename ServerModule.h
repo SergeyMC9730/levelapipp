@@ -16,15 +16,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "GDServer_Boomlings.h"
-#include "Translation.h"
+#pragma once
 
-LevelAPI::Backend::GDServer_Boomlings::GDServer_Boomlings(std::string endpoint) : GDServer_BoomlingsBase(), GDServer_BoomlingsLike21(endpoint, getRanges()) {}
-
-std::string LevelAPI::Backend::GDServer_Boomlings::getServerName() {
-    return Frontend::Translation::getByKey("lapi.gdserver_boomlings.name");
-}
-
-std::string LevelAPI::Backend::GDServer_Boomlings::getServerIdentifier() {
-    return "gdserver_boomlings";
-}
+class ServerModule {
+public:
+    virtual void mod_init();
+};

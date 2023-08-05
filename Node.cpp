@@ -1,3 +1,21 @@
+/**
+ *  LevelAPI - Geometry Dash level cacher with search functionality and more.
+    Copyright (C) 2023  Sergei Baigerov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "GDServer.h"
 #include "GDServer_BoomlingsLike19.h"
 #include "GDServer_BoomlingsLike21.h"
@@ -217,13 +235,15 @@ Level *Node::getLevel(int id) {
 
         int gv = (int)(std::stof(level->m_uRelease->m_fActualVersion) * 10.f);
 
+        auto server = createServer();
+
         level->m_bHasLevelString = true;
         level->m_sLinkedNode = m_sInternalName;
         level->m_sLevelPath = p1;
         level->m_nLevelID = id;
         level->m_nVersion = 1;
         level->m_sUsername = "-";
-        level->m_uRelease->m_fActualVersion = createServer()->determineGVFromID(id);
+        level->m_uRelease->m_fActualVersion = server->determineGVFromID(id);
         level->m_nGameVersion = gv;
         level->m_uRelease->m_nGameVersion = gv;
 

@@ -16,15 +16,20 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "GDServer_Boomlings.h"
-#include "Translation.h"
+#include "LevelRangeList.h"
 
-LevelAPI::Backend::GDServer_Boomlings::GDServer_Boomlings(std::string endpoint) : GDServer_BoomlingsBase(), GDServer_BoomlingsLike21(endpoint, getRanges()) {}
+using namespace LevelAPI;
 
-std::string LevelAPI::Backend::GDServer_Boomlings::getServerName() {
-    return Frontend::Translation::getByKey("lapi.gdserver_boomlings.name");
+LevelRangeList::LevelRangeList(std::vector<LevelRange> ranges) {
+    _ranges = ranges;
 }
 
-std::string LevelAPI::Backend::GDServer_Boomlings::getServerIdentifier() {
-    return "gdserver_boomlings";
+const std::string LevelRangeList::operator[](std::size_t idx) {
+    for (auto range : _ranges) {
+        if ((idx >= range.m_nMin) && (idx <= range.m_nMax)) {
+            return range.m_sGDVer;
+        }
+    }
+
+    return "unknown";
 }

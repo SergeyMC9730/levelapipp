@@ -1,3 +1,21 @@
+/**
+ *  LevelAPI - Geometry Dash level cacher with search functionality and more.
+    Copyright (C) 2023  Sergei Baigerov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #pragma once
 
 #include "Account19.h"
@@ -11,7 +29,7 @@
 #include "CurlProxy.h"
 
 #include "Level.h"
-#include "LevelRange.h"
+#include "LevelRangeList.h"
 
 #define GDSEARCH_RECENT "4"
 
@@ -38,7 +56,7 @@ namespace LevelAPI {
 
             Account19 *m_pAccount;
 
-            std::vector<LevelAPI::LevelRange *> m_vRanges;
+            LevelRangeList _ranges;
 
 	        bool m_bDebug;
 
@@ -50,6 +68,9 @@ namespace LevelAPI {
             virtual std::string _getSecretValueExtra();
         public:
             GDServer();
+            GDServer(std::vector<LevelRange> list);
+            GDServer(LevelRangeList list);
+
             ~GDServer();
 
             GDServerStatus m_eStatus;
@@ -73,7 +94,7 @@ namespace LevelAPI {
             virtual std::string getServerName();
             virtual std::string getServerIdentifier();
 
-            virtual std::string determineGVFromID(int id);
+            std::string determineGVFromID(int id);
 
             virtual GDServerUploadResult *uploadLevel(DatabaseController::Level *level);
         };

@@ -1,4 +1,24 @@
+/**
+ *  LevelAPI - Geometry Dash level cacher with search functionality and more.
+    Copyright (C) 2023  Sergei Baigerov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "GDServer.h"
+#include "LevelRange.h"
+#include "LevelRangeList.h"
 #include "curl_backend.h"
 
 #include "Translation.h"
@@ -8,7 +28,15 @@
 using namespace gdcrypto;
 using namespace LevelAPI::Backend;
 
-GDServer::GDServer() {
+std::vector<LevelAPI::LevelRange> _stub11 = {};
+
+GDServer::GDServer() : _ranges(_stub11) {
+    m_eStatus = GSS_ONLINE;
+}
+GDServer::GDServer(std::vector<LevelRange> list) : _ranges(list) {
+    m_eStatus = GSS_ONLINE;
+}
+GDServer::GDServer(LevelRangeList list) : _ranges(list) {
     m_eStatus = GSS_ONLINE;
 }
 GDServer::~GDServer() {
@@ -79,14 +107,7 @@ std::string GDServer::_getSecretValueExtra() {
 }
 
 std::string GDServer::determineGVFromID(int id) {
-    int i = 0;
-    while(i < m_vRanges.size()) {
-        if((id >= m_vRanges[i]->m_nMin) && (id <= m_vRanges[i]->m_nMax)) {
-            return m_vRanges[i]->m_sGDVer;
-        }
-        i++;
-    }
-    return "unknown";
+    return _ranges[id];
 }
 
 std::string GDServer::getServerName() {

@@ -1,9 +1,30 @@
+/**
+ *  LevelAPI - Geometry Dash level cacher with search functionality and more.
+    Copyright (C) 2023  Sergei Baigerov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "GDServer_19GDPS.h"
+#include "LevelRangeList.h"
 #include "Translation.h"
 
-LevelAPI::Backend::GDServer_19GDPS::GDServer_19GDPS(std::string endpoint) : GDServer_BoomlingsLike19(endpoint) {
-    m_vRanges.push_back(new LevelAPI::LevelRange(0, 0x0FFFFFFF, "1.9"));
-}
+LevelAPI::Backend::GDServer_19GDPS::GDServer_19GDPS(std::string endpoint) : GDServer_BoomlingsLike19(endpoint, (LevelRangeList){
+    {
+        {0, 0x0FFFFFFF, "1.9"}
+    }
+}) {}
 
 std::string LevelAPI::Backend::GDServer_19GDPS::getServerName() {
     return Frontend::Translation::getByKey("lapi.gdserver_19gdps.name");
