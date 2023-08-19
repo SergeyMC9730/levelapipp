@@ -8,6 +8,8 @@
 - Multiple servers support (or Nodes)
   - Official Basement GDPS (Подвал ГДшеров) support
   - Official GD server in 2.1 and 2.2 modes
+  - 1.9 GDPS
+  - Other server using default GD server implementatons
 - Discord support
   - Notifications
   - Slash Commands
@@ -23,6 +25,6 @@
 
 # Demo server
 
-Main server have **over `160k` levels** in total **size of `653` megabytes of storage.**
+Main server have **over `190k` levels** in total **size of `775` megabytes of storage.**
 <br>
 Main server is [placed here](https://lapi.vse-serii-naruto.ru/api/v1/stats)!
