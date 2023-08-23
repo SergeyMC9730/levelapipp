@@ -18,4 +18,6 @@
 
 #include "ServerModule.h"
 
+using namespace LevelAPI::Backend;
+
 void ServerModule::mod_init() {}

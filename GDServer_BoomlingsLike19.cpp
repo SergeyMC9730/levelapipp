@@ -18,7 +18,6 @@
 
 #include "GDServer_BoomlingsLike19.h"
 
-#include "CURLParameter.h"
 #include "LevelRange.h"
 #include "UUID.h"
 #include "curl_backend.h"

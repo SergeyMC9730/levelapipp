@@ -1,3 +1,21 @@
+/**
+ *  LevelAPI - Geometry Dash level cacher with search functionality and more.
+    Copyright (C) 2023  Sergei Baigerov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "DiscordInstance.h"
 #include "cluster.h"
 #include "dispatcher.h"
@@ -117,7 +135,7 @@ Database::Database(std::string path) {
     GET_JSON_VALUE(_jsonObject, "language", translation_language, std::string);
 
     if(m_bEnableBot && !m_sBotToken.empty()) {
-        m_pLinkedBot = new LevelAPI::DiscordController::DiscordInstance(this);
+        m_pLinkedBot = new LevelAPI::Frontend::DiscordInstance(this);
         m_vThreads.push_back(m_pLinkedBot->start());
     }
 

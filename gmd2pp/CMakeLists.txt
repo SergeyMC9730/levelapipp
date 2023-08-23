@@ -40,6 +40,10 @@ add_library(ext_zlib ${zlib_files})
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED 11)
 
+set(gmd2pp_helper_hex
+    hex.cpp hex.h
+)
+
 file(GLOB ziplib_files
     "${CMAKE_CURRENT_SOURCE_DIR}/ziplib/Source/ZipLib/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/ziplib/Source/ZipLib/*.h"
@@ -118,9 +122,14 @@ add_subdirectory(pugixml_patch)
 
 install(TARGETS pugixml-shared EXPORT levelapi_workarounds)
 
+add_library(gmd2pp_hex
+    ${gmd2pp_helper_hex}
+)
+
 add_library(base64 cpp-base64/base64.cpp)
 
 install(TARGETS base64 EXPORT levelapi_workarounds)
+install(TARGETS gmd2pp_hex EXPORT levelapi_workarounds)
 
-add_library(gmd2 impl.cpp hex.cpp GDLevelSaveable.cpp)
-target_link_libraries(gmd2 ext_ziplib gmdtools cjson pugixml-shared base64)
+add_library(gmd2 impl.cpp GDLevelSaveable.cpp)
+target_link_libraries(gmd2 ext_ziplib gmdtools cjson pugixml-shared base64 gmd2pp_hex)

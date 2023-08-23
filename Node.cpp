@@ -33,7 +33,8 @@
 #include <sys/stat.h>
 #include <vector>
 #include <algorithm>
-#include "GDServer_Boomlings.h"
+#include "GDServer_Boomlings21.h"
+#include "GDServer_Boomlings22.h"
 #include "GDServer_BasementGDPS.h"
 #include "GDServer_19GDPS.h"
 #include "Translation.h"
@@ -315,7 +316,7 @@ bool Node::userIDExists(int uid) {
     return user.size() >= 1;
 }
 
-std::vector<Level *> Node::getLevels(SearchFilter *filter) {
+std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter *filter) {
     std::vector<Level *> res = {};
 
     SQLiteRow rw_condition = {};
@@ -362,19 +363,19 @@ std::vector<Level *> Node::getLevels(SearchFilter *filter) {
 
     std::string ordering = "-downloads";
 
-    if (filter->m_eSort == SearchSort::SSMostLiked) {
+    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSMostLiked) {
         ordering = "-likes";
     }
-    if (filter->m_eSort == SearchSort::SSMostDownloaded) {
+    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSMostDownloaded) {
         ordering = "-downloads";
     }
-    if (filter->m_eSort == SearchSort::SSLatestDBApperead) {
+    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSLatestDBApperead) {
         ordering = "-databaseAppereanceDate";
     }
-    if (filter->m_eSort == SearchSort::SSRecentLevel) {
+    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSRecentLevel) {
         ordering = "-levelID";
     }
-    if (filter->m_eSort == SearchSort::SSOldestLevel) {
+    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSOldestLevel) {
         ordering = "levelID";
     }
 
@@ -409,7 +410,7 @@ LevelAPI::Backend::GDServer *Node::createServer() {
             if(m_uDatabase->m_sModifications == "basement-custom") {
                 serv = new Backend::GDServer_BasementGDPS(m_uDatabase->m_sEndpoint);
             } else if (m_uDatabase->m_sModifications.empty() || m_uDatabase->m_sModifications == "boomlings") {
-                serv = new Backend::GDServer_Boomlings(m_uDatabase->m_sEndpoint);
+                serv = new Backend::GDServer_Boomlings21(m_uDatabase->m_sEndpoint);
             } else {
                 serv = new Backend::GDServer_BoomlingsLike21(m_uDatabase->m_sEndpoint);
             }
@@ -417,7 +418,7 @@ LevelAPI::Backend::GDServer *Node::createServer() {
         }
         case 22: {
             if (m_uDatabase->m_sModifications.empty() || m_uDatabase->m_sModifications == "boomlings") {
-                serv = new Backend::GDServer_Boomlings(m_uDatabase->m_sEndpoint);
+                serv = new Backend::GDServer_Boomlings22(m_uDatabase->m_sEndpoint);
             } else {
                 serv = new Backend::GDServer_BoomlingsLike22(m_uDatabase->m_sEndpoint);
             }

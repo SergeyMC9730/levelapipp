@@ -1,4 +1,3 @@
-#include "GDServer_BasementGDPS.h"
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
     Copyright (C) 2023  Sergei Baigerov
@@ -16,6 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+#include "GDServer_BasementGDPS.h"
 
 #include "LevelRangeList.h"
 #include "Translation.h"

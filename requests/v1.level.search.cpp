@@ -13,7 +13,7 @@ LevelAPI::v1::LevelSearchRequest::LevelSearchRequest() {
 std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const http_request &req) {
     std::string node = req.get_arg_flat("node").data();
 
-    auto filter = new SearchFilter();
+    auto filter = new LevelAPI::Backend::SearchFilter();
     
     filter->m_sName = req.get_arg_flat("name").data();
     filter->m_sDescription = req.get_arg_flat("description").data();
@@ -33,15 +33,15 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
 
     std::string sort_type = req.get_arg_flat("sort").data();
 
-    filter->m_eSort = SSNone;
+    filter->m_eSort = LevelAPI::Backend::SearchSort::SSNone;
 
-    std::map<std::string, SearchSort> sortmap = {
-        {"most-liked", SSMostLiked},
-        {"most-downloaded", SSMostDownloaded},
-        {"last-appeared", SSLatestDBApperead},
-        {"recent", SSRecentLevel},
-        {"oldest", SSOldestLevel},
-        {"none", SSNone}
+    std::map<std::string, LevelAPI::Backend::SearchSort> sortmap = {
+        {"most-liked", LevelAPI::Backend::SearchSort::SSMostLiked},
+        {"most-downloaded", LevelAPI::Backend::SearchSort::SSMostDownloaded},
+        {"last-appeared", LevelAPI::Backend::SearchSort::SSLatestDBApperead},
+        {"recent", LevelAPI::Backend::SearchSort::SSRecentLevel},
+        {"oldest", LevelAPI::Backend::SearchSort::SSOldestLevel},
+        {"none", LevelAPI::Backend::SearchSort::SSNone}
     };
 
     if (sortmap.count(sort_type) > 0) {

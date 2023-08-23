@@ -1,13 +1,58 @@
+/**
+ *  LevelAPI - Geometry Dash level cacher with search functionality and more.
+    Copyright (C) 2023  Sergei Baigerov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #pragma once
 
 #include <curl/curl.h>
 #include <string>
-#include "CURLParameter.h"
 #include <vector>
-#include "CurlProxy.h"
 
 namespace LevelAPI {
     namespace Backend {
+        enum ProxyType {
+            PT_NONE = 0, 
+            PT_HTTP, PT_HTTPS, PT_SOCKS4, PT_SOCKS5
+        };
+
+        class CurlProxy {
+        protected:
+            ProxyType m_eType = PT_NONE;
+            std::string m_sURL = "";
+        public:
+            CurlProxy();
+
+            virtual std::string getURL();
+            virtual ProxyType getType();
+
+            static ProxyType fromString(std::string url);
+
+            CurlProxy(std::string url);
+            CurlProxy(const char * url);
+        };
+        class CURLParameter {
+        public:
+            CURLParameter();
+            CURLParameter(std::string k, std::string v);
+            CURLParameter(std::string k, int v);
+
+            std::string key;
+            std::string value;
+        };
         class CURLResult {
         public:
             int realSize;

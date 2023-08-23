@@ -18,7 +18,11 @@
 
 #pragma once
 
-class ServerModule {
-public:
-    virtual void mod_init();
-};
+namespace LevelAPI {
+    namespace Backend {
+        class ServerModule {
+        public:
+            virtual void mod_init();
+        };
+    }
+}

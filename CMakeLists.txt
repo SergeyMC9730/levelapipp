@@ -27,9 +27,66 @@ file(GLOB levelapi_server_requests
     "requests/*.cpp"
     "requests/*.h"
 )
-file(GLOB levelapi_base
-    "*.cpp"
-    "*.h"
+set(levelapi_splitstring
+    StringSplit.cpp StringSplit.h
+)
+set(levelapi_sqlite
+    SQLiteManager.cpp SQLiteManager.h
+)
+set(levelapi_robtopstring
+    RobTopStringContainer.cpp RobTopStringContainer.hpp
+)
+set(iandy_src
+    iAndy.cpp iAndy.h
+)
+set(levelapi_baselibrary
+    Account10.cpp Account10.h
+    Account19.cpp Account19.h
+    Account21.cpp Account19.h
+    curl_backend.h CURLConnection.cpp CURLConnectionSettings.cpp CURLParameter.cpp CURLProxy.cpp
+    DatabaseCell.cpp DatabaseCell.h
+    DatabaseController.cpp DatabaseControllerThreads.h
+    DatabaseRunner.cpp
+    DCommand.cpp DCommand.h
+    DCommandEvent.cpp DCommandEvent.h
+    DCommandSearch.cpp DCommandSearch.h
+    DCommandStats.cpp DCommandStats.h
+    DiscordInstance.cpp DiscordInstance.h
+    GDPSActionLog.h
+    GDServer.cpp GDServer.h
+    GDServer_BoomlingsLike19.cpp GDServer_BoomlingsLike19.h
+    GDServer_BoomlingsLike21.cpp GDServer_BoomlingsLike21.h
+    GDServer_BoomlingsLike22.cpp GDServer_BoomlingsLike22.h
+    GDServer_BoomlingsBase.cpp GDServer_BoomlingsBase.h
+    GDServer_Boomlings21.cpp GDServer_Boomlings21.h
+    GDServer_Boomlings22.cpp GDServer_Boomlings22.h
+    GDServer_BasementLike21.cpp GDServer_BasementLike21.h
+    GDServer_BasementGDPS.cpp GDServer_BasementGDPS.h
+    GDServer_19GDPS.h GDServer_19GDPS.cpp
+    gmd.cpp gmd.h
+    HttpController.cpp HttpController.h
+    Level.cpp Level.h
+    LevelRange.cpp LevelRange.h
+    LevelRangeList.cpp LevelRangeList.h
+    LevelRelease.cpp LevelRelease.h
+    main.cpp
+    ModuleGDHistory.cpp ModuleGDHistory.h
+    NodeRunner.cpp NodeRunner.h
+    NodeRunnerLegacy.cpp
+    lapi_version.h
+    lapi_database.h Node.cpp NodeCommandQueue.cpp NodeDatabase.cpp NodePolicy.cpp NodeProxyList.cpp NodeQueue.cpp Database.cpp
+    SearchFilter.h
+    ServerModule.cpp
+    ServerModule.h
+    SmallLevel.cpp SmallLevel.h
+    tests.h test_curl_connection.cpp test_gd_parsers.cpp
+    TestingBoomlings22.cpp TestingBoomlings22.h
+    ThreadSafeLevelParser.cpp ThreadSafeLevelParser.h
+    Time.cpp Time.h
+    Tools.h
+    Translation.cpp
+    Translation.h
+    UUID.cpp UUID.h
 )
 
 include_directories(httpserver
@@ -74,9 +131,34 @@ install(EXPORT levelapi_workarounds DESTINATION "./")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
-add_executable(levelapi_server 
-    ${levelapi_base}
+add_library(sqlitemanager
+    ${levelapi_sqlite}
+)
+
+add_library(robtopstrings
+    ${levelapi_robtopstring}
+)
+
+add_library(splitstring
+    ${levelapi_splitstring}
+)
+
+add_library(iandy
+    ${iandy_src}
+)
+
+target_link_libraries(sqlitemanager sqlite3)
+target_link_libraries(robtopstrings splitstring)
+
+add_library(levelapi
+    ${levelapi_baselibrary}
     ${levelapi_server_requests}
+)
+
+target_link_libraries(levelapi httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto sqlitemanager robtopstrings iandy)
+
+add_executable(levelapi_server 
+    main.cpp
 )
 add_executable(levelapi_test_folders
     "ExternalTest_Folders.cc"
@@ -84,4 +166,4 @@ add_executable(levelapi_test_folders
 
 file(COPY resources DESTINATION .)
 
-target_link_libraries(levelapi_server httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto sqlite3)
+target_link_libraries(levelapi_server levelapi)

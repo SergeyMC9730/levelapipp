@@ -22,11 +22,15 @@
 #include "LevelRangeList.h"
 #include <vector>
 
-class GDServer_BoomlingsBase : public ModuleGDHistory {
-protected:
-    LevelAPI::LevelRangeList getRanges();
-public:
-    GDServer_BoomlingsBase();
+namespace LevelAPI {
+    namespace Backend {
+        class GDServer_BoomlingsBase : public ModuleGDHistory {
+        protected:
+            LevelAPI::LevelRangeList getRanges();
+        public:
+            GDServer_BoomlingsBase();
 
-    LevelAPI::DatabaseController::Level *downloadArchivedLevel(int id) override;
-};
+            LevelAPI::DatabaseController::Level *downloadArchivedLevel(int id) override;
+        };
+    }
+}

@@ -23,9 +23,13 @@
 #include <vector>
 #include "Level.h"
 
-class ModuleGDHistory : public ServerModule {
-protected:
-    std::string getAPIPath();
-public:
-    virtual LevelAPI::DatabaseController::Level *downloadArchivedLevel(int id);
-};
+namespace LevelAPI {
+    namespace Backend {
+        class ModuleGDHistory : public ServerModule {
+        protected:
+            std::string getAPIPath();
+        public:
+            virtual LevelAPI::DatabaseController::Level *downloadArchivedLevel(int id);
+        };
+    }
+}

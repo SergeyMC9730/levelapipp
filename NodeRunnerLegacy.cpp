@@ -1,4 +1,22 @@
-#include "CurlProxy.h"
+/**
+ *  LevelAPI - Geometry Dash level cacher with search functionality and more.
+    Copyright (C) 2023  Sergei Baigerov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#include "curl_backend.h"
 #include "DatabaseControllerThreads.h"
 
 #include "json/single_include/nlohmann/json.hpp"
@@ -100,7 +118,7 @@ void DatabaseController::node_runner(Node *nd) {
     int prev_q = NC_NONE;
     std::cout << Translation::getByKey("lapi.noderunner.start", nd->m_sInternalName) << std::endl;
 
-    std::vector<CurlProxy> proxies = {};
+    std::vector<LevelAPI::Backend::CurlProxy> proxies = {};
 
     int i = 0;
 
@@ -122,7 +140,7 @@ void DatabaseController::node_runner(Node *nd) {
 
     Level *llevel;
 
-    auto resolver_job = [&](Node *this_node, Backend::GDServer *this_server, std::vector<CurlProxy> proxy_list) {
+    auto resolver_job = [&](Node *this_node, Backend::GDServer *this_server, std::vector<LevelAPI::Backend::CurlProxy> proxy_list) {
         if (!this_node->m_pPolicy->m_bEnableResolver) return;
 
         while (true) {
@@ -356,7 +374,7 @@ start:
             }
             auto levels = server->getLevelsBySearchType(4);
             int i = 0;
-            if(server->m_eStatus == GSS_PERMANENT_BAN) {
+            if(server->m_eStatus == LevelAPI::Backend::GSS_PERMANENT_BAN) {
                 while(i < 32) {
                     std::cout << Translation::getByKey("lapi.noderunner.error.pban", nd->m_sInternalName) << std::endl;
                     i++;

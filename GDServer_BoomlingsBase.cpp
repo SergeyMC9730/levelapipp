@@ -17,10 +17,10 @@
 */
 
 #include "GDServer_BoomlingsBase.h"
-#include "GDServer.h"
-#include "GDServer_Boomlings.h"
 #include "LevelRange.h"
 #include "ModuleGDHistory.h"
+
+using namespace LevelAPI::Backend;
 
 LevelAPI::LevelRangeList GDServer_BoomlingsBase::getRanges() {
     std::vector<LevelAPI::LevelRange> m_vRanges;

@@ -19,28 +19,25 @@
 #pragma once
 
 #include "Account19.h"
-#include "CURLParameter.h"
 #include "curl_backend.h"
 
 #include <string>
 #include <vector>
 #include <optional>
 
-#include "CurlProxy.h"
-
 #include "Level.h"
 #include "LevelRangeList.h"
 
 #define GDSEARCH_RECENT "4"
 
-enum GDServerStatus {
-    GSS_ONLINE = 0,
-    GSS_OFFLINE = 1,
-    GSS_PERMANENT_BAN = 2
-};
-
 namespace LevelAPI {
     namespace Backend {
+        enum GDServerStatus {
+            GSS_ONLINE = 0,
+            GSS_OFFLINE = 1,
+            GSS_PERMANENT_BAN = 2
+        };
+
         class GDServerUploadResult {
         public:
             bool successful;
