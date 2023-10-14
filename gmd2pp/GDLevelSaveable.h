@@ -6,12 +6,12 @@
 
 class GDLevelSaveable {
 protected:
-    GJGameLevel *m_pLevel;
+    LevelAPI::Imports::GeometryJump::GJGameLevel *m_pLevel;
     std::string m_sFileName;
     bool m_bDebug;
 public:
-    virtual GJGameLevel *getLevel();
-    virtual void setLevel(GJGameLevel *lvl);
+    virtual LevelAPI::Imports::GeometryJump::GJGameLevel *getLevel();
+    virtual void setLevel(LevelAPI::Imports::GeometryJump::GJGameLevel *lvl);
     
     virtual std::string getFileName();
     virtual void setFileName(std::string str);

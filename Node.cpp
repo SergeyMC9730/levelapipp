@@ -31,6 +31,7 @@
 #include <new>
 #include <string>
 #include <sys/stat.h>
+#include <unordered_map>
 #include <vector>
 #include <algorithm>
 #include "GDServer_Boomlings21.h"
@@ -75,6 +76,7 @@ Node::Node(std::string internalName) {
     m_uQueue = new NodeQueue();
     m_pPolicy = new NodePolicy();
     m_pProxy = new NodeProxyList();
+    m_pProxyDownloader = new NodeProxyList();
 
     createLevelFolder();
 
@@ -279,6 +281,8 @@ Node::~Node() {
     m_pPolicy = nullptr;
     delete m_pProxy;
     m_pProxy = nullptr;
+    delete m_pProxyDownloader;
+    m_pProxyDownloader = nullptr;
 }
 
 int initLevel_min = 0;
@@ -363,21 +367,15 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter *filter) {
 
     std::string ordering = "-downloads";
 
-    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSMostLiked) {
-        ordering = "-likes";
-    }
-    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSMostDownloaded) {
-        ordering = "-downloads";
-    }
-    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSLatestDBApperead) {
-        ordering = "-databaseAppereanceDate";
-    }
-    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSRecentLevel) {
-        ordering = "-levelID";
-    }
-    if (filter->m_eSort == LevelAPI::Backend::SearchSort::SSOldestLevel) {
-        ordering = "levelID";
-    }
+    std::unordered_map<LevelAPI::Backend::SearchSort, std::string> ordering_map = {
+        {LevelAPI::Backend::SearchSort::SSMostLiked, "-likes"},
+        {LevelAPI::Backend::SearchSort::SSMostDownloaded, "-downloads"},
+        {LevelAPI::Backend::SearchSort::SSLatestDBApperead, "-databaseAppereanceDate"},
+        {LevelAPI::Backend::SearchSort::SSRecentLevel, "-levelID"},
+        {LevelAPI::Backend::SearchSort::SSOldestLevel, "levelID"}
+    };
+
+    ordering = ordering_map[filter->m_eSort];
 
     auto request = _sqliteObject->getTableWithCondition("levels", ordering, filter->m_nLevelsPerPage, filter->m_nPage, rw_condition);
 

@@ -30,7 +30,7 @@ int GDServer_BoomlingsLike22::getGameVersion() {
     return 22;
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike22::fetchListOfLevels(std::vector<int> levels) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike22::fetchListOfLevels(std::vector<int> levels, int page, std::optional<CurlProxy> proxy) {
     if (levels.size() > 100) return {nullptr};
 
     std::string str = "";
@@ -48,7 +48,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike22::fet
         i++;
     }
     
-    return getLevelsBySearchType(26, str, 0);
+    return getLevelsBySearchType(26, str, page, proxy);
 }
 
 std::string GDServer_BoomlingsLike22::getServerName() {
@@ -59,6 +59,6 @@ std::string GDServer_BoomlingsLike22::getServerIdentifier() {
     return "GDServer_BoomlingsLike22";
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike22::getReportedLevels() {
-    return {}; // cannot test though
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike22::getReportedLevels(std::optional<CurlProxy> proxy) {
+    return {}; // cannot test tho
 }

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "GDServer_BoomlingsLike21.h"
+#include <optional>
 
 namespace LevelAPI {
     namespace Backend {
@@ -28,9 +29,9 @@ namespace LevelAPI {
             GDServer_BoomlingsLike22(std::string endpoint, std::vector<LevelRange> list);
             GDServer_BoomlingsLike22(std::string endpoint, LevelRangeList list);
 
-            virtual std::vector<LevelAPI::DatabaseController::Level *> fetchListOfLevels(std::vector<int> levels);
+            virtual std::vector<LevelAPI::DatabaseController::Level *> fetchListOfLevels(std::vector<int> levels, int page, std::optional<CurlProxy> proxy = std::nullopt);
 
-            virtual std::vector<LevelAPI::DatabaseController::Level *> getReportedLevels();
+            virtual std::vector<LevelAPI::DatabaseController::Level *> getReportedLevels(std::optional<CurlProxy> proxy = std::nullopt);
 
             int getGameVersion() override;
             std::string getServerName() override;

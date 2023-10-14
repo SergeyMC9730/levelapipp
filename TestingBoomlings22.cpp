@@ -34,7 +34,7 @@ void Tests::test_boomlings_ver22() {
 
     std::cout << "New feature: download levels in batch. (4 levels)" << std::endl;
 
-    auto levels = boom->fetchListOfLevels({128, 91682434, 91698864, 91707733});
+    auto levels = boom->fetchListOfLevels({128, 91682434, 91698864, 91707733}, 0);
 
     int i = 0;
     while(i < levels.size()) {

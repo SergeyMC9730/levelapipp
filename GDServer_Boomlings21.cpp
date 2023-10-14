@@ -28,3 +28,7 @@ std::string LevelAPI::Backend::GDServer_Boomlings21::getServerName() {
 std::string LevelAPI::Backend::GDServer_Boomlings21::getServerIdentifier() {
     return "gdserver_boomlings";
 }
+
+std::vector<std::string> LevelAPI::Backend::GDServer_Boomlings21::getModules() {
+    return {"gdhistory"};
+}

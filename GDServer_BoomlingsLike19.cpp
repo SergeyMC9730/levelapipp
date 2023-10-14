@@ -61,7 +61,7 @@ int GDServer_BoomlingsLike19::getMaxMapPackPageSize() {
     return 5;
 };
 
-bool GDServer_BoomlingsLike19::login() {
+bool GDServer_BoomlingsLike19::login(std::optional<CurlProxy> proxy) {
     auto m_pLinkedCURL = new CURLConnection();
 
     m_pLinkedCURL->setDebug(getDebug());
@@ -73,6 +73,10 @@ bool GDServer_BoomlingsLike19::login() {
         new CURLParameter("userName", m_sUsername),
         new CURLParameter("gameVersion", getGameVersion())
     });
+
+    if (proxy.has_value()) {
+        m_pLinkedCURL->setProxy(proxy.value());
+    }
 
     std::string uurl = m_sEndpointURL + "/accounts/" + _getLoginAccountEndpointName();
 
@@ -196,7 +200,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
     return lvl;
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type, std::string str, int page) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy) {
     auto m_pLinkedCURL = new CURLConnection();
     
     m_pLinkedCURL->setDebug(getDebug());
@@ -208,6 +212,10 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
         new CURLParameter("gameVersion", getGameVersion()),
         new CURLParameter("str", str)
     });
+
+    if (proxy.has_value()) {
+        m_pLinkedCURL->setProxy(proxy.value());
+    }
 
     std::string uurl = m_sEndpointURL + "/" + _getLevelListEndpointName();
 
@@ -396,7 +404,7 @@ std::string GDServer_BoomlingsLike19::getServerIdentifier() {
     return "gdserver_boomlingslike19";
 }
 
-GDServerUploadResult *GDServer_BoomlingsLike19::uploadLevel(DatabaseController::Level *level) {
+GDServerUploadResult *GDServer_BoomlingsLike19::uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy) {
     auto m_pLinkedCURL = new CURLConnection();
     auto res = new GDServerUploadResult();
     
@@ -426,6 +434,10 @@ GDServerUploadResult *GDServer_BoomlingsLike19::uploadLevel(DatabaseController::
         new CURLParameter("gameVersion", getGameVersion())
 
     });
+
+    if (proxy.has_value() ) {
+        m_pLinkedCURL->setProxy(proxy.value());
+    }
 
     delete m_pLinkedCURL;
     m_pLinkedCURL = nullptr;

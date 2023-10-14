@@ -26,8 +26,6 @@
 #include <thread>
 #include <vector>
 
-#include "gmd2pp/GJGameLevel.h"
-
 #include "json/single_include/nlohmann/json.hpp"
 
 #include <dpp/dpp.h>
@@ -158,6 +156,7 @@ namespace LevelAPI {
             NodeQueue *m_uQueue;
             NodePolicy *m_pPolicy;
             NodeProxyList *m_pProxy;
+            NodeProxyList *m_pProxyDownloader;
 
             bool m_bCacheInProcess;
             fast_vector<int> m_vCachedLevels;

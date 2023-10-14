@@ -2,7 +2,7 @@
 #include "GJGameLevel.h"
 #include <string>
 
-void GDLevelSaveable::setLevel(GJGameLevel *lvl) {
+void GDLevelSaveable::setLevel(LevelAPI::Imports::GeometryJump::GJGameLevel *lvl) {
     this->m_pLevel = lvl;
 }
 void GDLevelSaveable::setFileName(std::string str) {
@@ -12,7 +12,7 @@ void GDLevelSaveable::setDebug(bool debug) {
     this->m_bDebug = debug;
 }
 
-GJGameLevel *GDLevelSaveable::getLevel() {
+LevelAPI::Imports::GeometryJump::GJGameLevel *GDLevelSaveable::getLevel() {
     return m_pLevel;
 }
 std::string GDLevelSaveable::getFileName() {

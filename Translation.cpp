@@ -16,24 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-/**
- *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
 #include "Translation.h"
 
 #include "fmt/include/fmt/core.h"
@@ -179,7 +161,7 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     {
         "lapi.gdserver_basementlike21.name", {
             "Standard Basement server",
-            "Стандартный сервер Подвала"
+            "Стандартный сервер Подвала ГДшеров"
         }
     },
     // from GDServer_Boomlings.cpp
@@ -191,9 +173,9 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     // from GDServer_BoomlingsExperimental22.cpp
     {
-        "lapi.gdserver_boomlingsexperimental22.name", {
-            "Boomlings (official) server (with 2.2 features)",
-            "Бумлингс (официальный) сервер (с фичами из 2.2)"
+        "lapi.gdserver_boomlings22.name", {
+            "Boomlings (official) server with 2.2 features",
+            "Бумлингс (официальный) сервер с возможностями из 2.2"
         }
     },
     // from GDServer_BoomlingsLike19.cpp
@@ -208,13 +190,6 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.gdserver_boomlingslike21.name", {
             "Standard 2.1 server",
             "Стандартный 2.1 сервер"
-        }
-    },
-    // from GDServer_BoomlingsLike22.cpp
-    {
-        "lapi.gdserver_boomlingslike22.name", {
-            "Standard 2.2 server",
-            "Стандартный 2.2 сервер"
         }
     },
     // from GDServer_BoomlingsLike22.cpp
@@ -271,7 +246,7 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     {
         "lapi.curltest.fail", {
             "[LevelAPI] cURL connection test FAILED\n[LevelAPI] Don't expect connection backend to work!\n",
-            "[LevelAPI] Тестирование подключения cURL ПРОВАЛЕНО\n[LevelAPI] Не ожидайте работу внутреннего бакенда!\n"
+            "[LevelAPI] Тестирование подключения cURL ПРОВАЛЕНО\n[LevelAPI] Не ожидайте работу серверной части соединения!\n"
         }
     },
     // from Node.cpp

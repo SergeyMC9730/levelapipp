@@ -53,10 +53,10 @@ int GDServer::getMaxMapPackPageSize() {
     return 0;
 }
 
-std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchType(int type, std::string str, int page) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy) {
     return {};
 }
-std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchType(int type) {
+std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsBySearchType(int type, std::optional<CurlProxy> proxy) {
     return getLevelsBySearchType(type, "", 0);
 }
 
@@ -78,11 +78,11 @@ void GDServer::setCredentials(std::string u, std::string p) {
     m_sGJPPassword = gjpCipher.encode(m_sPassword);
 }
 
-GDServerUploadResult *GDServer::uploadLevel(DatabaseController::Level *level) {
+GDServerUploadResult *GDServer::uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy) {
     return nullptr;
 }
 
-bool GDServer::login() {
+bool GDServer::login(std::optional<CurlProxy> proxy) {
     return false;
 }
 

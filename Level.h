@@ -38,7 +38,7 @@ namespace LevelAPI {
             E_INFORMATION
         };
 
-        class Level : public GJGameLevel, public DatabaseCell {
+        class Level : public LevelAPI::Imports::GeometryJump::GJGameLevel, public DatabaseCell {
         private:
             std::string getDownloadLinks(bool embed);
         public:

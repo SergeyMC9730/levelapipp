@@ -38,16 +38,16 @@ namespace LevelAPI {
             GDServer_BoomlingsLike19(std::string endpoint, LevelRangeList list);
 
             LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy = std::nullopt) override;
-            std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page) override;
+            std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy = std::nullopt) override;
             // returns self
             LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt) override;
 
-            bool login() override;
+            bool login(std::optional<CurlProxy> proxy = std::nullopt) override;
 
             int getMaxLevelPageSize() override;
             int getMaxMapPackPageSize() override;
 
-            GDServerUploadResult *uploadLevel(DatabaseController::Level *level) override;
+            GDServerUploadResult *uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt) override;
 
             int getGameVersion() override;
             std::string getServerName() override;

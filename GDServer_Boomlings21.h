@@ -29,6 +29,8 @@ namespace LevelAPI {
 
             std::string getServerName() override;
             std::string getServerIdentifier() override;
+
+            std::vector<std::string> getModules() override;
         };
     }
 }

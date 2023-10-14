@@ -18,11 +18,11 @@
 
 #pragma once
 
+#include "ModuleEnabled.h"
+
 #include "Account19.h"
 #include "curl_backend.h"
 
-#include <string>
-#include <vector>
 #include <optional>
 
 #include "Level.h"
@@ -43,7 +43,7 @@ namespace LevelAPI {
             bool successful;
             int id;
         };
-        class GDServer {
+        class GDServer : public ModuleEnabled {
         protected:
             std::string m_sEndpointURL;
             
@@ -78,11 +78,11 @@ namespace LevelAPI {
             virtual LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy = std::nullopt);
             // returns self
             virtual LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt);
-            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type);
-            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page);
-        
+            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::optional<CurlProxy> proxy = std::nullopt);
+            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy = std::nullopt);
+
             virtual void setCredentials(std::string u, std::string p);
-            virtual bool login();
+            virtual bool login(std::optional<CurlProxy> proxy = std::nullopt);
 
             virtual int getMaxLevelPageSize();
             virtual int getMaxMapPackPageSize();
@@ -91,9 +91,9 @@ namespace LevelAPI {
             virtual std::string getServerName();
             virtual std::string getServerIdentifier();
 
-            std::string determineGVFromID(int id);
+            virtual std::string determineGVFromID(int id);
 
-            virtual GDServerUploadResult *uploadLevel(DatabaseController::Level *level);
+            virtual GDServerUploadResult *uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt);
         };
     }
 }

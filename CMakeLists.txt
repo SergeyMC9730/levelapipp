@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.10.0)
 project(levelapi_server VERSION 1.0.0)
 
 set(CXX_STANDARD_REQUIRED 17)
@@ -87,6 +87,7 @@ set(levelapi_baselibrary
     Translation.cpp
     Translation.h
     UUID.cpp UUID.h
+    ModuleEnabled.cpp ModuleEnabled.h
 )
 
 include_directories(httpserver

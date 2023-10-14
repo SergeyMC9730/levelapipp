@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include <iostream>
 
+#include "../ModuleGDHistory.h"
+
 #include "HTTPContentTypeText.h"
 #include "HTTPContentTypeJSON.h"
 #include "HTTPContentTypeZip.h"
@@ -21,7 +23,14 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
     auto id = req.get_arg("id");
     auto node = req.get_arg("node");
     auto type1 = req.get_arg("type");
+    auto provider = req.get_arg("provider");
+
+    int id2 = 0;
+
     int type = 0;
+    std::string provider_string = "node-cached";
+
+    std::vector<std::string> supportedProviders = {"node-cached"};
 
     try {
         if(!type1.get_flat_value().empty()) {
@@ -30,23 +39,55 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
     } catch (std::invalid_argument &e) {
         type = 0;
     }
+
+    try {
+        if(!id.get_flat_value().empty()) {
+            id2 = std::stoi(std::string(id));
+        }
+    } catch (std::invalid_argument &e) {
+        id2 = 0;
+    }
+
+    if (!provider.get_flat_value().empty()) {
+        provider_string = std::string(provider);
+    }
+
+    nlohmann::json response_fail;
+
+    response_fail["response"] = -1;
+    response_fail["id"] = id;
+    response_fail["node"] = node;
+    response_fail["provider"] = provider_string;
+
+    auto nodepointer = LevelAPI::DatabaseController::database->getNode(std::string(node));
+
+    if(nodepointer == nullptr) {
+        return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
+    }
+
+    auto server = nodepointer->createServer();
+
+    if (std::find(server->getModules().begin(), server->getModules().end(), "gdhistory") != server->getModules().end()) {
+        supportedProviders.push_back("gdhistory");
+    }
+
+    if (std::find(supportedProviders.begin(), supportedProviders.end(), provider_string) != supportedProviders.end()) {
+        response_fail["response"] = -3;
+        return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
+    }
     
     switch (type) {
         default: // failback to json
         case 0: { // json
-            nlohmann::json response_fail;
+            DatabaseController::Level *level = nullptr;
 
-            response_fail["response"] = -1;
-            response_fail["id"] = id;
-            response_fail["node"] = node;
+            if (provider_string == "node-cached") {
+                level = nodepointer->getLevel(id2);
+            } else if (provider_string == "gdhistory") {
+                auto module_gd = dynamic_cast<Backend::ModuleGDHistory *>(server);
 
-            auto nodepointer = LevelAPI::DatabaseController::database->getNode(std::string(node));
-
-            if(nodepointer == nullptr) {
-                return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
+                level = module_gd->downloadArchivedLevel(id2);
             }
-
-            auto level = nodepointer->getLevel(std::stoi(std::string(id)));
 
             if(level == nullptr) {
                 response_fail["response"] = -2;
@@ -66,13 +107,12 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
             break;
         }
         case 1: { // gmd2
-            auto nodepointer = LevelAPI::DatabaseController::database->getNode(std::string(node));
-
-            if(nodepointer == nullptr) {
-                return generateResponse("404 Node Not Found", 404);
+            if (provider_string == "gdhistory") {
+                response_fail["response"] = -4;
+                return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 501);
             }
 
-            auto level = nodepointer->getLevel(std::stoi(std::string(id)));
+            auto level = nodepointer->getLevel(id2);
 
             if(level == nullptr) {
                 return generateResponse("404 Level Not Found", 404);
