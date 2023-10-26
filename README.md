@@ -34,6 +34,8 @@
 - SQlite usage – no more hard MySQL stuff
 - Easy configuration – example config file is provided
 - Asynchronous – each node is processed in different threads (network thread, SQL thread, etc.)
+- Translation
+  - *only English and Russian are currently supported.*
 - **More features soon!**
 
 <!---

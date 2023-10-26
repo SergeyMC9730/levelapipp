@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <cstdint>
 #include <stdexcept>
 #include <iostream>
 #include <variant>
@@ -52,9 +53,58 @@ void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::
     }
 }
 
+// template implementations for basic robtop values
+template<> int RobTopStringContainer::getVariable<int>(int id) {
+    return std::get<int>(m_mContainer[id]);
+}
 
-std::variant<std::string, int, float, bool> RobTopStringContainer::getVariable(int id) {
-    return m_mContainer[id];
+template<> std::string RobTopStringContainer::getVariable<std::string>(int id) {
+    return std::get<std::string>(m_mContainer[id]);
+}
+
+template<> float RobTopStringContainer::getVariable<float>(int id) {
+    return std::get<float>(m_mContainer[id]);
+}
+
+template<> bool RobTopStringContainer::getVariable<bool>(int id) {
+    return std::get<bool>(m_mContainer[id]);
+}
+
+// template implementations for all unsigned integers
+template<> uint8_t RobTopStringContainer::getVariable<uint8_t>(int id) {
+    return static_cast<uint8_t>(getVariable<int>(id));
+}
+
+template<> uint16_t RobTopStringContainer::getVariable<uint16_t>(int id) {
+    return static_cast<uint16_t>(getVariable<int>(id));
+}
+
+template<> uint32_t RobTopStringContainer::getVariable<uint32_t>(int id) {
+    return static_cast<uint32_t>(getVariable<int>(id));
+}
+
+template <> uint64_t RobTopStringContainer::getVariable<uint64_t>(int id) {
+    return static_cast<uint64_t>(getVariable<int>(id));
+}
+
+// template implementations for all signed integers
+
+template<> int8_t RobTopStringContainer::getVariable<int8_t>(int id) {
+    return static_cast<int8_t>(getVariable<uint8_t>(id));
+}
+
+template<> int16_t RobTopStringContainer::getVariable<int16_t>(int id) {
+    return static_cast<int16_t>(getVariable<uint16_t>(id));
+}
+
+template<> int64_t RobTopStringContainer::getVariable<int64_t>(int id) {
+    return static_cast<int64_t>(getVariable<uint64_t>(id));
+}
+
+// additonal template implementations
+
+template<> double RobTopStringContainer::getVariable<double>(int id) {
+    return (double)(getVariable<float>(id));
 }
 
 std::string RobTopStringContainer::variantToString(std::variant<std::string, int, float, bool> var) {

@@ -23,6 +23,7 @@
 
 using namespace LevelAPI;
 
+// add value parsers for robtop string (1.9)
 void Account19::addParsers() {
     Account10::addParsers();
 
@@ -38,6 +39,7 @@ void Account19::addParsers() {
     );
 }
 
+// parse 1.9 account from robtop string
 void Account19::parseFromString(std::string server_response) {
     Account10::parseFromString(server_response);
 

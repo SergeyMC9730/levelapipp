@@ -22,9 +22,11 @@
 
 using namespace LevelAPI;
 
+// add value parsers for robtop string (2.1)
 void Account21::addParsers() {
     Account19::addParsers();
 
+    // moderator level
     m_pContainer->setParserForVariable(
         49, 
         [&](std::string input, int id) {
@@ -37,6 +39,7 @@ void Account21::addParsers() {
     );
 }
 
+// parse robtop string
 void Account21::parseFromString(std::string server_response) {
     Account19::parseFromString(server_response);
 

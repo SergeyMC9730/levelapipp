@@ -26,7 +26,7 @@ namespace LevelAPI {
         // add parsers for our KV container
         void addParsers() override;
     public:
-        // moderator level: Standard, Elder
+        // moderator level: Shadow, Standard, Elder
         int modLevel;
 
         // parse userdata from string

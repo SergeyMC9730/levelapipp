@@ -28,13 +28,16 @@
 #define GKINT 1
 #define GKBOOL 2
 #define GKBASE64 3
+#define GKFLOAT 4
 
 #define GET_KEY_GKSTRING(container, keyN, member) \
-    if (container->variableExists(keyN)) member = std::string(std::get<std::string>(container->getVariable(keyN)).data());
+    if (container->variableExists(keyN)) member = container->getVariable<std::string>(keyN);
 #define GET_KEY_GKINT(container, keyN, member) \
-    if (container->variableExists(keyN)) member = std::get<int>(container->getVariable(keyN));
+    if (container->variableExists(keyN)) member = container->getVariable<int>(keyN);
 #define GET_KEY_GKBOOL(container, keyN, member) \
-    if (container->variableExists(keyN)) member = std::get<bool>(container->getVariable(keyN));
+    if (container->variableExists(keyN)) member = container->getVariable<bool>(keyN);
+#define GET_KEY_GKFLOAT(container, keyN, member) \
+    if (container->variableExists(keyN)) member = container->getVariable<float>(keyN);
 #define GET_KEY_GKBASE64(container, keyN, member) GET_KEY_GKSTRING(container, keyN, member);
 #define GET_KEY(container, keyN, member, vType) GET_KEY_##vType(container, keyN, member)
 
@@ -51,7 +54,9 @@ protected:
 
     virtual std::string variantToString(std::variant<std::string, int, float, bool> var);
 public:
-    virtual std::variant<std::string, int, float, bool> getVariable(int id);
+    // virtual std::variant<std::string, int, float, bool> getVariable(int id);
+    template<typename T = int>
+    T getVariable(int id);
 
     virtual void setParserForVariable(int index, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID)> func);
     virtual void setParserForVariable(std::vector<int> indexes, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID)> func);

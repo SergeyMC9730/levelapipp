@@ -24,13 +24,16 @@
 
 namespace LevelAPI {
     namespace Backend {
+        // supported proxies by cURL
         enum ProxyType {
             PT_NONE = 0, 
             PT_HTTP, PT_HTTPS, PT_SOCKS4, PT_SOCKS5
         };
 
+        // curl proxy
         class CurlProxy {
         protected:
+            // type of proxy. could be http, https, socks4, socks5 or none
             ProxyType m_eType = PT_NONE;
             std::string m_sURL = "";
         public:
@@ -44,6 +47,8 @@ namespace LevelAPI {
             CurlProxy(std::string url);
             CurlProxy(const char * url);
         };
+
+        // any parameters to url
         class CURLParameter {
         public:
             CURLParameter();
@@ -53,6 +58,8 @@ namespace LevelAPI {
             std::string key;
             std::string value;
         };
+
+        // data sent by cURL
         class CURLResult {
         public:
             int realSize;
@@ -65,6 +72,8 @@ namespace LevelAPI {
 
             const char *data;
         };
+
+        // settings for cURL
         class CURLConnectionSettings {
         public:
             bool m_bWriteToMemory;
@@ -82,17 +91,32 @@ namespace LevelAPI {
 
             ~CURLConnectionSettings();
         };
+
+        // implements cURL data fetching
         class CURLConnection {
         protected:
+            // curl instance
             CURL *m_pCurl;
+
+            // debug flag
             bool m_bDebug;
+
+            // website parameters
             std::vector<CURLParameter*> m_mUserData;
+            
+            // proxy for curl
             CurlProxy m_proxy;
 
+            // destroys curl instance and all parameters
             void destroy();
         public:
+            // set debug fiag
             void setDebug(bool d);
+
+            // set parameters
             void setData(std::vector<CURLParameter*> parameters);
+
+            // set proxy for accessing pages
             void setProxy(CurlProxy proxy);
 
             virtual CURLResult *access_page(const char *url);
@@ -100,9 +124,12 @@ namespace LevelAPI {
             virtual CURLResult *access_page(const char *url, const char *method);
             virtual CURLResult *access_page(const char *url, const char *method, FILE *file);
             
+            // internal curl write function
             static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream);
-        
+
+            // constructor
             CURLConnection();
+            // destructor
             ~CURLConnection();
         };
     }
