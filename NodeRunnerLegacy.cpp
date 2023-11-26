@@ -395,7 +395,7 @@ start:
                     auto identifier = server->getServerIdentifier();
                     
                     if(!userIDExists) {
-                        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
+                        // nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
                     }
 
                     nd->initLevel(levels[i]);

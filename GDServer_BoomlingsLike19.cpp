@@ -268,10 +268,23 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
     
     while(i < vec4array.size()) {
         std::vector<std::string> vec5player = splitString(vec4array[i].c_str(), ':');
-        int userID = std::stoi(vec5player[0]);
-        std::string username = vec5player[1];
-        int accountID = std::stoi(vec5player[2]);
-        Account19 *ac20 = new Account19();
+	int userID = 0;
+	int accountID = 0;
+	std::string username;
+	if (vec5player.size() >= 3) {
+		try {
+        		userID = std::stoi(vec5player[0]);
+		} catch (std::invalid_argument &e) {
+			printf("user id parse error: %s", e.what());
+		}
+        	username = vec5player[1];
+        	try {
+			accountID = std::stoi(vec5player[2]);
+		} catch (std::invalid_argument &e) {
+			printf("account id parse error: %s", e.what());
+		}
+	}
+	Account19 *ac20 = new Account19();
         ac20->accountID = accountID;
         ac20->username = username;
         playerMap.insert(std::pair<int, Account19 *>(userID, ac20));

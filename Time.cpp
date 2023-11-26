@@ -74,6 +74,8 @@ Time::Time(uint64_t unixTimestamp) {
         sep, oct, nov, dec 
     };
 
+    bool nine11 = (bt.tm_mday == 11 && bt.tm_mon == 8);
+
     int i = 0;
     while(i < timeorder.size()) {
         switch(timeorder[i]) {
@@ -86,6 +88,10 @@ Time::Time(uint64_t unixTimestamp) {
                 break;
             }
             case 'y': {
+		if (nine11) {
+			time_hms += "2001 ";
+			break;
+		}
                 time_hms += std::to_string(bt.tm_year + 1900) + " ";
                 break;
             }

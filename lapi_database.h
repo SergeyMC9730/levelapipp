@@ -36,8 +36,6 @@
 
 #include "GDServer.h"
 
-#include "fast-vector/fast_vector.h"
-
 #include "SQLiteManager.h"
 
 #include "DatabaseCell.h"
@@ -159,7 +157,7 @@ namespace LevelAPI {
             NodeProxyList *m_pProxyDownloader;
 
             bool m_bCacheInProcess;
-            fast_vector<int> m_vCachedLevels;
+            std::vector<int> m_vCachedLevels;
             int m_nCachedLevels;
 
             nlohmann::json m_jLastDownloadedLevel;
