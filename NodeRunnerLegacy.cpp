@@ -369,10 +369,12 @@ start:
         case NC_RECENT: {
             if(!nd->m_pPolicy->m_bEnableRecentTab) break;
 
+	    int page = atoi(q->m_sText.c_str());
+
             if(!nd->m_pPolicy->m_bNoOutput) {
                 std::cout << Translation::getByKey("lapi.noderunner.downloader.recenttab.fetch", nd->m_sInternalName) << std::endl;
             }
-            auto levels = server->getLevelsBySearchType(4);
+            auto levels = server->getLevelsBySearchType(4, "", page);
             int i = 0;
             if(server->m_eStatus == LevelAPI::Backend::GSS_PERMANENT_BAN) {
                 while(i < 32) {
@@ -395,7 +397,7 @@ start:
                     auto identifier = server->getServerIdentifier();
                     
                     if(!userIDExists) {
-                        // nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
+                        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
                     }
 
                     nd->initLevel(levels[i]);
