@@ -116,6 +116,9 @@ namespace LevelAPI {
             // set parameters
             void setData(std::vector<CURLParameter*> parameters);
 
+            // add parameters
+            void addData(std::vector<CURLParameter*> parameters);
+
             // set proxy for accessing pages
             void setProxy(CurlProxy proxy);
 

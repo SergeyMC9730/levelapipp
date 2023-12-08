@@ -51,8 +51,6 @@ namespace LevelAPI {
 
             std::string m_sRawData = "";
 
-            int m_nRetryAfter = 0;
-
             bool m_bHasLevelString = false;
             bool m_bHasRawData = false;
 

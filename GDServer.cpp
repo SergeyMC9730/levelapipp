@@ -117,3 +117,59 @@ std::string GDServer::getServerName() {
 std::string GDServer::getServerIdentifier() {
     return "gdserver";
 }
+
+void GDServer::destroyLevelVector(std::vector<LevelAPI::DatabaseController::Level *> v) {
+    for (auto l : v) {
+        if (l != nullptr) delete l;
+    }
+
+    return;
+}
+
+std::vector<std::string> GDServer::_getCloudflareBans() {
+    return {
+        "error code: 1005",
+        "error code: 1006",
+        "error code: 1007",
+        "error code: 1008",
+        "error code: 1009",
+        "error code: 1012",
+        "error code: 1106"
+    };
+}
+
+bool GDServer::processCURLAnswer(CURLResult *res) {
+    _rateLimitLength = res->retry_after;
+
+    if (res->http_status != 200 || res->result != 0) {
+        std::string data = res->data;
+        auto pban_responses = _getCloudflareBans();
+
+        for (auto reason : pban_responses) {
+            if (data.find(reason) != std::string::npos) {
+                m_eStatus = GSS_PERMANENT_BAN;
+            }
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+CURLConnection *GDServer::_setupCURL(std::optional<CurlProxy> proxy, std::string secret) {
+    auto m_pLinkedCURL = new CURLConnection();
+    
+    m_pLinkedCURL->setDebug(getDebug());
+
+    if (proxy.has_value()) {
+        m_pLinkedCURL->setProxy(proxy.value());
+    }
+
+    m_pLinkedCURL->setData({
+        new CURLParameter("secret", secret),
+        new CURLParameter("gameVersion", getGameVersion())
+    });
+
+    return m_pLinkedCURL;
+}

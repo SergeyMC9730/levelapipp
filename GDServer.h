@@ -63,6 +63,10 @@ namespace LevelAPI {
 
             virtual std::string _getSecretValueStandard();
             virtual std::string _getSecretValueExtra();
+
+            virtual std::vector<std::string> _getCloudflareBans();
+
+            virtual CURLConnection *_setupCURL(std::optional<CurlProxy> proxy, std::string secret);
         public:
             GDServer();
             GDServer(std::vector<LevelRange> list);
@@ -71,6 +75,7 @@ namespace LevelAPI {
             ~GDServer();
 
             GDServerStatus m_eStatus;
+            int _rateLimitLength;
 
             virtual void setDebug(bool d);
             virtual bool getDebug();
@@ -94,6 +99,11 @@ namespace LevelAPI {
             virtual std::string determineGVFromID(int id);
 
             virtual GDServerUploadResult *uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt);
+        
+            static void destroyLevelVector(std::vector<LevelAPI::DatabaseController::Level *> v);
+
+            // returns true if curl or cloudflare returned error
+            bool processCURLAnswer(CURLResult *res);
         };
     }
 }

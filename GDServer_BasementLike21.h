@@ -24,6 +24,10 @@
 namespace LevelAPI {
     namespace Backend {
         class GDServer_BasementLike21 : public GDServer_BoomlingsLike21 {
+        protected:
+            std::string _getSecretValueRates();
+
+            std::string _getRateListEndpointName();
         public:
             GDServer_BasementLike21(std::string endpoint);
             GDServer_BasementLike21(std::string endpoint, std::vector<LevelRange> list);
@@ -31,6 +35,8 @@ namespace LevelAPI {
 
             std::string getServerName() override;
             std::string getServerIdentifier() override;
+
+            std::vector<LevelAPI::DatabaseController::Level *> getRecentRatedLevels(int list_length, std::optional<CurlProxy> proxy);
         };
     }
 }

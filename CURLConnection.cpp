@@ -207,6 +207,12 @@ void CURLConnection::setData(std::vector<CURLParameter*> parameters) {
     this->m_mUserData = parameters;
 }
 
+void CURLConnection::addData(std::vector<CURLParameter*> parameters) {
+    for (auto param : parameters) {
+        m_mUserData.push_back(param);
+    }
+}
+
 CURLConnection::~CURLConnection() {
     int i = 0;
 

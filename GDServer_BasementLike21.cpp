@@ -33,3 +33,33 @@ std::string GDServer_BasementLike21::getServerName() {
 std::string GDServer_BasementLike21::getServerIdentifier() {
     return "gdserver_basementlike21";
 }
+
+std::string GDServer_BasementLike21::_getSecretValueRates() {
+    return "Wmfd3879gb7";
+}
+
+std::string GDServer_BasementLike21::_getRateListEndpointName() {
+    return "getGJRates21.php";
+}
+
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getRecentRatedLevels(int list_length, std::optional<CurlProxy> proxy) {
+    auto curl = new CURLConnection();
+
+    curl->setDebug(getDebug());
+
+    curl->setData({
+        new CURLParameter("secret", _getSecretValueRates()),
+        new CURLParameter("gameVersion", getGameVersion()),
+        new CURLParameter("size", list_length)
+    });
+
+    if (proxy.has_value()) {
+        curl->setProxy(proxy.value());
+    }
+
+    std::string url = m_sEndpointURL + "/" + _getRateListEndpointName();
+
+    // CURLResult
+
+    return {};
+}

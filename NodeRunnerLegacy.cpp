@@ -161,17 +161,17 @@ void DatabaseController::node_runner(Node *nd) {
 
                         auto level = this_server->getLevelMetaByID(id, false, selected_proxy);
 
-                        if (!level || level->m_nRetryAfter > 0) {
+                        if (!level || this_server->_rateLimitLength > 0) {
                             std::cout << "failed to download the level (proxy " << selected_proxy.getURL() << ")" << std::endl;;
                             dont_stop = true;
 
                             if (level != nullptr) {
-                                std::cout << "reason: rate limit " << level->m_nRetryAfter << " seconds" << std::endl;
+                                std::cout << "reason: rate limit " << this_server->_rateLimitLength << " seconds" << std::endl;
                                 delete level;
                                 level = nullptr;
                             }
                         } else {
-                            if (level->m_nRetryAfter < 0) {
+                            if (this_server->_rateLimitLength < 0) {
                                 std::cout << "failed to download the level (proxy " << selected_proxy.getURL() << ") : level does not exist" << std::endl;;
                             } else {
                                 level->m_bHasLevelString = true;
@@ -208,16 +208,16 @@ void DatabaseController::node_runner(Node *nd) {
 
                         auto level = this_server->getLevelMetaByID(id, false);
 
-                        if (!level || level->m_nRetryAfter > 0) {
+                        if (!level || this_server->_rateLimitLength > 0) {
                             std::cout << "failed to download the level" << std::endl;
 
                             if (level != nullptr) {
-                                std::cout << "reason: rate limit " << level->m_nRetryAfter << " seconds" << std::endl;
+                                std::cout << "reason: rate limit " << this_server->_rateLimitLength << " seconds" << std::endl;
                                 delete level;
                                 level = nullptr;
                             }
                         } else {
-                            if (level->m_nRetryAfter < 0) {
+                            if (level == nullptr) {
                                 std::cout << "failed to download the level : level does not exist" << std::endl;;
                             } else {
                                 level->m_bHasLevelString = true;
@@ -333,10 +333,10 @@ loop_readonly:
     }
 run_again:
     nd->m_bRateLimitApplied = false;
-    // if(nd->m_bRateLimitApplied) {
-    //     std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, nd->m_nWaitTime);
-    //     rlt.detach();
-    // }
+    if(nd->m_bRateLimitApplied) {
+        std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, server->_rateLimitLength);
+        rlt.detach();
+    }
 start:
     if(nd->m_uQueue->m_vCommandQueue.size() == 0) goto error_ignore;
 

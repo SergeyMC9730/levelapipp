@@ -17,7 +17,7 @@
 */
 
 #include "GDServer_BoomlingsLike19.h"
-
+// #include "RobTopStringContainer.hpp"
 #include "LevelRange.h"
 #include "UUID.h"
 #include "curl_backend.h"
@@ -62,267 +62,201 @@ int GDServer_BoomlingsLike19::getMaxMapPackPageSize() {
 };
 
 bool GDServer_BoomlingsLike19::login(std::optional<CurlProxy> proxy) {
-    auto m_pLinkedCURL = new CURLConnection();
+    // create curl instance
+    auto m_pLinkedCURL = _setupCURL(proxy, _getSecretValueExtra());
 
-    m_pLinkedCURL->setDebug(getDebug());
-
-    m_pLinkedCURL->setData({
-        new CURLParameter("secret", _getSecretValueExtra()),
+    // add parameters
+    m_pLinkedCURL->addData({
         new CURLParameter("udid", ConnectionCrypt::createUUID()),
         new CURLParameter("password", m_sPassword),
-        new CURLParameter("userName", m_sUsername),
-        new CURLParameter("gameVersion", getGameVersion())
+        new CURLParameter("username", m_sUsername)
     });
-
-    if (proxy.has_value()) {
-        m_pLinkedCURL->setProxy(proxy.value());
-    }
-
-    std::string uurl = m_sEndpointURL + "/accounts/" + _getLoginAccountEndpointName();
-
-    CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
+    // set url
+    std::string url = m_sEndpointURL + "/accounts/" + _getLoginAccountEndpointName();
+    // create request to the server
+    CURLResult *res = m_pLinkedCURL->access_page(url.c_str(), "POST");
+    
     printf("response login: %s\n", res->data);
     printf("%d %d %d\n", res->http_status, res->result, res->retry_after);
-    int ra = res->retry_after;
-    if(res->http_status != 200 || res->result != 0) {
-        std::string ddd = res->data;
-        std::vector<std::string> pban_responses {
-            "error code: 1005",
-            "error code: 1006",
-            "error code: 1007",
-            "error code: 1008",
-            "error code: 1009",
-            "error code: 1012",
-            "error code: 1106"
-        };
-        int q = 0;
-        while(q < pban_responses.size()) {
-            if(ddd.find(pban_responses[q]) != std::string::npos) {
-                m_eStatus = GSS_PERMANENT_BAN;
-            }
-            q++;
-        }
-        delete res;
-        delete m_pLinkedCURL;
-        m_pLinkedCURL = nullptr;
-        res = nullptr;
-        return false;
-    }
 
-    delete m_pLinkedCURL;
-    m_pLinkedCURL = nullptr;
+    if (!processCURLAnswer(res)) {
+        delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
+
+        free((char *)res->data);
+        delete res; res = nullptr;
+
+        return false;
+    } 
+
+    delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
+    delete res; res = nullptr;
 
     return true;
 }
 
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy) {
-    auto m_pLinkedCURL = new CURLConnection();
+    // create curl instance
+    auto m_pLinkedCURL = _setupCURL(proxy, _getSecretValueStandard());
 
-    if (proxy.has_value()) {
-        m_pLinkedCURL->setProxy(proxy.value());
-    }
-     
-    LevelAPI::DatabaseController::Level *lvl = nullptr;
-    
-    if (id <= 0) {
-        lvl = new DatabaseController::Level("");
-        lvl->m_nRetryAfter = id - 1;
-        delete m_pLinkedCURL;
-        m_pLinkedCURL = nullptr;
-        return lvl;
-    }
-
-    m_pLinkedCURL->setDebug(getDebug());
-
-    m_pLinkedCURL->setData({
-        new CURLParameter("secret", _getSecretValueStandard()),
-        new CURLParameter("levelID", id),
-        new CURLParameter("gameVersion", getGameVersion())
+    // add parameters
+    m_pLinkedCURL->addData({
+        new CURLParameter("levelID", id)
     });
 
-    std::string uurl = m_sEndpointURL + "/" + _getDownloadLevelEndpointName();
+    // create url
+    std::string url = m_sEndpointURL + "/" + _getDownloadLevelEndpointName();
+    // send request to the server
+    CURLResult *res = m_pLinkedCURL->access_page(url.c_str(), "POST");
 
-    CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
-    //printf("response 2: %s\n", res->data);
-    // level->m_nRetryAfter = res->retry_after;
+    if (!processCURLAnswer(res)) {
+        free((char *)res->data);
+        delete res; res = nullptr;
+        
+        delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
-    if(res->http_status != 200 || res->result != 0) {
-        printf("returned 2 %d %d %d %s\n", res->http_status, res->result, res->retry_after, res->data);
-        std::string ddd = res->data;
-        std::vector<std::string> pban_responses {
-            "error code: 1005",
-            "error code: 1006",
-            "error code: 1007",
-            "error code: 1008",
-            "error code: 1009",
-            "error code: 1012",
-            "error code: 1106"
-        };
-        int q = 0;
-        while(q < pban_responses.size()) {
-            if(ddd.find(pban_responses[q]) != std::string::npos) {
-                m_eStatus = GSS_PERMANENT_BAN;
-            }
-            q++;
-        }
-        delete res;
-        delete m_pLinkedCURL;
-        m_pLinkedCURL = nullptr;
-        res = nullptr;
-        return lvl;
+        return nullptr;
     }
 
+    // check if level doesn't exist
     std::string strtest = res->data;
     if(!strtest.compare("-1")) {
-        delete res;
-        delete m_pLinkedCURL;
-        res = nullptr;
-        m_pLinkedCURL = nullptr;
+        free((char *)res->data);
+        delete res; res = nullptr;
+        
+        delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
-        lvl = new DatabaseController::Level("");
-        lvl->m_nRetryAfter = -128;
-        return lvl;
+        return nullptr;
     }
 
-    lvl = LevelParser::parseFromResponse(res->data);
-    lvl->m_nRetryAfter = 0;
-    
-    free((void *)res->data);
-    delete res;
-    res = nullptr;
+    // parse level
+    auto lvl = LevelParser::parseFromResponse(res->data);
 
-    delete m_pLinkedCURL;
-    m_pLinkedCURL = nullptr;
-
+    // set values
     lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
     lvl->m_uRelease->m_fActualVersion = determineGVFromID(lvl->m_nLevelID);
+
+    free((char *)res->data);
+    delete res; res = nullptr;
+        
+    delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
     return lvl;
 }
 
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy) {
-    auto m_pLinkedCURL = new CURLConnection();
-    
-    m_pLinkedCURL->setDebug(getDebug());
+    // create curl instance
+    auto m_pLinkedCURL = _setupCURL(proxy, _getSecretValueStandard());
 
-    m_pLinkedCURL->setData({
-        new CURLParameter("secret", _getSecretValueStandard()),
+    // add parameters
+    m_pLinkedCURL->addData({
         new CURLParameter("type", type),
         new CURLParameter("page", page),
-        new CURLParameter("gameVersion", getGameVersion()),
         new CURLParameter("str", str)
     });
 
-    if (proxy.has_value()) {
-        m_pLinkedCURL->setProxy(proxy.value());
-    }
+    // create url
+    std::string url = m_sEndpointURL + "/" + _getLevelListEndpointName();
+    // send request to the server
+    CURLResult *res = m_pLinkedCURL->access_page(url.c_str(), "POST");
 
-    std::string uurl = m_sEndpointURL + "/" + _getLevelListEndpointName();
+    if (!processCURLAnswer(res)) {
+        free((char *)res->data);
+        delete res; res = nullptr;
+        
+        delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
-    CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
-    if(res->http_status != 200 || res->result != 0) {
-        std::string ddd = res->data;
-        std::vector<std::string> pban_responses {
-            "error code: 1005",
-            "error code: 1006",
-            "error code: 1007",
-            "error code: 1008",
-            "error code: 1009",
-            "error code: 1012",
-            "error code: 1106"
-        };
-        int q = 0;
-        while(q < pban_responses.size()) {
-            if(ddd.find(pban_responses[q]) != std::string::npos) {
-                m_eStatus = GSS_PERMANENT_BAN;
-            }
-            q++;
-        }
-        delete res;
-        delete m_pLinkedCURL;
-        m_pLinkedCURL = nullptr;
-        res = nullptr;
         return {};
     }
+
     if(res->data[0] == '-') {
-        delete res;
-        delete m_pLinkedCURL;
-        res = nullptr;
-        m_pLinkedCURL = nullptr;
+        free((char *)res->data);
+        delete res; res = nullptr;
+        
+        delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
+
         return {};
     }
 
+    // create level array
     std::vector<LevelAPI::DatabaseController::Level *> vec1;
+
+    // split array into level array and player array
     std::vector<std::string> vec2 = splitString(res->data, '#');
 
-    // parse players
+    // get player list
     std::string plList = vec2[1];
+
+    // get level list
     std::string lvlList = vec2[0];
+
+    // create player map
     std::map<int, Account19 *> playerMap;
 
+    // split player list into individual players
     std::vector<std::string> vec4array = splitString(plList.c_str(), '|');
+
+    // split level list into individual levels
     std::vector<std::string> vec5levels = splitString(lvlList.c_str(), '|');
+
     int i = 0;
 
     std::vector<Account19 *> accounts;
-    
-    while(i < vec4array.size()) {
-        std::vector<std::string> vec5player = splitString(vec4array[i].c_str(), ':');
-	int userID = 0;
-	int accountID = 0;
-	std::string username;
-	if (vec5player.size() >= 3) {
-		try {
-        		userID = std::stoi(vec5player[0]);
-		} catch (std::invalid_argument &e) {
-			printf("user id parse error: %s", e.what());
-		}
-        	username = vec5player[1];
-        	try {
-			accountID = std::stoi(vec5player[2]);
-		} catch (std::invalid_argument &e) {
-			printf("account id parse error: %s", e.what());
-		}
-	}
-	Account19 *ac20 = new Account19();
-        ac20->accountID = accountID;
-        ac20->username = username;
-        playerMap.insert(std::pair<int, Account19 *>(userID, ac20));
-        accounts.push_back(ac20);
-        vec5player.clear();
-        i++;
+
+    for (auto player_string : vec4array) {
+        // split robtop array
+        std::vector<std::string> player_data = splitString(player_string.c_str(), ':');
+
+        if (player_data.size() >= 3) {
+            // get strings for each array element;
+            std::string userID_string = player_data[0];
+            std::string accountID_string = player_data[1];
+            std::string username = player_data[2];
+
+            // parse userID
+            int userID = atoi(userID_string.c_str());
+            // parse accountID
+            int accountID = atoi(accountID_string.c_str());
+
+            // printf("userID: %d; accountID: %d; username: %s\n", userID, accountID, username.c_str());
+
+            Account19 *account = new Account19();
+
+            account->accountID = accountID;
+            account->userID = userID;
+            account->username = username;
+
+            playerMap.insert(std::pair<int, Account19 *>(userID, account));
+            accounts.push_back(account);
+        }
     }
-    vec4array.clear();
-    vec4array = splitString(vec2[1].c_str(), '|');
-    i = 0;
-    while(i < vec5levels.size()) {
-        LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(vec5levels[i].c_str());
-        Account19 *ac20 = playerMap[lvl->m_nPlayerID];
-        lvl->m_nAccountID = ac20->accountID;
-        lvl->m_sUsername = ac20->username;
+
+    for (auto level_string : vec5levels) {
+        // parse level
+        LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(level_string);
+        
+        // get account by user id
+        Account19 *account = playerMap[lvl->m_nPlayerID];
+
+        // printf("accessing account by user id %d\n", lvl->m_nPlayerID);
+
+        // set values
+        lvl->m_nAccountID = account->accountID;
+        lvl->m_sUsername = account->username;
         lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
         lvl->m_uRelease->m_fActualVersion = determineGVFromID(lvl->m_nLevelID);
+
         vec1.push_back(lvl);
-        i++;
     }
+    
+    // delete accounts
+    for (auto account : accounts) delete account;
 
-    i = 0;
-    while(i < accounts.size()) {
-        delete accounts[i];
-        i++;
-    }
+    free((char *)res->data);
+    delete res; res = nullptr;
+        
+    delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
-    accounts.clear();
-    vec4array.clear();
-    vec5levels.clear();
-
-    free((void *)res->data);
-    delete res;
-    res = nullptr;
-
-    delete m_pLinkedCURL;
-    m_pLinkedCURL = nullptr;
-
+    // reserse array to make first level to be the latest one
     std::reverse(vec1.begin(), vec1.end());
 
     return vec1;
@@ -336,73 +270,53 @@ std::string GDServer_BoomlingsLike19::_getSecretValueExtra() {
 }
 
 LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(LevelAPI::DatabaseController::Level *level, std::optional<CurlProxy> proxy) {
-    auto m_pLinkedCURL = new CURLConnection();
-    
-    m_pLinkedCURL->setDebug(getDebug());
-
-    if (proxy.has_value()) {
-        m_pLinkedCURL->setProxy(proxy.value());
-    }
-
+    // create curl instance
+    auto m_pLinkedCURL = _setupCURL(proxy, _getSecretValueStandard());
+    // add level id parameter
     m_pLinkedCURL->setData({
-        new CURLParameter("secret", _getSecretValueStandard()),
-        new CURLParameter("levelID", level->m_nLevelID),
-        new CURLParameter("gameVersion", getGameVersion())
+        new CURLParameter("levelID", level->m_nLevelID)
     });
+    // generate url
+    std::string url = m_sEndpointURL + "/" +_getDownloadLevelEndpointName();
+    // create request to the server
+    CURLResult *res = m_pLinkedCURL->access_page(url.c_str(), "POST");
 
-    std::string uurl = m_sEndpointURL + "/" +_getDownloadLevelEndpointName();
+    if (!processCURLAnswer(res)) {
+        free((char *)res->data);
+        delete res; res = nullptr;
+        
+        delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
-    CURLResult *res = m_pLinkedCURL->access_page(uurl.c_str(), "POST");
-    //printf("response 2: %s\n", res->data);
-    level->m_nRetryAfter = res->retry_after;
-    if(res->http_status != 200 || res->result != 0) {
-        std::string ddd = res->data;
-        std::vector<std::string> pban_responses {
-            "error code: 1005",
-            "error code: 1006",
-            "error code: 1007",
-            "error code: 1008",
-            "error code: 1009",
-            "error code: 1012",
-            "error code: 1106"
-        };
-        int q = 0;
-        while(q < pban_responses.size()) {
-            if(ddd.find(pban_responses[q]) != std::string::npos) {
-                m_eStatus = GSS_PERMANENT_BAN;
-            }
-            q++;
-        }
-        delete res;
-        delete m_pLinkedCURL;
-        res = nullptr;
-        m_pLinkedCURL = nullptr;
         return level;
     }
 
+    // check if level doesn't exist
     std::string strtest = res->data;
     if(!strtest.compare("-1")) {
-        delete res;
-        res = nullptr;
+        free((char *)res->data);
+        delete res; res = nullptr;
+        
+        delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
-        level->m_nRetryAfter = -128;
         return level;
     }
 
+    // parse level
     LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data);
+    
+    // set values
     level->m_sLevelString = lvl->m_sLevelString;
     level->m_nMusicID = lvl->m_nMusicID;
     level->m_nSongID = lvl->m_nSongID;
     level->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
     level->m_uRelease->m_fActualVersion = determineGVFromID(lvl->m_nLevelID);
 
-    free((void *)res->data);
-    delete lvl;
-    delete res;
-    delete m_pLinkedCURL;
-    m_pLinkedCURL = nullptr;
-    lvl = nullptr;
-    res = nullptr;
+    free((char *)res->data);
+    delete res; res = nullptr;
+        
+    delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
+
+    delete lvl; lvl = nullptr;
 
     return level;
 }
@@ -418,42 +332,5 @@ std::string GDServer_BoomlingsLike19::getServerIdentifier() {
 }
 
 GDServerUploadResult *GDServer_BoomlingsLike19::uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy) {
-    auto m_pLinkedCURL = new CURLConnection();
-    auto res = new GDServerUploadResult();
-    
-    res->successful = false;
-    res->id = 0;
-    
-    if (level == nullptr) {
-        delete m_pLinkedCURL;
-        m_pLinkedCURL = nullptr;
-        return res;
-    }
-    if (res == nullptr) {
-        delete m_pLinkedCURL;
-        m_pLinkedCURL = nullptr;
-        return res;
-    }
-    if (m_sUsername.empty() || m_sPassword.empty()) {
-        delete m_pLinkedCURL;
-        m_pLinkedCURL = nullptr;
-        return res;
-    }
-
-    m_pLinkedCURL->setDebug(getDebug());
-
-    m_pLinkedCURL->setData({
-        new CURLParameter("secret", _getSecretValueStandard()),
-        new CURLParameter("gameVersion", getGameVersion())
-
-    });
-
-    if (proxy.has_value() ) {
-        m_pLinkedCURL->setProxy(proxy.value());
-    }
-
-    delete m_pLinkedCURL;
-    m_pLinkedCURL = nullptr;
-
-    return res;
+    return nullptr;
 }
