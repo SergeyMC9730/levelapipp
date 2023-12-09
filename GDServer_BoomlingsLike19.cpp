@@ -217,8 +217,6 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
             // parse accountID
             int accountID = atoi(accountID_string.c_str());
 
-            // printf("userID: %d; accountID: %d; username: %s\n", userID, accountID, username.c_str());
-
             Account19 *account = new Account19();
 
             account->accountID = accountID;
@@ -237,11 +235,13 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
         // get account by user id
         Account19 *account = playerMap[lvl->m_nPlayerID];
 
-        // printf("accessing account by user id %d\n", lvl->m_nPlayerID);
+        // set account values if it was found
+        if (account != nullptr) {
+            lvl->m_nAccountID = account->accountID;
+            lvl->m_sUsername = account->username;
+        }
 
-        // set values
-        lvl->m_nAccountID = account->accountID;
-        lvl->m_sUsername = account->username;
+        // set level release values
         lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
         lvl->m_uRelease->m_fActualVersion = determineGVFromID(lvl->m_nLevelID);
 

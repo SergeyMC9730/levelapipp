@@ -165,10 +165,8 @@ void DatabaseController::node_runner(Node *nd) {
                             std::cout << "failed to download the level (proxy " << selected_proxy.getURL() << ")" << std::endl;;
                             dont_stop = true;
 
-                            if (level != nullptr) {
+                            if (this_server->_rateLimitLength > 0) {
                                 std::cout << "reason: rate limit " << this_server->_rateLimitLength << " seconds" << std::endl;
-                                delete level;
-                                level = nullptr;
                             }
                         } else {
                             if (this_server->_rateLimitLength < 0) {
@@ -213,8 +211,6 @@ void DatabaseController::node_runner(Node *nd) {
 
                             if (level != nullptr) {
                                 std::cout << "reason: rate limit " << this_server->_rateLimitLength << " seconds" << std::endl;
-                                delete level;
-                                level = nullptr;
                             }
                         } else {
                             if (level == nullptr) {
