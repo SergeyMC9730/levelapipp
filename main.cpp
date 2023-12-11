@@ -66,7 +66,8 @@ using namespace LevelAPI::Frontend::Translation;
 
 std::vector<std::string> get_tests() {
     return {
-        "boomlings2.2"
+        "boomlings2.2",
+        "basement"
     };
 }
 
@@ -104,7 +105,10 @@ void route_test(std::string test) {
     if (!is_test_valid(test)) return;
 
     if (test == "boomlings2.2") {
-        LevelAPI::Tests::test_boomlings_ver22();
+        LevelAPI::Tests::test_boomlings_ver22(); return;
+    }
+    if (test == "basement") {
+        LevelAPI::Tests::testBasementFeatures(); return;
     }
 
     return;

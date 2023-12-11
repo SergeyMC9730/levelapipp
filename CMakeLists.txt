@@ -79,7 +79,7 @@ set(levelapi_baselibrary
     ServerModule.cpp
     ServerModule.h
     SmallLevel.cpp SmallLevel.h
-    tests.h test_curl_connection.cpp test_gd_parsers.cpp
+    tests.h test_curl_connection.cpp test_gd_parsers.cpp test_basement_features.cpp
     TestingBoomlings22.cpp TestingBoomlings22.h
     ThreadSafeLevelParser.cpp ThreadSafeLevelParser.h
     Time.cpp Time.h

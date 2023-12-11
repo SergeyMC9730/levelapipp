@@ -20,6 +20,8 @@
 
 #include "GDServer_BasementLike21.h"
 #include "Translation.h"
+#include "StringSplit.h"
+#include "RobTopStringContainer.hpp"
 
 using namespace LevelAPI::Backend;
 
@@ -59,7 +61,57 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getR
 
     std::string url = m_sEndpointURL + "/" + _getRateListEndpointName();
 
-    // CURLResult
+    CURLResult *res = curl->access_page(url.c_str(), "POST");
 
-    return {};
+    if (!processCURLAnswer(res)) {
+        free((char *)res->data); delete res;
+
+        delete curl;
+
+        return {};
+    }
+
+    auto levels = splitString(res->data, ',');
+
+    RobTopStringContainer *container = new RobTopStringContainer("");
+
+    container->setParserForVariable({1, 6, 18, 49, 19, 25, 42}, [&](std::string inputString, int inputID) {
+        try {
+            return std::stoi(inputString);
+        } catch (std::invalid_argument &e) {
+            return 0;
+        }
+    });
+
+    container->setParserForVariable({2, 7}, [&](std::string inputString, int inputID) {
+        return inputString;
+    });
+
+    std::vector<LevelAPI::DatabaseController::Level *> _levels;
+
+    for (std::string level : levels) {
+        container->resetValues();
+
+        container->setString(level);
+        container->parse();
+
+        auto lobj = new LevelAPI::DatabaseController::Level("");
+
+        GET_KEY_GKINT(container, 1, lobj->m_nLevelID);
+        GET_KEY_GKINT(container, 6, lobj->m_nPlayerID);
+        GET_KEY_GKINT(container, 18, lobj->m_nStars);
+        GET_KEY_GKINT(container, 49, lobj->m_nAccountID);
+        GET_KEY_GKINT(container, 19, lobj->m_nFeatureScore);
+        GET_KEY_GKINT(container, 25, lobj->m_bAuto);
+        GET_KEY_GKINT(container, 42, lobj->m_nEpic);
+
+        GET_KEY_GKSTRING(container, 2, lobj->m_sLevelName);
+        GET_KEY_GKSTRING(container, 7, lobj->m_sUsername);
+
+        _levels.push_back(lobj);
+    }
+
+    delete container;
+
+    return _levels;
 }

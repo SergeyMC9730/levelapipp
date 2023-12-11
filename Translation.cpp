@@ -28,7 +28,7 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     // from main.cpp
     {
         "lapi.main.alpha", {
-            "LeveflAPI is in alpha state so please report any bugs to my GitHub repository!",
+            "LevelAPI is in alpha state so please report any bugs to my GitHub repository!",
             "LevelAPI находится в стадии альфы, поэтому прошу репортить об каких либо багах на мой Гитхаб репозиторий!"
         }
     },

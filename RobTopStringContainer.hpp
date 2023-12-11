@@ -69,6 +69,8 @@ public:
 
     virtual void setString(std::string str);
 
+    virtual void resetValues();
+
     RobTopStringContainer(std::string str);
     RobTopStringContainer();
 };

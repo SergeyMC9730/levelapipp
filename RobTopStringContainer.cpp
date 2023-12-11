@@ -107,6 +107,10 @@ template<> double RobTopStringContainer::getVariable<double>(int id) {
     return (double)(getVariable<float>(id));
 }
 
+void RobTopStringContainer::resetValues() {
+    m_mContainer = {};
+}
+
 std::string RobTopStringContainer::variantToString(std::variant<std::string, int, float, bool> var) {
     if (std::holds_alternative<std::string>(var)) {
         return std::get<std::string>(var);
