@@ -3,6 +3,7 @@
 #include "../lapi_database.h"
 
 #include "HTTPContentTypeJSON.h"
+#include "HTTPContentTypeImage.h"
 #include <stdexcept>
 
 LevelAPI::v1::LevelSearchRequest::LevelSearchRequest() {
@@ -23,6 +24,12 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
 
     std::string data = "";
 
+    filter->timestamp_start = 0;
+    filter->timestamp_end = 0;
+
+    bool graph = false;
+    int graphMembers = 0;
+
     PARSE_VAL("songOfficial", bool, filter->m_bSongOfficial);
     PARSE_VAL("accountID", int, filter->m_nAID);
     PARSE_VAL("stars", int, filter->m_nStars);
@@ -30,6 +37,15 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     PARSE_VAL("userID", int, filter->m_nUID);
     PARSE_VAL("gameVersion", int, filter->m_nServerGV);
     PARSE_VAL("songID", int, filter->m_nStars);
+    PARSE_VAL("timestampStart", uint64_t, filter->timestamp_start);
+    PARSE_VAL("timestampEnd", uint64_t, filter->timestamp_end);
+    PARSE_VAL("asGraph", int, graph);
+    PARSE_VAL("graphMembers", int, graphMembers);
+
+    uint64_t tA = filter->timestamp_start;
+    uint64_t tB = filter->timestamp_end;
+
+    printf("t0: %ld; t1: %ld\n", filter->timestamp_start, filter->timestamp_end);
 
     std::string sort_type = req.get_arg_flat("sort").data();
 
@@ -60,6 +76,46 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
         filter = nullptr;
 
         return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
+    }
+
+    if (graph) {
+        std::vector<int> levels_arr;
+        
+        for (int i = 0; i < graphMembers; i++) {
+            filter->timestamp_start = tA - (tB * graphMembers) + (tB * i);
+            filter->timestamp_end = filter->timestamp_start + tB;
+
+            auto levels = node_object->getLevels(filter);
+            levels_arr.push_back((int)levels.size());
+
+            for (auto lvl : levels) {
+                delete lvl;
+            }
+        }
+
+        // for (int i = 0; i < levels_arr.size(); i++) {
+        //     printf("[%d]: %d\n", i, levels_arr.at(i));
+        // }
+
+        delete filter;
+        filter = nullptr;
+
+        if (levels_arr.size() != 0) {
+            std::filesystem::create_directory("graphs");
+
+            srand(time(0));
+
+            std::string filename = "graphs/" + std::to_string(rand()) + ".png";
+
+            node_object->createGraph(levels_arr, filename);
+
+            return sendFile(filename, HTTPContentTypeImage());
+        }
+
+        nlohmann::json resp;
+        resp["response"] = -2;
+
+        return generateResponse(resp.dump(), HTTPContentTypeJSON());
     }
 
     auto levels = node_object->getLevels(filter);

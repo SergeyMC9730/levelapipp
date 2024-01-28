@@ -325,6 +325,21 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter *filter) {
 
     SQLiteRow rw_condition = {};
 
+    std::array<SQLiteRow, 2> rw_between = {};
+    bool useBetween = false;
+
+    if (filter->timestamp_end != filter->timestamp_start) {
+        SQLiteRow r1 = {}; r1["databaseAppereanceDate"] = (uint64_t)filter->timestamp_start;
+        SQLiteRow r2 = {}; r2["databaseAppereanceDate"] = (uint64_t)filter->timestamp_end;
+
+        // printf("!!: r1: %ld; r2: %ld\n", filter->timestamp_start, filter->timestamp_end);
+
+        rw_between[0] = r1;
+        rw_between[1] = r2;
+
+        useBetween = true;
+    }
+
     if (filter->m_nStars != -1) {
         rw_condition["stars"] = filter->m_nStars;
     }
@@ -377,7 +392,7 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter *filter) {
 
     ordering = ordering_map[filter->m_eSort];
 
-    auto request = _sqliteObject->getTableWithCondition("levels", ordering, filter->m_nLevelsPerPage, filter->m_nPage, rw_condition);
+    auto request = _sqliteObject->getTableWithCondition("levels", ordering, filter->m_nLevelsPerPage, filter->m_nPage, rw_condition, rw_between, useBetween);
 
     int i = 0;
 
@@ -535,4 +550,72 @@ void Node::importLevelMetaFromLAPIold(std::string p) {
         i.close();
     }, this, p);
     thrd.detach();
+}
+
+#include "raylib/src/raylib.h"
+
+void Node::createGraph(std::vector<int> l__, std::string filename) {
+    std::vector<float> levels_per_hour;
+
+    for (int ll : l__) {
+        levels_per_hour.push_back((float)ll);
+    }
+
+    int line_width = 30;
+    int thickness = 10;
+
+    int width = (int)levels_per_hour.size() * line_width + 20 + thickness;
+    int height = 200;
+
+    int cap = height - 30;
+
+    Image img = GenImageColor(width, height, RAYWHITE);
+
+    if (levels_per_hour.size() != 0) {
+        std::vector<float> lph_max = levels_per_hour;
+
+        std::sort(lph_max.begin(), lph_max.end(), std::greater<float>());
+        float max = lph_max.at(0);
+
+        float scale = (float)max / (float)cap;
+
+        std::vector<float> lph_new;
+
+        for (float val : levels_per_hour) {
+            lph_new.push_back(val / scale);
+        }
+
+        levels_per_hour = lph_new;
+
+        Color c = RED;
+
+        int orig_x = 10;
+        int orig_y = height - 15;
+
+        for (int i = 0; i < thickness; i++) {
+            int x = orig_x;
+            int y = orig_y;
+
+            for (float val : levels_per_hour) {
+                int result_x = x + line_width;
+                int result_y = orig_y - (int)val;
+
+                ImageDrawLine(&img, x, y, result_x, result_y, c);
+
+                y = result_y;
+                x += line_width;
+            }
+
+            orig_y++;
+            orig_x++;
+
+            
+        }
+    }
+
+    ImageDrawRectangleLines(&img, {5, 5, (float)width - thickness, (float)height - 10}, 3, BLACK);
+
+    ExportImage(img, filename.c_str());
+
+    UnloadImage(img);
 }

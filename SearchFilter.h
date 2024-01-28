@@ -35,6 +35,9 @@ namespace LevelAPI {
 
             int m_nSID = -1;
             bool m_bSongOfficial = false;
+
+            time_t timestamp_start = 0;
+            time_t timestamp_end = 0;
         };    
     }
 }

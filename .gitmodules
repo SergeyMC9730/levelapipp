@@ -31,3 +31,6 @@
 [submodule "gmd2pp/cpp-base64"]
 	path = gmd2pp/cpp-base64
 	url = https://github.com/ReneNyffenegger/cpp-base64.git
+[submodule "raylib"]
+	path = raylib
+	url = https://github.com/raysan5/raylib

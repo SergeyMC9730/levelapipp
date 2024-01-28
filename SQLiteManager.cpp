@@ -301,7 +301,7 @@ std::vector<SQLiteServerRow> SQLiteManager::getTable(std::string table, std::str
     return vec;
 }
 
-std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition) {
+std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition, std::array<SQLiteRow, 2> between, bool useBetween) {
     if (page == 0) page = 1;
     if (rowsPerPage == 0) rowsPerPage = 1;
 
@@ -343,15 +343,43 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondi
         }
     }
 
+    std::string bw = "AND ";
+
+    if (condition.size() == 0) bw = "WHERE ";
+
+    if (useBetween) {
+        std::string k = "";
+        uint64_t start_val = 0;
+        uint64_t end_val = 0;
+
+        for (auto const [key, val] : between.at(0)) {
+            k = key;
+            if (std::holds_alternative<uint64_t>(val)) start_val = std::get<uint64_t>(val);
+        }
+
+        for (auto const [key, val] : between.at(1)) {
+            if (std::holds_alternative<uint64_t>(val)) end_val = std::get<uint64_t>(val);
+        }
+
+        bw += k + " between " + std::to_string(start_val) + " AND " + std::to_string(end_val);
+    } else {
+        bw = "";
+    }
+
     if (eq.size() >= 5) eq.erase(eq.size() - 5);
 
     char *data1 = nullptr;
 
+    std::string ordering_pref = "ORDER BY";
+    if (columnOrdering == "") ordering_pref = "";
+
     if (condition.size() != 0) {
-        data1 = sqlite3_mprintf("SELECT * FROM %s WHERE %s ORDER BY %s LIMIT %d OFFSET %d;", table.c_str(), eq.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
+        data1 = sqlite3_mprintf("SELECT * FROM %s WHERE %s %s ORDER BY %s LIMIT %d OFFSET %d;", table.c_str(), eq.c_str(), bw.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
     } else {
-        data1 = sqlite3_mprintf("SELECT * FROM %s ORDER BY %s LIMIT %d OFFSET %d", table.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
+        data1 = sqlite3_mprintf("SELECT * FROM %s %s %s %s LIMIT %d OFFSET %d", table.c_str(), bw.c_str(), ordering_pref.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
     }
+
+    // printf("data1=%s\n", data1);
 
     auto vec = syncQuery(data1);
 
@@ -361,8 +389,8 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondi
 }
 
 
-std::vector<SQLiteServerRow> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition) {
-    return getTableWithCondition(table, columnOrdering, 10, page, condition);
+std::vector<SQLiteServerRow> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition, std::array<SQLiteRow, 2> between, bool useBetween) {
+    return getTableWithCondition(table, columnOrdering, 10, page, condition, between);
 }
 
 std::vector<SQLiteServerRow> SQLiteManager::getTable(std::string table, std::string columnOrdering, int page) {

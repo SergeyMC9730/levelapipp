@@ -124,6 +124,20 @@ add_subdirectory(gmd2pp)
 add_subdirectory(GDCrypto-patched)
 add_subdirectory(DPP)
 
+option(CUSTOMIZE_BUILD ON)
+option(SUPPORT_MODULE_RSHAPES OFF)
+option(SUPPORT_MODULE_RMODELS OFF)
+option(SUPPORT_MODULE_RAUDIO OFF)
+option(SUPPORT_CAMERA_SYSTEM OFF)
+option(SUPPORT_GESTURES_SYSTEM OFF)
+option(SUPPORT_MOUSE_GESTURES OFF)
+option(SUPPORT_SSH_KEYBOARD_RPI OFF)
+option(SUPPORT_SCREEN_CAPTURE OFF)
+option(SUPPORT_GIF_RECORDING OFF)
+option(SUPPORT_BUSY_WAIT_LOOP OFF)
+
+add_subdirectory(raylib)
+
 #set(BUILD_SQLITE3_CONNECTOR ON)
 #add_subdirectory(sqlpp11)
 
@@ -156,7 +170,7 @@ add_library(levelapi
     ${levelapi_server_requests}
 )
 
-target_link_libraries(levelapi httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto sqlitemanager robtopstrings iandy)
+target_link_libraries(levelapi httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto sqlitemanager robtopstrings iandy raylib)
 
 add_executable(levelapi_server 
     main.cpp

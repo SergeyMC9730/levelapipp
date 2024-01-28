@@ -186,6 +186,8 @@ namespace LevelAPI {
 
             bool userIDExists(int uid);
 
+            void createGraph(std::vector<int> levels_per_hour, std::string filename);
+
             LevelAPI::Backend::GDServer *createServer();
 
             std::vector<Level *> getLevels(LevelAPI::Backend::SearchFilter *filter);

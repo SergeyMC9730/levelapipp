@@ -27,6 +27,7 @@
 #include <variant>
 #include <future>
 #include <vector>
+#include <array>
 
 #include <cstdint>
 
@@ -72,8 +73,8 @@ public:
     std::vector<SQLiteServerRow> getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page);
     std::vector<SQLiteServerRow> getTable(std::string table, std::string columnOrdering, int page);
 
-    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition);
-    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition);
+    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition, std::array<SQLiteRow, 2> between = {}, bool useBetween = false);
+    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition, std::array<SQLiteRow, 2> between = {}, bool useBetween = false);
 
     void updateRow(std::string table, SQLiteRow newRow, SQLiteRow condition);
 
