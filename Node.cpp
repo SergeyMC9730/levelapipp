@@ -553,8 +553,16 @@ void Node::importLevelMetaFromLAPIold(std::string p) {
 }
 
 #include "raylib/src/raylib.h"
+#include "PixelCharacters.hpp"
 
 void Node::createGraph(std::vector<int> l__, std::string filename) {
+    int ii_ = 0;
+    for (int val : l__) {
+        printf("[%d] -- %d\n", ii_, val);
+           
+        ii_++;
+    }  
+
     std::vector<float> levels_per_hour;
 
     for (int ll : l__) {
@@ -579,6 +587,8 @@ void Node::createGraph(std::vector<int> l__, std::string filename) {
 
         float scale = (float)max / (float)cap;
 
+        if (scale == 0.f) scale = 1.f;
+
         std::vector<float> lph_new;
 
         for (float val : levels_per_hour) {
@@ -592,25 +602,45 @@ void Node::createGraph(std::vector<int> l__, std::string filename) {
         int orig_x = 10;
         int orig_y = height - 15;
 
+        // int ii = 0;
+        // for (float val : levels_per_hour) {
+        //     printf("[%d] -- %f\n", ii, val);
+           
+        //     ii++;
+        // }  
+
+        max = 20;
+        
+        ImageDrawLine(&img, 5, orig_y - (max / scale), width - thickness, orig_y - (max / scale), GRAY);
+        ImageDrawLine(&img, 5, orig_y - cap, width - thickness, orig_y - cap, GREEN);
+
         for (int i = 0; i < thickness; i++) {
             int x = orig_x;
             int y = orig_y;
 
             for (float val : levels_per_hour) {
+                // printf("draw!\n");
                 int result_x = x + line_width;
                 int result_y = orig_y - (int)val;
 
+                if (i == 0) {
+                    ImageDrawLine(&img, x, orig_y, x, orig_y - cap, GRAY);
+                }
+
                 ImageDrawLine(&img, x, y, result_x, result_y, c);
+
+                if (i == 0) {
+                    ImageDrawCircle(&img, x - 2, y - 2, 4, c);
+                }
 
                 y = result_y;
                 x += line_width;
-            }
+            }  
 
-            orig_y++;
-            orig_x++;
-
-            
+            orig_x++;     
         }
+
+        drawOnImage("max:" + std::to_string((int)max), &img, 20, 20);
     }
 
     ImageDrawRectangleLines(&img, {5, 5, (float)width - thickness, (float)height - 10}, 3, BLACK);

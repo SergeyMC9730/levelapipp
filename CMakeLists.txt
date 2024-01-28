@@ -88,6 +88,7 @@ set(levelapi_baselibrary
     Translation.h
     UUID.cpp UUID.h
     ModuleEnabled.cpp ModuleEnabled.h
+    PixelCharacters.cpp PixelCharacters.hpp
 )
 
 include_directories(httpserver
