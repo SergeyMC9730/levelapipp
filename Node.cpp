@@ -608,8 +608,6 @@ void Node::createGraph(std::vector<int> l__, std::string filename) {
            
         //     ii++;
         // }  
-
-        max = 20;
         
         ImageDrawLine(&img, 5, orig_y - (max / scale), width - thickness, orig_y - (max / scale), GRAY);
         ImageDrawLine(&img, 5, orig_y - cap, width - thickness, orig_y - cap, GREEN);
