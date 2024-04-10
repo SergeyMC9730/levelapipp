@@ -36,6 +36,7 @@ namespace LevelAPI {
             std::string getServerName() override;
             std::string getServerIdentifier() override;
 
+	    // basement gdps feature: get all recentely rated levels
             std::vector<LevelAPI::DatabaseController::Level *> getRecentRatedLevels(int list_length, std::optional<CurlProxy> proxy);
         };
     }

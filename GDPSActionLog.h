@@ -22,19 +22,35 @@
 
 namespace LevelAPI {
     namespace Backend {
+	// type of action happened on a GDPS
         enum GDPSActionType {
+	    // level has been rated
             GATRate = 0,
-            GATFeature, GATEpic, GATGodlike, GATLegendary,
+            // level has been featured
+            GATFeature,
+            // level has been rated to epic
+	    GATEpic,
+	    // level has been rated to godlike
+	    GATGodlike,
+	    // level has been rated to legendary
+	    GATLegendary,
+	    // level coins were been approved
             GATCoins
         };
 
         class GDPSActionLog {
         public:
+            // which moderator made this action
             std::string m_sModerator;
+            // which action it is
             GDPSActionType m_eType;
+            // custom value 1
             std::string m_sValue1;
+            // custom value 2
             std::string m_sValue2;
+            // which level has been affected
             int m_nLevelID;
+            // when this action happened
             std::string m_sTimestamp;
         };
     }

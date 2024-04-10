@@ -32,40 +32,60 @@
 
 namespace LevelAPI {
     namespace Backend {
+        // current status of this gdserver
         enum GDServerStatus {
+            // server works properly
             GSS_ONLINE = 0,
+            // server is down
             GSS_OFFLINE = 1,
+            // server's cloudflare banned ip that tried to make a request to this server
             GSS_PERMANENT_BAN = 2
         };
 
         class GDServerUploadResult {
         public:
+            // is uploading was successful
             bool successful;
+            // level id
             int id;
         };
         class GDServer : public ModuleEnabled {
         protected:
+            // base url for this gdserver
             std::string m_sEndpointURL;
-            
+
+            // player username
             std::string m_sUsername;
+            // player password
             std::string m_sPassword;
+            // gjp encrypted password
             std::string m_sGJPPassword;
 
+            // account for logged in user
             Account19 *m_pAccount;
 
             LevelRangeList _ranges;
 
-	        bool m_bDebug;
+            // run this server in debug mode
+	    bool m_bDebug;
 
+            // get endpint for login action
             virtual std::string _getDownloadLevelEndpointName();
+            // get endpoint for downloading level directly
             virtual std::string _getLevelListEndpointName();
+            // get endpoint for downloading a list of levels
             virtual std::string _getLoginAccountEndpointName();
 
+            // get common secret value used in the gd endpoints
             virtual std::string _getSecretValueStandard();
+            // get extra secret value used in the gd endpoints
+            // should be redone to be more specific
             virtual std::string _getSecretValueExtra();
 
+            // get a list of cloudflare errors which tells user that their ip has been bannned
             virtual std::vector<std::string> _getCloudflareBans();
 
+            // create curl connection for this request
             virtual CURLConnection *_setupCURL(std::optional<CurlProxy> proxy, std::string secret);
         public:
             GDServer();
