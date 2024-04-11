@@ -27,10 +27,12 @@
 namespace LevelAPI {
     class LevelRangeList {
     private:
+        // array of ranges
         std::vector<LevelRange> _ranges;
     public:
         LevelRangeList(std::vector<LevelRange> ranges);
 
+        // get game version by level id
         const std::string operator[](std::size_t idx);
     };
 }

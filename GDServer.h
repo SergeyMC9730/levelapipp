@@ -28,6 +28,7 @@
 #include "Level.h"
 #include "LevelRangeList.h"
 
+// search recent levels
 #define GDSEARCH_RECENT "4"
 
 namespace LevelAPI {
@@ -89,37 +90,61 @@ namespace LevelAPI {
             virtual CURLConnection *_setupCURL(std::optional<CurlProxy> proxy, std::string secret);
         public:
             GDServer();
+	    // create gdserver with a list of level ranges
             GDServer(std::vector<LevelRange> list);
+            // create gdserver with a single level range
             GDServer(LevelRangeList list);
 
             ~GDServer();
 
+	    // current status of this server
             GDServerStatus m_eStatus;
+            // how much user should wait for a next request
             int _rateLimitLength;
 
+            // emab;e or disable debug mode
             virtual void setDebug(bool d);
+            // get debug mode flag
             virtual bool getDebug();
 
+	    // get level metadata by id
+	    // should be removed in the future or renamed into downloadLevel
             virtual LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy = std::nullopt);
             // returns self
             virtual LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt);
-            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::optional<CurlProxy> proxy = std::nullopt);
+            // get a list of levels with type and standard parameters
+	    virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::optional<CurlProxy> proxy = std::nullopt);
+            // implements basic search functionality
+            // it doesn't allow searching requests that use gjp password
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy = std::nullopt);
 
+            // set credentials for this account
             virtual void setCredentials(std::string u, std::string p);
+            // login into an acccount
+            // NOT IMPLEMENTED
             virtual bool login(std::optional<CurlProxy> proxy = std::nullopt);
 
+            // get max size of level page (in levels)
             virtual int getMaxLevelPageSize();
+            // get max size of max pack page (in levels)
             virtual int getMaxMapPackPageSize();
 
+	    // get gameversion for this server
             virtual int getGameVersion();
+
+            // get server name
             virtual std::string getServerName();
+            // get server identifier
             virtual std::string getServerIdentifier();
 
+            // this function uses level ranges to detect in which version this level has been released
             virtual std::string determineGVFromID(int id);
 
+            // try to upload a level
+            // NOT IMPLEMENTED
             virtual GDServerUploadResult *uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt);
         
+            // unload level array
             static void destroyLevelVector(std::vector<LevelAPI::DatabaseController::Level *> v);
 
             // returns true if curl or cloudflare returned error

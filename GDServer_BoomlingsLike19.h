@@ -47,7 +47,7 @@ namespace LevelAPI {
             // should be removed from 1.9 and 2.1 client implementations because they just call downloadGJLevel.
 	    // in 2.2 new endpoint has been added for it and getLevelMetaByID should be properly implemented in BoomlingsLike22 class.
             LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy = std::nullopt) override;
-            // implements basic search functionality. 
+            // implements basic search functionality.
             // it doesn't allow searching requests that use gjp
             std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy = std::nullopt) override;
             // returns self
