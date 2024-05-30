@@ -27,9 +27,9 @@ std::shared_ptr<http_response> LevelAPI::v1::StatsRequest::render(const http_req
         return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
     }
 
-    auto filter = new LevelAPI::Backend::SearchFilter();
+    LevelAPI::Backend::SearchFilter filter;
 
-    filter->m_eSort = LevelAPI::Backend::SearchSort::SSLatestDBApperead;
+    filter.m_eSort = LevelAPI::Backend::SearchSort::SSLatestDBApperead;
     
     auto levels = node_object->getLevels(filter);
 
@@ -50,9 +50,6 @@ std::shared_ptr<http_response> LevelAPI::v1::StatsRequest::render(const http_req
 
         i++;
     }
-
-    delete filter;
-    filter = nullptr;
 
     return generateResponse(resp.dump(), HTTPContentTypeJSON());
 }

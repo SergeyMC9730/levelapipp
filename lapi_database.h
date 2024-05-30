@@ -195,8 +195,8 @@ namespace LevelAPI {
 
             LevelAPI::Backend::GDServer *createServer();
 
-            std::vector<Level *> getLevels(LevelAPI::Backend::SearchFilter *filter);
-            std::vector<int> getIDs(LevelAPI::Backend::SearchFilter *filter);
+            std::vector<Level *> getLevels(LevelAPI::Backend::SearchFilter filter);
+            std::vector<int> getIDs(LevelAPI::Backend::SearchFilter filter);
 
             void importLevelMetaFromLAPIold(std::string path);
 

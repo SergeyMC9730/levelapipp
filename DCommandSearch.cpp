@@ -218,8 +218,6 @@ DCommand::DCommandCallback DCommandSearch::getDefaultCallback() {
 
         command_search->_instances[userid]._discordType = SearchInstanceType::SearchList;
 
-        SearchFilter *filter = new SearchFilter();
-
         std::map<std::string, SearchSort> sortmap = {
             {"most-liked", SSMostLiked},
             {"most-downloaded", SSMostDownloaded},
@@ -251,7 +249,7 @@ DCommand::DCommandCallback DCommandSearch::getDefaultCallback() {
 
         command_search->_instances[userid].m_nLevelsPerPage = 5;
 
-        auto levels = node_object->getLevels(command_search->_instances[userid].getParent());
+        auto levels = node_object->getLevels(*(command_search->_instances[userid].getParent()));
 
         if (!command_search->_instances[userid].m_sUsername.empty() && levels.size() != 0) {
             command_search->_instances[userid].m_nUID = levels[0]->m_nPlayerID;
@@ -301,7 +299,7 @@ void DCommandSearch::eventCallback(std::string name, DCommandEvent *event) {
 
             auto node_object = DatabaseController::database->getNode(context->_node);
 
-            _levels = node_object->getLevels(context);
+            _levels = node_object->getLevels(*context);
 
             auto msg = render(_levels, context->_node, context->m_nPage);
 
@@ -321,7 +319,7 @@ void DCommandSearch::eventCallback(std::string name, DCommandEvent *event) {
 
             auto node_object = DatabaseController::database->getNode(context->_node);
 
-            _levels = node_object->getLevels(context);
+            _levels = node_object->getLevels(*context);
 
             auto msg = render(_levels, context->_node, context->m_nPage);
 
@@ -341,7 +339,7 @@ void DCommandSearch::eventCallback(std::string name, DCommandEvent *event) {
 
             auto node_object = DatabaseController::database->getNode(context->_node);
 
-            _levels = node_object->getLevels(context);
+            _levels = node_object->getLevels(*context);
 
             auto msg = render(_levels, context->_node, context->m_nPage);
 

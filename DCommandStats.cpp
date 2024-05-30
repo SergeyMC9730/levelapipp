@@ -88,17 +88,14 @@ DCommand::DCommandCallback DCommandStats::getDefaultCallback() {
             true
         );
 
-        auto filter = new LevelAPI::Backend::SearchFilter();
+        LevelAPI::Backend::SearchFilter filter;
 
-        filter->m_nLevelsPerPage = 5;
-        filter->m_nPage = 1;
+        filter.m_nLevelsPerPage = 5;
+        filter.m_nPage = 1;
 
-        filter->m_eSort = LevelAPI::Backend::SearchSort::SSLatestDBApperead;
+        filter.m_eSort = LevelAPI::Backend::SearchSort::SSLatestDBApperead;
         
         auto levels = node_object->getLevels(filter);
-
-        delete filter;
-        filter = nullptr;
 
         dpp::component component_latest;
         dpp::component actionrow1;
