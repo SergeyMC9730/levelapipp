@@ -19,18 +19,17 @@
 #pragma once
 
 #include "gmd2pp/GJGameLevel.h"
+#include "DatabaseCell.h"
 
 #include "json/single_include/nlohmann/json.hpp"
 
 #include <dpp/dpp.h>
 
-#include "LevelRelease.h"
-
-#include "Time.h"
-
-#include "DatabaseCell.h"
-
 namespace LevelAPI {
+    namespace Frontend {
+        class Time;
+    }
+
     namespace DatabaseController {
       	// how level card should be appeared
         enum LevelAppearanceEvent {
@@ -43,6 +42,8 @@ namespace LevelAPI {
             // render as the standard level
             E_INFORMATION
         };
+
+        class LevelRelease;
 
         class Level : public LevelAPI::Imports::GeometryJump::GJGameLevel, public DatabaseCell {
         private:

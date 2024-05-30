@@ -118,6 +118,8 @@ std::string GDServer::getServerIdentifier() {
     return "gdserver";
 }
 
+#include "Level.h"
+
 void GDServer::destroyLevelVector(std::vector<LevelAPI::DatabaseController::Level *> v) {
     for (auto l : v) {
         if (l != nullptr) delete l;

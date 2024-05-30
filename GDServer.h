@@ -20,18 +20,21 @@
 
 #include "ModuleEnabled.h"
 
-#include "Account19.h"
 #include "curl_backend.h"
 
 #include <optional>
-
-#include "Level.h"
 #include "LevelRangeList.h"
 
 // search recent levels
 #define GDSEARCH_RECENT "4"
 
 namespace LevelAPI {
+    class Account19;
+
+    namespace DatabaseController {
+        class Level;
+    }
+
     namespace Backend {
         // current status of this gdserver
         enum GDServerStatus {

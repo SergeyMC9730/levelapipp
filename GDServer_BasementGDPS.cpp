@@ -23,7 +23,7 @@
 
 LevelAPI::Backend::GDServer_BasementGDPS::GDServer_BasementGDPS(std::string endpoint) : GDServer_BasementLike21(endpoint, (LevelRangeList){
     {
-        {1, 99999, "2.1"}
+        {1, 999999, "2.1"}
     }
 }) {}
 

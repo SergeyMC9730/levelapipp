@@ -18,8 +18,9 @@
 
 #pragma once
 
-#include "SQLiteManager.h"
 #include "json/single_include/nlohmann/json.hpp"
+
+class SQLiteManager;
 
 namespace LevelAPI {
     namespace DatabaseController {

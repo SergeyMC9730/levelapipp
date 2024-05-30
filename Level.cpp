@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <vector>
 #include "HttpController.h"
+#include "LevelRelease.h"
 
 #include <opencv2/imgproc.hpp>
 #include <opencv4/opencv2/imgcodecs.hpp>

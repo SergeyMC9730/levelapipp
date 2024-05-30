@@ -29,12 +29,12 @@ namespace LevelAPI {
             // level has been featured
             GATFeature,
             // level has been rated to epic
-	    GATEpic,
-	    // level has been rated to godlike
-	    GATGodlike,
-	    // level has been rated to legendary
-	    GATLegendary,
-	    // level coins were been approved
+            GATEpic,
+            // level has been rated to godlike
+            GATGodlike,
+            // level has been rated to legendary
+            GATLegendary,
+            // level coins were been approved
             GATCoins
         };
 

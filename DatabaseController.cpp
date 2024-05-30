@@ -22,16 +22,15 @@
 #include <sys/stat.h>
 #include <vector>
 #include <fstream>
+#include <filesystem>
 
 #include "json/single_include/nlohmann/json.hpp"
 
-using namespace std;
+#define db LevelAPI::DatabaseController::database
 
-LevelAPI::DatabaseController::Database *LevelAPI::DatabaseController::database;
+LevelAPI::DatabaseController::Database *db;
 
-void LevelAPI::DatabaseController::setup() {
-    #define db LevelAPI::DatabaseController::database
-
+void LevelAPI::DatabaseController::make_directories() {
     std::string prefix = "database";
 
     std::vector<std::string> fpaths = {
@@ -40,13 +39,13 @@ void LevelAPI::DatabaseController::setup() {
         prefix + "/nodes"
     };
 
-    int i = 0;
-    while(i < fpaths.size()) {
-        mkdir(fpaths[i].c_str(), 0777);
-        i++;
+    for (std::string path : fpaths) {
+        std::filesystem::create_directories(path);
     }
-    
-    db = new Database(fpaths[0]);    
+}
+
+void LevelAPI::DatabaseController::setup() {    
+    db = new Database("database");    
 
     return;
 }

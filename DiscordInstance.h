@@ -35,13 +35,13 @@ namespace LevelAPI {
 
             DiscordInstance(void *db);
 
-	    // thread for this DiscordInstance
+	        // thread for this DiscordInstance
             static void dthread(DiscordInstance *instance); 
 
-	    // set bot status (offline, dnd, afk, online)
+	        // set bot status (offline, dnd, afk, online)
             void setStatus(std::string status);
 
-	    // run thread and return it
+	        // run thread and return it
             std::thread *start();
         };
     }

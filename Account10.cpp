@@ -19,6 +19,7 @@
 #include "Account10.h"
 #include "Account19.h"
 #include <stdexcept>
+#include "RobTopStringContainer.hpp"
 
 using namespace LevelAPI;
 

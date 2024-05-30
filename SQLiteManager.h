@@ -33,7 +33,7 @@
 
 // client row.
 using SQLiteRow = std::map<std::string, std::variant<std::string, int, bool, uint32_t, uint64_t>>;
-// server row. this is what sqlite backends sends back
+// server row. this is what sqlite backend sends back
 using SQLiteServerRow = std::map<std::string, std::string>;
 
 #define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::vector<SQLiteServerRow>, bool)

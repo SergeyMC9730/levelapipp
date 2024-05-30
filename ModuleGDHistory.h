@@ -21,9 +21,13 @@
 #include "ServerModule.h"
 
 #include <vector>
-#include "Level.h"
+#include <string>
 
 namespace LevelAPI {
+    namespace DatabaseController {
+        class Level;
+    }
+
     namespace Backend {
         class ModuleGDHistory : public ServerModule {
         protected:

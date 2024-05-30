@@ -19,11 +19,19 @@
 #pragma once
 
 #include "GDServer.h"
-#include "lapi_database.h"
-#include "message.h"
+// #include "lapi_database.h"
+#include <dpp/message.h>
 
 namespace LevelAPI {
+    namespace Backend {
+        class GDServer;
+    }
+
     namespace DatabaseController {
+        class Database;
+        class Node;
+        class NodeCommandQueue;
+
         void database_runner(Database *db);
         void node_runner(Node *nd);
         void node_runner_waitResolverRL(Node *nd, int rate_limit_length);

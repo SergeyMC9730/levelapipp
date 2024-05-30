@@ -18,9 +18,11 @@
 
 #pragma once
 
-#include "lapi_database.h"
-
 namespace LevelAPI {
+    namespace DatabaseController {
+        class Node;
+    }
+
     namespace NodeController {
         class NodeRunner {
         public:

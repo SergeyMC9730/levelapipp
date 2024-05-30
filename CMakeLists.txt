@@ -69,7 +69,6 @@ set(levelapi_baselibrary
     LevelRange.cpp LevelRange.h
     LevelRangeList.cpp LevelRangeList.h
     LevelRelease.cpp LevelRelease.h
-    main.cpp
     ModuleGDHistory.cpp ModuleGDHistory.h
     NodeRunner.cpp NodeRunner.h
     NodeRunnerLegacy.cpp
@@ -170,6 +169,8 @@ add_library(levelapi
     ${levelapi_baselibrary}
     ${levelapi_server_requests}
 )
+
+add_executable(test_mkdir test_mkdir.c)
 
 target_link_libraries(levelapi httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto sqlitemanager robtopstrings iandy raylib)
 

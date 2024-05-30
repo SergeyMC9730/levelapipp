@@ -26,6 +26,8 @@
 #include "StringSplit.h"
 #include "Translation.h"
 #include "UUID.h"
+#include "Level.h"
+#include "LevelRelease.h"
 
 #include <cstdint>
 #include <cstring>

@@ -26,6 +26,7 @@
 #include "format.h"
 #include "lapi_database.h"
 #include "message.h"
+#include "Level.h"
 
 #include "Translation.h"
 

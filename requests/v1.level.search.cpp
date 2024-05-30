@@ -1,6 +1,7 @@
 #include "v1.level.search.h"
 
 #include "../lapi_database.h"
+#include "../Level.h"
 
 #include "HTTPContentTypeJSON.h"
 #include "HTTPContentTypeImage.h"

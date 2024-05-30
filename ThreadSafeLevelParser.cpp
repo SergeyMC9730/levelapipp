@@ -27,6 +27,9 @@
 #include "gmd2pp/cpp-base64/base64.h"
 #include "Translation.h"
 
+#include "Level.h"
+#include "LevelRelease.h"
+
 using namespace LevelAPI::Backend;
 using namespace LevelAPI::Frontend;
 

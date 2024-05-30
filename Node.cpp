@@ -40,6 +40,7 @@
 #include "GDServer_19GDPS.h"
 #include "Translation.h"
 #include "Tools.h"
+#include "LevelRelease.h"
 
 using namespace LevelAPI::DatabaseController;
 
@@ -220,12 +221,12 @@ Level *Node::getLevel(int id) {
         {"levelID", id}
     });
 
-    std::string p1 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
+    std::string p1 = fmt::format("database/nodes/{}/levels/{}", m_sInternalName, getLevelPathRepresentation(id));
 
     if (lvl.size() == 0) {
         // try to load gmd2 data idk
 
-        std::string p2 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id) + "/data.gmd2";
+        std::string p2 = p1 + "/data.gmd2";
 
         if (!std::filesystem::exists(p2)) return nullptr; // no level data at all!
 
@@ -289,20 +290,25 @@ int initLevel_min = 0;
 int initLevel_max = 0;
 
 void Node::initLevel(Level *level) {
-    std::string p = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(level->m_nLevelID);
+    // std::string p = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(level->m_nLevelID);
+    std::string p = fmt::format("database/nodes/{}/levels/{}", m_sInternalName, getLevelPathRepresentation(level->m_nLevelID));
     // std::string p2 = "database/nodes/" + m_sInternalName + "/users/" + std::to_string(level->m_nPlayerID) + ".txt";
     // std::string p3 = "database/nodes/" + m_sInternalName + "/users";
     level->m_sLevelPath = p;
     level->m_sLinkedNode = m_sInternalName;
-    mkdir(p.c_str(), 0777);
+    // mkdir(p.c_str(), 0777);
     // mkdir(p3.c_str(), 0777);
+
+    if (level->m_bHasLevelString) {
+        std::filesystem::create_directories(p);
+    }
 
     auto user = _sqliteObject->getTableWithCondition("accounts", "userID", 10, 1, {
         {"userID", level->m_nPlayerID}
     });
 
     if (user.size() == 0) {
-        nlohmann::json j = {level->m_nLevelID};
+        // nlohmann::json j = {level->m_nLevelID};
 
         _sqliteObject->pushRow({
             {"accountID", level->m_nAccountID},
@@ -646,4 +652,17 @@ void Node::createGraph(std::vector<int> l__, std::string filename) {
     ExportImage(img, filename.c_str());
 
     UnloadImage(img);
+}
+
+std::string Node::getLevelPathRepresentation(int id) {
+    std::string id_str = std::to_string(id);
+    std::string res = "";
+
+    for (auto num : id_str) {
+        res += fmt::format("{}/", num);
+    }
+
+    if (res.length() >= 1) res.pop_back();
+
+    return res;
 }

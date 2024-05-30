@@ -18,6 +18,7 @@
 */
 
 #include "Account10.h"
+#include "RobTopStringContainer.hpp"
 
 #include <stdexcept>
 

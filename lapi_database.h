@@ -120,6 +120,9 @@ namespace LevelAPI {
 
             std::vector<std::string> getModifications();
 
+            static std::vector<std::string> getModificationsList();
+            static std::vector<int> getFeatureSetsList();
+
             ~NodeDatabase();
         };
         class NodePolicy : public DatabaseCell {
@@ -143,6 +146,8 @@ namespace LevelAPI {
         class Node : public DatabaseCell {
         protected:
             Backend::GDServer *m_pCachedGDInstance = nullptr;
+
+            std::string getLevelPathRepresentation(int id);
         public:
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath, NodeQueue *queue);
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath);
@@ -240,6 +245,7 @@ namespace LevelAPI {
         extern Database *database;
 
         void setup();
+        void make_directories();
     }
 }
 

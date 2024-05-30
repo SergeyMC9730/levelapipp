@@ -22,6 +22,7 @@
 #include "Translation.h"
 #include "StringSplit.h"
 #include "RobTopStringContainer.hpp"
+#include "Level.h"
 
 using namespace LevelAPI::Backend;
 

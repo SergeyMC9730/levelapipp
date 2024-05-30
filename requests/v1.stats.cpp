@@ -1,8 +1,11 @@
 #include "v1.stats.h"
 
 #include "../lapi_database.h"
+#include "../Level.h"
 
 #include "HTTPContentTypeJSON.h"
+
+#include "../Level.h"
 
 LevelAPI::v1::StatsRequest::StatsRequest() {
     this->request_name = "get node statistics";
