@@ -98,9 +98,20 @@ void Node::setupSQLite() {
 }
 
 bool Node::levelExists(int id) {
-    std::string path = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
+    std::string path = fmt::format("database/nodes/{}/levels/{}", m_sInternalName, getLevelPathRepresentation(id));
 
-    return std::filesystem::exists(path);
+    // std::string path = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
+
+    bool with_fs = std::filesystem::exists(path);
+	if (with_fs) return true;
+
+	auto lvl = getLevel(id);
+	if (!lvl) return false;
+
+	delete lvl;
+	lvl = nullptr;
+
+	return true;
 }
 
 void Node::createLevelFolder() {
@@ -212,6 +223,9 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow row) {
     obj["updateDate"] = row["updateDate"];
     obj["username"] = row["username"];
     obj["actualGameVersion"] = row["actualGameVersion"];
+
+    obj["songIDs"] = nlohmann::json::parse(row["songIDs"]);
+    obj["sfxIDs"] = nlohmann::json::parse(row["sfxIDs"]);
 
     return obj;
 }

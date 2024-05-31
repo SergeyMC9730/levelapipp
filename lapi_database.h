@@ -146,8 +146,6 @@ namespace LevelAPI {
         class Node : public DatabaseCell {
         protected:
             Backend::GDServer *m_pCachedGDInstance = nullptr;
-
-            std::string getLevelPathRepresentation(int id);
         public:
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath, NodeQueue *queue);
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath);
@@ -199,6 +197,8 @@ namespace LevelAPI {
             std::vector<int> getIDs(LevelAPI::Backend::SearchFilter filter);
 
             void importLevelMetaFromLAPIold(std::string path);
+
+            std::string getLevelPathRepresentation(int id);
 
             ~Node();
         };

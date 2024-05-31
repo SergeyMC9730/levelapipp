@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
+    Copyright (C) 2024  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -162,7 +162,7 @@ bool GDServer::processCURLAnswer(CURLResult *res) {
 CURLConnection *GDServer::_setupCURL(std::optional<CurlProxy> proxy, std::string secret) {
     auto m_pLinkedCURL = new CURLConnection();
     
-    m_pLinkedCURL->setDebug(getDebug());
+    m_pLinkedCURL->setDebug(false);
 
     if (proxy.has_value()) {
         m_pLinkedCURL->setProxy(proxy.value());

@@ -21,9 +21,9 @@
 #include "LevelRangeList.h"
 #include "Translation.h"
 
-LevelAPI::Backend::GDServer_BasementGDPS::GDServer_BasementGDPS(std::string endpoint) : GDServer_BasementLike21(endpoint, (LevelRangeList){
+LevelAPI::Backend::GDServer_BasementGDPS::GDServer_BasementGDPS(std::string endpoint) : GDServer_BasementLike22(endpoint, (LevelRangeList){
     {
-        {1, 999999, "2.1"}
+        {1, 999999, "2.2"}
     }
 }) {}
 

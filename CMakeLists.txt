@@ -61,6 +61,7 @@ set(levelapi_baselibrary
     GDServer_Boomlings21.cpp GDServer_Boomlings21.h
     GDServer_Boomlings22.cpp GDServer_Boomlings22.h
     GDServer_BasementLike21.cpp GDServer_BasementLike21.h
+    GDServer_BasementLike22.cpp GDServer_BasementLike22.h
     GDServer_BasementGDPS.cpp GDServer_BasementGDPS.h
     GDServer_19GDPS.h GDServer_19GDPS.cpp
     gmd.cpp gmd.h
@@ -88,6 +89,7 @@ set(levelapi_baselibrary
     UUID.cpp UUID.h
     ModuleEnabled.cpp ModuleEnabled.h
     PixelCharacters.cpp PixelCharacters.hpp
+    test_robtop_parser.cpp
 )
 
 include_directories(httpserver

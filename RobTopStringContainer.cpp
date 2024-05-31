@@ -31,21 +31,21 @@ RobTopStringContainer::RobTopStringContainer(std::string str) {
     m_sOriginalString = str;
 }
 
-void RobTopStringContainer::setParserForVariable(int index, std::function<std::variant<std::string, int, float, bool> (std::string, int)> func) {
+void RobTopStringContainer::setParserForVariable(int index, std::function<ParsableTypes (std::string, int)> func) {
     m_mFunctionContainer[index] = func;
 }
-void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<std::variant<std::string, int, float, bool> (std::string, int)> func) {
+void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<ParsableTypes (std::string, int)> func) {
     int i = 0;
     while(i < indexes.size()) {
         setParserForVariable(indexes[i], func);
         i++;
     }
 }
-void RobTopStringContainer::setParserForVariable(int index, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int customArgumentValue)> func, int carg) {
+void RobTopStringContainer::setParserForVariable(int index, std::function<ParsableTypes(std::string inputString, int inputID, int customArgumentValue)> func, int carg) {
     m_mFunctionContainer[index] = func;
     m_mFuncCustomArgList[index] = carg;
 }
-void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int customArgumentValue)> func, int carg) {
+void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<ParsableTypes(std::string inputString, int inputID, int customArgumentValue)> func, int carg) {
     int i = 0;
     while(i < indexes.size()) {
         setParserForVariable(indexes[i], func, carg);
@@ -68,6 +68,10 @@ template<> float RobTopStringContainer::getVariable<float>(int id) {
 
 template<> bool RobTopStringContainer::getVariable<bool>(int id) {
     return std::get<bool>(m_mContainer[id]);
+}
+
+template<> std::vector<int> RobTopStringContainer::getVariable<std::vector<int>>(int id) {
+    return std::get<std::vector<int>>(m_mContainer[id]);
 }
 
 // template implementations for all unsigned integers
@@ -111,7 +115,7 @@ void RobTopStringContainer::resetValues() {
     m_mContainer = {};
 }
 
-std::string RobTopStringContainer::variantToString(std::variant<std::string, int, float, bool> var) {
+std::string RobTopStringContainer::variantToString(ParsableTypes var) {
     if (std::holds_alternative<std::string>(var)) {
         return std::get<std::string>(var);
     }
@@ -149,13 +153,13 @@ void RobTopStringContainer::parse() {
         i++;
 
         if(m_mFunctionContainer.count(currentKey)) {
-            if(std::holds_alternative<std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID)>>(m_mFunctionContainer[currentKey])) {
-                auto func = std::get<std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID)>>(m_mFunctionContainer[currentKey]);
+            if(std::holds_alternative<std::function<ParsableTypes(std::string inputString, int inputID)>>(m_mFunctionContainer[currentKey])) {
+                auto func = std::get<std::function<ParsableTypes(std::string inputString, int inputID)>>(m_mFunctionContainer[currentKey]);
                 auto res = func(splittedString[i], currentKey);
                 m_mContainer[currentKey] = res;
             }
-            if(std::holds_alternative<std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey])) {
-                auto func = std::get<std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey]);
+            if(std::holds_alternative<std::function<ParsableTypes(std::string inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey])) {
+                auto func = std::get<std::function<ParsableTypes(std::string inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey]);
                 if(m_mFuncCustomArgList.count(currentKey)) {
                     auto res = func(splittedString[i], currentKey, m_mFuncCustomArgList[currentKey]);
                     m_mContainer[currentKey] = res;

@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
+    Copyright (C) 2024  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -145,16 +145,24 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(
     return lvl;
 }
 
+std::vector<CURLParameter *> GDServer_BoomlingsLike19::_setupGJLevelsArgs(int type, std::string str, int page) {
+    std::string _str = str;
+    if (str.empty()) _str = "-";
+    
+    return {
+        new CURLParameter("type", type),
+        new CURLParameter("page", page),
+        new CURLParameter("str", _str),
+        new CURLParameter("total", getMaxLevelPageSize())
+    };
+}
+
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy) {
     // create curl instance
     auto m_pLinkedCURL = _setupCURL(proxy, _getSecretValueStandard());
 
     // add parameters
-    m_pLinkedCURL->addData({
-        new CURLParameter("type", type),
-        new CURLParameter("page", page),
-        new CURLParameter("str", str)
-    });
+    m_pLinkedCURL->addData(_setupGJLevelsArgs(type, str, page));
 
     // create url
     std::string url = m_sEndpointURL + "/" + _getLevelListEndpointName();

@@ -29,6 +29,7 @@
 #define GKBOOL 2
 #define GKBASE64 3
 #define GKFLOAT 4
+#define GKVINT 5
 
 #define GET_KEY_GKSTRING(container, keyN, member) \
     if (container->variableExists(keyN)) member = container->getVariable<std::string>(keyN);
@@ -38,6 +39,8 @@
     if (container->variableExists(keyN)) member = container->getVariable<bool>(keyN);
 #define GET_KEY_GKFLOAT(container, keyN, member) \
     if (container->variableExists(keyN)) member = container->getVariable<float>(keyN);
+#define GET_KEY_GKVINT(container, keyN, member) \
+    if (container->variableExists(keyN)) member = container->getVariable<std::vector<int>>(keyN);
 #define GET_KEY_GKBASE64(container, keyN, member) GET_KEY_GKSTRING(container, keyN, member);
 #define GET_KEY(container, keyN, member, vType) GET_KEY_##vType(container, keyN, member)
 
@@ -45,23 +48,27 @@ class RobTopStringContainer {
 protected:
     std::string m_sOriginalString;
 
-    std::unordered_map<int, std::variant<std::string, int, float, bool>> m_mContainer;
+    using ParsableTypes = std::variant<std::string, int, float, bool, std::vector<int>>;
+
+    std::unordered_map<
+        int, ParsableTypes
+    > m_mContainer;
     std::unordered_map<int, std::variant<
-        std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID)>,
-        std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int custom_variable)>
+        std::function<ParsableTypes(std::string inputString, int inputID)>,
+        std::function<ParsableTypes(std::string inputString, int inputID, int custom_variable)>
     >> m_mFunctionContainer;
     std::unordered_map<int, int> m_mFuncCustomArgList;
 
-    virtual std::string variantToString(std::variant<std::string, int, float, bool> var);
+    virtual std::string variantToString(ParsableTypes var);
 public:
     // virtual std::variant<std::string, int, float, bool> getVariable(int id);
     template<typename T = int>
     T getVariable(int id);
 
-    virtual void setParserForVariable(int index, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID)> func);
-    virtual void setParserForVariable(std::vector<int> indexes, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID)> func);
-    virtual void setParserForVariable(int index, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int customArgumentValue)> func, int carg);
-    virtual void setParserForVariable(std::vector<int> indexes, std::function<std::variant<std::string, int, float, bool>(std::string inputString, int inputID, int customArgumentValue)> func, int carg);
+    virtual void setParserForVariable(int index, std::function<ParsableTypes(std::string inputString, int inputID)> func);
+    virtual void setParserForVariable(std::vector<int> indexes, std::function<ParsableTypes(std::string inputString, int inputID)> func);
+    virtual void setParserForVariable(int index, std::function<ParsableTypes(std::string inputString, int inputID, int customArgumentValue)> func, int carg);
+    virtual void setParserForVariable(std::vector<int> indexes, std::function<ParsableTypes(std::string inputString, int inputID, int customArgumentValue)> func, int carg);
 
     virtual void parse();
 

@@ -27,5 +27,7 @@ namespace LevelAPI {
         void testGDParsersThread();
 
         void testBasementFeatures();
+
+        void testRobtopParser();
     }
 }

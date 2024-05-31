@@ -26,7 +26,7 @@ namespace LevelAPI {
     namespace Backend {
         class GDServer_BoomlingsLike19 : public GDServer {
         protected:
-	    // get endpoint name for login action action
+	        // get endpoint name for login action
             std::string _getLoginAccountEndpointName() override;
             // get endpoint for downloading level directly
             std::string _getDownloadLevelEndpointName() override;
@@ -36,8 +36,10 @@ namespace LevelAPI {
             // get common secret value used in the gd endpoints
             std::string _getSecretValueStandard() override;
             // get extra secret value used in the gd endpoints.
-	    // should be redone to be more specific
+	        // should be redone to be more specific
             std::string _getSecretValueExtra() override;
+
+            virtual std::vector<CURLParameter *> _setupGJLevelsArgs(int type, std::string str, int page);
         public:
             GDServer_BoomlingsLike19(std::string endpoint);
             GDServer_BoomlingsLike19(std::string endpoint, std::vector<LevelRange> list);

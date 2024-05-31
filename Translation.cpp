@@ -341,6 +341,12 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "[LevelAPI ПРЕД] Получена логическая ошибка!"
         }
     },
+    {
+        "lapi.tslp.invalidargument", {
+            "[LevelAPI WARN] Got an invalid_argument exception!",
+            "[LevelAPI ПРЕД] Получена ошибка недействительного аргумента!"
+        }
+    },
     // from GDServer.cpp
     {
         "lapi.gdserver.name", {

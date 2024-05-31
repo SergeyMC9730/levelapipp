@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
+    Copyright (C) 2024  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include "GDServer_BasementLike21.h"
+#include "GDServer_BasementLike22.h"
 
 namespace LevelAPI {
     namespace Backend {
-        class GDServer_BasementGDPS : public GDServer_BasementLike21 {
+        class GDServer_BasementGDPS : public GDServer_BasementLike22 {
         public:
             GDServer_BasementGDPS(std::string endpoint);
 

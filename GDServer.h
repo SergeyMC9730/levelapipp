@@ -64,6 +64,8 @@ namespace LevelAPI {
             std::string m_sPassword;
             // gjp encrypted password
             std::string m_sGJPPassword;
+            // gjp2 encrypted password
+            std::string m_sGJP2Password;
 
             // account for logged in user
             Account19 *m_pAccount;

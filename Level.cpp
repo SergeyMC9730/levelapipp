@@ -99,6 +99,9 @@ void Level::save(bool onlyLevelString) {
 
     generateDifficultyImage("resources");
 
+    nlohmann::json _sfx = m_vSFXList;
+    nlohmann::json _songs = m_vMusicList;
+
     SQLiteRow rw = {
         {"version", m_nVersion},
         {"playerID", m_nPlayerID},
@@ -136,7 +139,9 @@ void Level::save(bool onlyLevelString) {
         {"username", m_sUsername},
         {"actualGameVersion", m_uRelease->m_fActualVersion},
         {"databaseAppereanceDate", (uint64_t)m_nAppereanceTimestamp},
-        {"levelID", m_nLevelID}
+        {"levelID", m_nLevelID},
+        {"songIDs", _songs.dump()},
+        {"sfxIDs", _sfx.dump()}
     };
 
     lambda_save();
@@ -177,7 +182,7 @@ std::string Level::getDownloadLinks(bool embed) {
 }
 
 void Level::recover() {
-    #define RS(t, str, val) if (_jsonObject.contains(str)) {if(!_jsonObject[str].is_null()) val = _jsonObject[str].get<t>();}
+#define RS(t, str, val) if (_jsonObject.contains(str)) {if(!_jsonObject[str].is_null()) val = _jsonObject[str].get<t>();}
 
     RS(int, "levelID", m_nLevelID)
     RS(int, "version", m_nVersion)
@@ -239,9 +244,17 @@ void Level::recover() {
         }
     }
 
-    if (std::filesystem::exists("database/nodes/" + m_sLinkedNode + "/levels/Level_" + std::to_string(m_nLevelID) + "/data.gmd2")) {
+    auto node = DatabaseController::database->getNode(m_sLinkedNode);
+    std::string p1 = fmt::format("database/nodes/{}/levels/{}", m_sLinkedNode, node->getLevelPathRepresentation(m_nLevelID));
+
+    if (std::filesystem::exists(p1)) {
         m_bHasLevelString = true;
     }
+
+    RS(std::vector<int>, "songIDs", m_vMusicList);
+    RS(std::vector<int>, "sfxIDs", m_vSFXList);
+
+#undef RS
 
     return;
 }
