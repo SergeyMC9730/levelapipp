@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
+    Copyright (C) 2024  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -88,6 +88,10 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
 
     if(generatedUserData.compare("") != 0) {
         curl_easy_setopt(m_pCurl, CURLOPT_POSTFIELDS, generatedUserData.c_str());
+    
+        if (m_bDebug) {
+            fmt::print("[CURL DEBUG] generatedUserData: {}\n", generatedUserData);
+        }
     }
 
     int result = (int)curl_easy_perform(m_pCurl);
@@ -118,6 +122,16 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
 
     char *resdata = (char *)res->data;
     resdata[res->realSize] = 0;
+
+    std::string resdata_str = resdata;
+
+    if (httpStatus != 200) {
+        fmt::print("[CURL WARN] http status is not 200 and here's why: {}\n", resdata);
+    } else {
+        if (!m_bDebug) return res;
+
+        fmt::print("[CURL DEBUG] here's what curl returned: {}\n", resdata_str);
+    }
     
     return res;
 }

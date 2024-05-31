@@ -31,21 +31,38 @@
 
 namespace LevelAPI {
     namespace Frontend {
+        // search type
         enum SearchInstanceType {
+            // search lots of levels in paged mode
             SearchList = 0,
+            // get level info by its id
             SearchID = 1
         };
 
         class SearchInstance : public LevelAPI::Backend::SearchFilter {
         public:
+            // who requested search
             dpp::snowflake _discordUserID;
+
+            // which message should be updated
             dpp::message _discordMessage;
+
+            // linked cluster
             dpp::cluster *_discordCluster;
+
+            // search type. it can be SearchList or SearchID
             SearchInstanceType _discordType;
+
+            // level id if using SearchInstanceType::SearchID
             int _levelID;
+
+            // levelapi node
             std::string _node;
 
+            // gets parent of this SearchInstance. required for leaving from search menu
             LevelAPI::Backend::SearchFilter *getParent();
+
+            // returns this
             SearchInstance *getSelf();
         };
 
@@ -54,13 +71,17 @@ namespace LevelAPI {
             DCommandCallback getDefaultCallback() override;
             void eventCallback(std::string name, DCommandEvent *event) override;
         public:
+            // all instanced made on runtime
             std::unordered_map<dpp::snowflake, SearchInstance> _instances;
         public:
+            // render search menu. result depends on what user requested.
+            // it can be card for a single level or a pager.
             dpp::message render(std::vector<LevelAPI::DatabaseController::Level *> levels, std::string node, int page = -1);
 
             DCommandSearch(dpp::snowflake botID);
             ~DCommandSearch();
 
+	    // /search
             std::string getCommandName() override;
         };
     }

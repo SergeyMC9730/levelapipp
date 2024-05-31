@@ -40,6 +40,7 @@
 #include "GDServer_19GDPS.h"
 #include "Translation.h"
 #include "Tools.h"
+#include "LevelRelease.h"
 
 using namespace LevelAPI::DatabaseController;
 
@@ -97,9 +98,20 @@ void Node::setupSQLite() {
 }
 
 bool Node::levelExists(int id) {
-    std::string path = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
+    std::string path = fmt::format("database/nodes/{}/levels/{}", m_sInternalName, getLevelPathRepresentation(id));
 
-    return std::filesystem::exists(path);
+    // std::string path = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
+
+    bool with_fs = std::filesystem::exists(path);
+	if (with_fs) return true;
+
+	auto lvl = getLevel(id);
+	if (!lvl) return false;
+
+	delete lvl;
+	lvl = nullptr;
+
+	return true;
 }
 
 void Node::createLevelFolder() {
@@ -212,6 +224,9 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow row) {
     obj["username"] = row["username"];
     obj["actualGameVersion"] = row["actualGameVersion"];
 
+    obj["songIDs"] = nlohmann::json::parse(row["songIDs"]);
+    obj["sfxIDs"] = nlohmann::json::parse(row["sfxIDs"]);
+
     return obj;
 }
 
@@ -220,12 +235,12 @@ Level *Node::getLevel(int id) {
         {"levelID", id}
     });
 
-    std::string p1 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id);
+    std::string p1 = fmt::format("database/nodes/{}/levels/{}", m_sInternalName, getLevelPathRepresentation(id));
 
     if (lvl.size() == 0) {
         // try to load gmd2 data idk
 
-        std::string p2 = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(id) + "/data.gmd2";
+        std::string p2 = p1 + "/data.gmd2";
 
         if (!std::filesystem::exists(p2)) return nullptr; // no level data at all!
 
@@ -289,20 +304,25 @@ int initLevel_min = 0;
 int initLevel_max = 0;
 
 void Node::initLevel(Level *level) {
-    std::string p = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(level->m_nLevelID);
+    // std::string p = "database/nodes/" + m_sInternalName + "/levels/Level_" + std::to_string(level->m_nLevelID);
+    std::string p = fmt::format("database/nodes/{}/levels/{}", m_sInternalName, getLevelPathRepresentation(level->m_nLevelID));
     // std::string p2 = "database/nodes/" + m_sInternalName + "/users/" + std::to_string(level->m_nPlayerID) + ".txt";
     // std::string p3 = "database/nodes/" + m_sInternalName + "/users";
     level->m_sLevelPath = p;
     level->m_sLinkedNode = m_sInternalName;
-    mkdir(p.c_str(), 0777);
+    // mkdir(p.c_str(), 0777);
     // mkdir(p3.c_str(), 0777);
+
+    if (level->m_bHasLevelString) {
+        std::filesystem::create_directories(p);
+    }
 
     auto user = _sqliteObject->getTableWithCondition("accounts", "userID", 10, 1, {
         {"userID", level->m_nPlayerID}
     });
 
     if (user.size() == 0) {
-        nlohmann::json j = {level->m_nLevelID};
+        // nlohmann::json j = {level->m_nLevelID};
 
         _sqliteObject->pushRow({
             {"accountID", level->m_nAccountID},
@@ -320,7 +340,7 @@ bool Node::userIDExists(int uid) {
     return user.size() >= 1;
 }
 
-std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter *filter) {
+std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter filter) {
     std::vector<Level *> res = {};
 
     SQLiteRow rw_condition = {};
@@ -328,11 +348,11 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter *filter) {
     std::array<SQLiteRow, 2> rw_between = {};
     bool useBetween = false;
 
-    if (filter->timestamp_end != filter->timestamp_start) {
-        SQLiteRow r1 = {}; r1["databaseAppereanceDate"] = (uint64_t)filter->timestamp_start;
-        SQLiteRow r2 = {}; r2["databaseAppereanceDate"] = (uint64_t)filter->timestamp_end;
+    if (filter.timestamp_end != filter.timestamp_start) {
+        SQLiteRow r1 = {}; r1["databaseAppereanceDate"] = (uint64_t)filter.timestamp_start;
+        SQLiteRow r2 = {}; r2["databaseAppereanceDate"] = (uint64_t)filter.timestamp_end;
 
-        // printf("!!: r1: %ld; r2: %ld\n", filter->timestamp_start, filter->timestamp_end);
+        // printf("!!: r1: %ld; r2: %ld\n", filter.timestamp_start, filter.timestamp_end);
 
         rw_between[0] = r1;
         rw_between[1] = r2;
@@ -340,44 +360,44 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter *filter) {
         useBetween = true;
     }
 
-    if (filter->m_nStars != -1) {
-        rw_condition["stars"] = filter->m_nStars;
+    if (filter.m_nStars != -1) {
+        rw_condition["stars"] = filter.m_nStars;
     }
-    if (filter->m_nDifficulty != -1) {
-        rw_condition["difficulty_numenator"] = filter->m_nDifficulty;
-    }
-
-    if (!filter->m_sName.empty()) {
-        rw_condition["levelName"] = filter->m_sName;
-    }
-    if (!filter->m_sDescription.empty()) {
-        rw_condition["levelDescription"] = filter->m_sName;
+    if (filter.m_nDifficulty != -1) {
+        rw_condition["difficulty_numenator"] = filter.m_nDifficulty;
     }
 
-    if (filter->m_nUID != 0) {
-        rw_condition["playerID"] = filter->m_nUID;
+    if (!filter.m_sName.empty()) {
+        rw_condition["levelName"] = filter.m_sName;
     }
-    if (filter->m_nAID != 0) {
-        rw_condition["accountID"] = filter->m_nAID;
-    }
-
-    if (!filter->m_sUsername.empty()) {
-        rw_condition["username"] = filter->m_sUsername;
+    if (!filter.m_sDescription.empty()) {
+        rw_condition["levelDescription"] = filter.m_sName;
     }
 
-    if (filter->m_nSID != -1) {
-        if (filter->m_bSongOfficial) {
-            rw_condition["musicID"] = filter->m_nSID;
+    if (filter.m_nUID != 0) {
+        rw_condition["playerID"] = filter.m_nUID;
+    }
+    if (filter.m_nAID != 0) {
+        rw_condition["accountID"] = filter.m_nAID;
+    }
+
+    if (!filter.m_sUsername.empty()) {
+        rw_condition["username"] = filter.m_sUsername;
+    }
+
+    if (filter.m_nSID != -1) {
+        if (filter.m_bSongOfficial) {
+            rw_condition["musicID"] = filter.m_nSID;
         } else {
-            rw_condition["songID"] = filter->m_nSID;
+            rw_condition["songID"] = filter.m_nSID;
         }
     }
 
-    if (filter->m_nServerGV != 0) {
-        rw_condition["fakeGameVersion"] = filter->m_nServerGV;
+    if (filter.m_nServerGV != 0) {
+        rw_condition["fakeGameVersion"] = filter.m_nServerGV;
     }
-    if (!filter->m_sReleaseGV.empty()) {
-        rw_condition["actualGameVersion"] = filter->m_sReleaseGV;
+    if (!filter.m_sReleaseGV.empty()) {
+        rw_condition["actualGameVersion"] = filter.m_sReleaseGV;
     }
 
     std::string ordering = "-downloads";
@@ -390,9 +410,9 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter *filter) {
         {LevelAPI::Backend::SearchSort::SSOldestLevel, "levelID"}
     };
 
-    ordering = ordering_map[filter->m_eSort];
+    ordering = ordering_map[filter.m_eSort];
 
-    auto request = _sqliteObject->getTableWithCondition("levels", ordering, filter->m_nLevelsPerPage, filter->m_nPage, rw_condition, rw_between, useBetween);
+    auto request = _sqliteObject->getTableWithCondition("levels", ordering, filter.m_nLevelsPerPage, filter.m_nPage, rw_condition, rw_between, useBetween);
 
     int i = 0;
 
@@ -646,4 +666,31 @@ void Node::createGraph(std::vector<int> l__, std::string filename) {
     ExportImage(img, filename.c_str());
 
     UnloadImage(img);
+}
+
+std::string Node::getLevelPathRepresentation(int id) {
+    std::string id_str = std::to_string(id);
+    std::string res = "";
+
+    for (auto num : id_str) {
+        res += fmt::format("{}/", num);
+    }
+
+    if (res.length() >= 1) res.pop_back();
+
+    return res;
+}
+
+std::vector<int> Node::getIDs(LevelAPI::Backend::SearchFilter filter) {
+    auto levels = getLevels(filter);
+
+    std::vector<int> ids;
+
+    for (auto level : levels) {
+        ids.push_back(level->m_nLevelID);
+
+        delete level;
+    }
+    
+    return ids;
 }

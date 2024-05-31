@@ -27,6 +27,9 @@
 #include "gmd2pp/cpp-base64/base64.h"
 #include "Translation.h"
 
+#include "Level.h"
+#include "LevelRelease.h"
+
 using namespace LevelAPI::Backend;
 using namespace LevelAPI::Frontend;
 
@@ -109,6 +112,32 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
             return input;
         },
         static_cast<int>(decrypt_description)
+    );
+    container->setParserForVariable(
+        {
+            52, 53
+        },
+        [&](std::string input, int id) {
+            std::vector<int> vec;
+
+            fmt::print("KEY {}: reading {}\n", id, input);
+
+            if (input.empty()) return vec;
+            if (input[0] == '#') return vec;
+
+            std::vector<std::string> vals = splitString(input.c_str(), ',');
+
+            for (std::string _val : vals) {
+                try {
+                    vec.push_back(std::stoi(_val));
+                } catch (std::invalid_argument e) {
+                    std::cout << Translation::getByKey("lapi.tslp.invalidargument") << std::endl;
+                    continue;
+                }
+            }
+
+            return vec;
+        }
     );
 
     level->m_sRawData = response;

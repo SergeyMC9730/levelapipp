@@ -1,6 +1,8 @@
 #include "v1.level.download.h"
 
 #include "../lapi_database.h"
+#include "../Level.h"
+
 #include <stdexcept>
 #include <string>
 #include <sys/stat.h>

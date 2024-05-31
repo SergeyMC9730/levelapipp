@@ -120,6 +120,9 @@ namespace LevelAPI {
 
             std::vector<std::string> getModifications();
 
+            static std::vector<std::string> getModificationsList();
+            static std::vector<int> getFeatureSetsList();
+
             ~NodeDatabase();
         };
         class NodePolicy : public DatabaseCell {
@@ -190,10 +193,12 @@ namespace LevelAPI {
 
             LevelAPI::Backend::GDServer *createServer();
 
-            std::vector<Level *> getLevels(LevelAPI::Backend::SearchFilter *filter);
-            std::vector<int> getIDs(LevelAPI::Backend::SearchFilter *filter);
+            std::vector<Level *> getLevels(LevelAPI::Backend::SearchFilter filter);
+            std::vector<int> getIDs(LevelAPI::Backend::SearchFilter filter);
 
             void importLevelMetaFromLAPIold(std::string path);
+
+            std::string getLevelPathRepresentation(int id);
 
             ~Node();
         };
@@ -240,6 +245,7 @@ namespace LevelAPI {
         extern Database *database;
 
         void setup();
+        void make_directories();
     }
 }
 

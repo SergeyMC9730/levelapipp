@@ -66,3 +66,10 @@ std::vector<std::string> NodeDatabase::getModifications() {
     // wip
     return {m_sModifications};
 }
+
+std::vector<std::string> NodeDatabase::getModificationsList() {
+    return {"boomlings", "basement-custom", "19gdps-custom"};
+}
+std::vector<int> NodeDatabase::getFeatureSetsList() {
+    return {19, 21, 22};
+}

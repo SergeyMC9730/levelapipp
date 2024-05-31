@@ -38,6 +38,211 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "[LevelAPI] Запущен на порту {}"
         }
     },
+    {
+        "lapi.main.question", {
+            "- Would you like to",
+            "- Хотите ли Вы"
+        }
+    },
+    {
+        "lapi.main.node.db", {
+            "\n-- Let's setup the GD's database first\n",
+            "\n-- Давайте для начала начнём настройку базы данных ГД\n"
+        }
+    },
+    {
+        "lapi.main.node.endpoint", {
+            "- Please type an endpoint for this database: ",
+            "- Пожалуйста, введите эндпоинт для данной базы данных: "
+        }
+    },
+    {
+        "lapi.main.node.fs.1", {
+            "- Please select one of the feature sets.\n  There are",
+            "- Пожалуйста, введите одну из надстроек функций.\n  Всего их"
+        }
+    },
+    {
+        "lapi.main.node.fs.2", {
+            " of them",
+            ""
+        }
+    },
+    {
+        "lapi.main.node.fs.3", {
+            "Please enter one of them:",
+            "Пожалуйста, выберите одну из них:"
+        }
+    },
+    {
+        "lapi.main.node.fs.error", {
+            "* Error: Invalid feature set\n",
+            "* Ошибка: Выбрана недействительная надстройка функций\n"
+        }
+    },
+    {
+        "lapi.main.node.rl", {
+            "make this database read-only",
+            "установить данной базе данных режим только-для-чтения"
+        }
+    },
+    {
+        "lapi.main.node.mod.none", {
+            "none",
+            "никакая"
+        }
+    },
+    {
+        "lapi.main.node.mod.1", {
+            "- Select database's modificaton\n",
+            "- Выберите модификацию базы данных\n"
+        }
+    },
+    {
+        "lapi.main.node.mod.2", {
+            "without the brackets:",
+            "без кавычек:"
+        }
+    },
+    {
+        "lapi.main.node.mod.error", {
+            "* Error: Invalid modification\n",
+            "* Ошибка: Неверная модификация\n"
+        }
+    },
+    {
+        "lapi.main.node.basic.in", {
+            "\n-- Let's setup basic Node information\n- Please enter an internal name for this Node: ",
+            "\n-- Давайте настроим базовую информацию об Узле\n- Пожалуйста, введите внутреннее имя данному Узлу: "
+        }
+    },
+    {
+        "lapi.main.node.policy", {
+            "\n-- Let's setup the Node policy\n",
+            "\n-- Давайте настроим политику Узла\n"
+        }
+    },
+    {
+        "lapi.main.node.policy.1", {
+            "enable linear resolver",
+            "включить линейный загрузчик"
+        }
+    },
+    {
+        "lapi.main.node.policy.2", {
+            "enable recent tab worker",
+            "включить обработчик вкладки Recent Tab"
+        }
+    },
+    {
+        "lapi.main.node.policy.3", {
+            "enable global resolver",
+            "включить глобальный загрузчик"
+        }
+    },
+    {
+        "lapi.main.node.policy.4", {
+            "make this node quiet",
+            "сделать данный узел тихим"
+        }
+    },
+    {
+        "lapi.main.node.policy.5", {
+            "wait resolver's rate limit",
+            "ожидать окончания лимита выполнения загрузчика"
+        }
+    },
+    {
+        "lapi.main.node.policy.6", {
+            "- Please enter the queue processing interval.\n  You can enter floating point value here: ",
+            "- Пожалуйста, введите интервал обработки очереди.\n  Вы можете ввести здесь число с плавающей точкой: "
+        }
+    },
+    {
+        "lapi.main.node.policy.7", {
+            "- Please enter the resolver interval.\n  You can enter floating point value here: ",
+            "- Пожалуйста, введите интервал загрузчика.\n  Вы можете ввести здесь число с плавающей точкой: "
+        }
+    },
+    {
+        "lapi.main.discord.toggle", {
+            "enable Discord bot",
+            "включить Дискорд бота"
+        }
+    },
+    {
+        "lapi.main.discord", {
+            "\n-- Let's setup the Discord bot now\n",
+            "\n-- Давайте теперь настроим Дискорд бота\n"
+        }
+    },
+    {
+        "lapi.main.discord.token", {
+            "- Please enter a bot token (input will be hidden): ",
+            "- Пожалуйста, введите токен бота (ввод будет скрыт): "
+        }
+    },
+    {
+        "lapi.main.discord.warn", {
+            "\n@ Please make sure that your bot can add its own Slash Commands into your Discord server, attach images, files, etc.\n@ In a case of adding channels for this bot make sure that bot can access them.\n",
+            "\n@ Пожалуйста, убедитесь, что Ваш бот может добавлять свои коменды на Ваш Дискорд сервер, прикреплять изображения, файлы и т.д.\n@ В случае добавления каналов для данного бота убедитесь, что бот может получить доступ к ним.\n"
+        }
+    },
+    {
+        "lapi.main.discord.main", {
+            "add the main channel for main notifications",
+            "добавить основной канал для основных оповещений"
+        }
+    },
+    {
+        "lapi.main.discord.chid", {
+            "- Please enter the channel ID: ",
+            "- Пожалуйста, введите ID канала: "
+        }
+    },
+    {
+        "lapi.main.discord.additional", {
+            "add the additional channel for additional notifications",
+            "дополнительный канал для дополнительных оповещений"
+        }
+    },
+    {
+        "lapi.main.node.success", {
+            "\n-- This node has been successfully created!\n",
+            "\n-- Данный узел был успешно создан!\n"
+        }
+    },
+    {
+        "lapi.main.db.begin", {
+            "Setting up database\n",
+            "Настройка базы данных\n"
+        }
+    },
+    {
+        "lapi.main.node.new", {
+            "create a new node",
+            "создать новый узел"
+        }
+    },
+    {
+        "lapi.main.node.no", {
+            "- Ok, not creating the node\n",
+            "- Ок, узел мы не создаём\n"
+        }
+    },
+    {
+        "lapi.main.db.save", {
+            "!! Saving the created database\n",
+            "!! Сохранение созданной базы данных\n"
+        }
+    },
+    {
+        "lapi.main.node.policy.error", {
+            "\n-- Let's setup the Node policy\n",
+            "\n-- Давайте настроим политику Узла\n"
+        }
+    },
+
     // from Time.cpp
     {
         "lapi.time.jan", {
@@ -134,6 +339,12 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.tslp.logicerror", {
             "[LevelAPI WARN] Got logic_error exception!",
             "[LevelAPI ПРЕД] Получена логическая ошибка!"
+        }
+    },
+    {
+        "lapi.tslp.invalidargument", {
+            "[LevelAPI WARN] Got an invalid_argument exception!",
+            "[LevelAPI ПРЕД] Получена ошибка недействительного аргумента!"
         }
     },
     // from GDServer.cpp
@@ -428,7 +639,7 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     {
         "lapi.noderunner.resolver.linear.error.disabled", {
             "[LevelAPI {}] WARN: Tried to run linear resolver with disabled resolver!",
-            "[LevelAPI {}] ПРЕД: Проведена попытка запуска линейного резолвера с отключенным резолвером!"
+            "[LevelAPI {}] ПРЕД: Проведена попытка запуска линейного загрузчика с отключенным резолвером!"
         }
     },
     {
@@ -1080,3 +1291,7 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         }
     }
 };
+
+std::vector<std::string> Translation::getLanguages() {
+    return {"en", "ru"};
+}

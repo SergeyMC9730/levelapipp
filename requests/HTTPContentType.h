@@ -8,5 +8,5 @@ protected:
 public:
     HTTPContentType();
     
-    virtual std::string getType();
+    std::string getType();
 };

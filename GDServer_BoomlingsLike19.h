@@ -26,34 +26,50 @@ namespace LevelAPI {
     namespace Backend {
         class GDServer_BoomlingsLike19 : public GDServer {
         protected:
+	        // get endpoint name for login action
             std::string _getLoginAccountEndpointName() override;
+            // get endpoint for downloading level directly
             std::string _getDownloadLevelEndpointName() override;
+            // get endpoint for downloading a list of levels
             std::string _getLevelListEndpointName() override;
 
+            // get common secret value used in the gd endpoints
             std::string _getSecretValueStandard() override;
+            // get extra secret value used in the gd endpoints.
+	        // should be redone to be more specific
             std::string _getSecretValueExtra() override;
+
+            virtual std::vector<CURLParameter *> _setupGJLevelsArgs(int type, std::string str, int page);
         public:
             GDServer_BoomlingsLike19(std::string endpoint);
             GDServer_BoomlingsLike19(std::string endpoint, std::vector<LevelRange> list);
             GDServer_BoomlingsLike19(std::string endpoint, LevelRangeList list);
 
+	    // get level metadata by id
+            // should be removed from 1.9 and 2.1 client implementations because they just call downloadGJLevel.
+	    // in 2.2 new endpoint has been added for it and getLevelMetaByID should be properly implemented in BoomlingsLike22 class.
             LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy = std::nullopt) override;
+            // implements basic search functionality.
+            // it doesn't allow searching requests that use gjp
             std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy = std::nullopt) override;
             // returns self
             LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt) override;
 
+            // login to an account.
+            // NOT IMPLEMENTED
             bool login(std::optional<CurlProxy> proxy = std::nullopt) override;
 
             int getMaxLevelPageSize() override;
             int getMaxMapPackPageSize() override;
 
+	    // try to upload a level.
+	    // NOT IMPLEMENTED
             GDServerUploadResult *uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt) override;
 
             int getGameVersion() override;
             std::string getServerName() override;
 
             std::string getServerIdentifier() override;
-            
         };
     }
 }

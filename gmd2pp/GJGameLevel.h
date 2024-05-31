@@ -59,6 +59,7 @@ namespace LevelAPI {
                 std::string m_sUsername = "";
 
                 std::vector<int> m_vSFXList = {};
+                std::vector<int> m_vMusicList = {};
             };
         }
     }

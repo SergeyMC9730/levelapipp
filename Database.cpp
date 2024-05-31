@@ -33,6 +33,7 @@
 #include <malloc.h>
 #include <sys/stat.h>
 #include <thread>
+#include <filesystem>
 
 #include "Translation.h"
 #include "Tools.h"
@@ -42,7 +43,7 @@ using namespace LevelAPI::DatabaseController;
 bool Database::exists(){ 
     struct stat buffer;
     std::string p = databasePath + "/info.json";
-    return (stat (p.c_str(), &buffer) == 0); 
+    return std::filesystem::exists(p);
 }
 
 Database::Database(std::vector<Node *> nodes) {

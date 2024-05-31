@@ -1,8 +1,11 @@
 #include "v1.stats.h"
 
 #include "../lapi_database.h"
+#include "../Level.h"
 
 #include "HTTPContentTypeJSON.h"
+
+#include "../Level.h"
 
 LevelAPI::v1::StatsRequest::StatsRequest() {
     this->request_name = "get node statistics";
@@ -24,9 +27,9 @@ std::shared_ptr<http_response> LevelAPI::v1::StatsRequest::render(const http_req
         return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
     }
 
-    auto filter = new LevelAPI::Backend::SearchFilter();
+    LevelAPI::Backend::SearchFilter filter;
 
-    filter->m_eSort = LevelAPI::Backend::SearchSort::SSLatestDBApperead;
+    filter.m_eSort = LevelAPI::Backend::SearchSort::SSLatestDBApperead;
     
     auto levels = node_object->getLevels(filter);
 
@@ -47,9 +50,6 @@ std::shared_ptr<http_response> LevelAPI::v1::StatsRequest::render(const http_req
 
         i++;
     }
-
-    delete filter;
-    filter = nullptr;
 
     return generateResponse(resp.dump(), HTTPContentTypeJSON());
 }

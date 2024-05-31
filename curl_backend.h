@@ -39,22 +39,32 @@ namespace LevelAPI {
         public:
             CurlProxy();
 
+            // get url
             virtual std::string getURL();
+
+            // get proxy protocol
             virtual ProxyType getType();
 
+            // generate proxy protocol out of the url
             static ProxyType fromString(std::string url);
 
+            // constructor
             CurlProxy(std::string url);
+
+            // destructor
             CurlProxy(const char * url);
         };
 
         // any parameters to url
         class CURLParameter {
         public:
+            // constructor
             CURLParameter();
+            // constructor
             CURLParameter(std::string k, std::string v);
+            // constructor
             CURLParameter(std::string k, int v);
-
+            
             std::string key;
             std::string value;
         };
@@ -62,28 +72,44 @@ namespace LevelAPI {
         // data sent by cURL
         class CURLResult {
         public:
+            // data size sent by curl
             int realSize;
 
+            // result of the curl call
             int result;
+
+            // max size of the data buffer
             int maxSize;
 
+            // http status
             int http_status;
-            int retry_after;
 
+            // ratelimit value: how much client should wait for the next request
+            int retry_after;
+            
+            // data
             const char *data;
         };
 
         // settings for cURL
         class CURLConnectionSettings {
         public:
+            // write to the buffer
             bool m_bWriteToMemory;
 
+            // file to write data
             FILE *m_pFile;
+
+            // buffer to write data
             void *m_pData;
 
+            // buffer size
             int m_nMaxMemorySize;
-            int m_nSize;
 
+            // size
+            int m_nSize;
+            
+            // run in debug mode
             bool sendDebug;
 
             CURLConnectionSettings(FILE *file);

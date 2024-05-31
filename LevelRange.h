@@ -24,13 +24,18 @@
 namespace LevelAPI {
     class LevelRange {
     public:
+        // lowest level id
         int m_nMin;
+        // highest level id
         int m_nMax;
+        // game version for this range of ids
         std::string m_sGDVer;
 
         LevelRange(int min, int max, std::string ver);
-        
+
+        // how much levels were released
         int getLevelsInRange();
+        // get gameversion for this range
         int getGV();
     };
 }

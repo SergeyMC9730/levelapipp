@@ -20,6 +20,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 extern std::string translation_language;
 
@@ -51,6 +52,8 @@ namespace LevelAPI {
             }
 
             void init();
+
+            std::vector<std::string> getLanguages();
         }
     }
 }

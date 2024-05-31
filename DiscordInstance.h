@@ -27,15 +27,22 @@ namespace LevelAPI {
     namespace Frontend {
         class DiscordInstance {
         public:
+            // linked cluster
             dpp::cluster *m_pBot;
+
+            // SQLiteManager class pointer
             void *m_pDB;
 
             DiscordInstance(void *db);
+
+	        // thread for this DiscordInstance
             static void dthread(DiscordInstance *instance); 
 
+	        // set bot status (offline, dnd, afk, online)
             void setStatus(std::string status);
 
-            std::thread *start();     
+	        // run thread and return it
+            std::thread *start();
         };
     }
 }

@@ -18,26 +18,26 @@
 
 #pragma once
 
-#include "GDServer_BoomlingsLike21.h"
-#include "lapi_database.h"
+#include "GDServer_BasementLike21.h"
 
 namespace LevelAPI {
     namespace Backend {
-        class GDServer_BasementLike21 : public GDServer_BoomlingsLike21 {
+        /*
+          this GDPS has custom core that protects most requests from
+          hacker attacks. own class has been made to take in a mind.
+        */
+        class GDServer_BasementLike22 : public GDServer_BasementLike21 {
         protected:
-            std::string _getSecretValueRates();
-
-            std::string _getRateListEndpointName();
+            std::vector<CURLParameter *> _setupGJLevelsArgs(int type, std::string str, int page) override;
+            CURLConnection *_setupCURL(std::optional<CurlProxy> proxy, std::string secret) override;
         public:
-            GDServer_BasementLike21(std::string endpoint);
-            GDServer_BasementLike21(std::string endpoint, std::vector<LevelRange> list);
-            GDServer_BasementLike21(std::string endpoint, LevelRangeList list);
+            GDServer_BasementLike22(std::string endpoint);
+            GDServer_BasementLike22(std::string endpoint, std::vector<LevelRange> list);
+            GDServer_BasementLike22(std::string endpoint, LevelRangeList list);
 
-            std::string getServerName() override;
             std::string getServerIdentifier() override;
 
-	        // basement gdps feature: get all recentely rated levels
-            std::vector<LevelAPI::DatabaseController::Level *> getRecentRatedLevels(int list_length, std::optional<CurlProxy> proxy);
+            int getGameVersion() override;
         };
     }
 }

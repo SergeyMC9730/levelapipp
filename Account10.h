@@ -20,7 +20,7 @@
 
 #include <string>
 
-#include "RobTopStringContainer.hpp"
+class RobTopStringContainer;
 
 namespace LevelAPI {
     class Account10 {

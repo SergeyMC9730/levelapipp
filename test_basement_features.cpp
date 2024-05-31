@@ -18,6 +18,7 @@
 
 #include "tests.h"
 #include "GDServer_BasementGDPS.h"
+#include "Level.h"
 
 #include <iostream>
 

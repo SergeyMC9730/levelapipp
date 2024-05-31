@@ -18,6 +18,7 @@
 
 #include "lapi_database.h"
 #include "tests.h"
+#include "Level.h"
 
 #include <iostream>
 #include <thread>

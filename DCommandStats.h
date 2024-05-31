@@ -29,6 +29,7 @@ namespace LevelAPI {
             DCommandStats(dpp::snowflake botID);
             ~DCommandStats();
 
+	    // /stats
             std::string getCommandName() override;
         };
     }

@@ -67,7 +67,8 @@ using namespace LevelAPI::Frontend::Translation;
 std::vector<std::string> get_tests() {
     return {
         "boomlings2.2",
-        "basement"
+        "basement",
+        "robtop-parser"
     };
 }
 
@@ -110,6 +111,9 @@ void route_test(std::string test) {
     if (test == "basement") {
         LevelAPI::Tests::testBasementFeatures(); return;
     }
+    if (test == "robtop-parser") {
+        LevelAPI::Tests::testRobtopParser(); return;
+    }
 
     return;
 }
@@ -150,6 +154,349 @@ int testcallback(void *sql, int columns, char **array1, char **array2) {
     return 0;
 }
 
+#include <fmt/format.h>
+
+std::string convertFromVector(std::vector<std::string> vec) {
+    std::string res;
+
+    for (auto val : vec) {
+        res += fmt::format("\"{}\", ", val);
+    }
+
+    res.pop_back();
+    res.pop_back();
+
+    return res;
+}
+std::string convertFromVector(std::vector<int> vec) {
+    std::string res;
+
+    for (auto val : vec) {
+        res += fmt::format("{}, ", val);
+    }
+
+    res.pop_back();
+    res.pop_back();
+
+    return res;
+}
+
+#include <algorithm>
+
+std::string makeStrLowercase(std::string _str) {
+    if (_str.empty()) return _str;
+
+    std::string str = _str;
+
+    std::transform(str.begin(), str.end(), str.begin(),
+    [](unsigned char c){ return std::tolower(c); });
+
+    return str;
+}
+
+bool setupAskQuestion(std::string q, bool default_yes) {
+    std::vector<std::string> varYes = {"y", "y", "yes", "Y", "Yes", "yEs", "yeS", "YES", "YeS"};
+    std::vector<std::string> varNo = {"n", "n", "no", "N", "No", "nO", "NO"};
+
+    if (default_yes) {
+        varYes[0][0] = std::toupper(varYes[0][0]);
+        varYes.push_back("");
+    } else {
+        varNo[0][0] = std::toupper(varNo[0][0]);
+        varNo.push_back("");
+    }
+
+    fmt::print("{} {}? ({}/{}): ", getByKey("lapi.main.question"), q, varYes[0], varNo[0]);
+
+    std::string res;
+    bool ret = false;
+    bool found_variant = false;
+
+    std::cin >> res;
+
+    for (std::string var : varYes) {
+        if (res == var) {
+            ret = true;
+            found_variant = true;
+
+            break;
+        }
+    }
+
+    if (!found_variant) {
+        for (std::string var : varYes) {
+            if (res == var) {
+                ret = false;
+                found_variant = true;
+
+                break;
+            }
+        }
+    }
+
+    if (!found_variant) return false;
+
+    return ret;
+}
+
+#include <termios.h>
+
+// https://stackoverflow.com/questions/13694170/how-do-i-hide-user-input-with-cin-in-c
+void HideStdinKeystrokes()
+{
+    termios tty;
+
+    tcgetattr(STDIN_FILENO, &tty);
+
+    /* we want to disable echo */
+    tty.c_lflag &= ~ECHO;
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+}
+
+// https://stackoverflow.com/questions/13694170/how-do-i-hide-user-input-with-cin-in-c
+void ShowStdinKeystrokes()
+{
+    termios tty;
+
+    tcgetattr(STDIN_FILENO, &tty);
+
+    /* we want to reenable echo */
+    tty.c_lflag |= ECHO;
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+}
+
+nlohmann::json setupInfoMakeNode() {
+    nlohmann::json ret;
+
+    std::cout << getByKey("lapi.main.node.db");
+
+    nlohmann::json database;
+
+    {
+        std::string endpoint;
+        std::cout << getByKey("lapi.main.node.endpoint");
+
+        std::cin >> endpoint;
+
+        bool valid_feature_set = false;
+        auto feature_set_list = LevelAPI::DatabaseController::NodeDatabase::getFeatureSetsList();
+        int feature_set = feature_set_list[0];
+
+        while (!valid_feature_set) {
+            fmt::print("{} {}{}: {}.\n  {} ",
+                getByKey("lapi.main.node.fs.1"),
+                feature_set_list.size(),
+                getByKey("lapi.main.node.fs.2"),
+                convertFromVector(feature_set_list),
+                getByKey("lapi.main.node.fs.3")
+            );
+
+            int value;
+            std::cin >> value;
+
+            for (int fs : feature_set_list) {
+                if (value == fs) {
+                    valid_feature_set = true;
+                    break;
+                }
+            }
+
+            if (!valid_feature_set) {
+                std::cout << getByKey("lapi.main.node.fs.error");
+            }
+        }
+
+        bool read_only = setupAskQuestion(getByKey("lapi.main.node.rl"), false);
+
+        std::string mod;
+        bool mod_valid = false;
+        auto mods = LevelAPI::DatabaseController::NodeDatabase::getModificationsList();
+        mods.push_back(getByKey("lapi.main.node.mod.none"));
+
+        while (!mod_valid) {
+            fmt::print("{}     ({})\n  {} ", 
+                getByKey("lapi.main.node.mod.1"),
+                convertFromVector(mods),
+                getByKey("lapi.main.node.mod.2")
+            );
+
+            std::cin >> mod; 
+
+            for (auto mod_obj : mods) {
+                if (makeStrLowercase(mod) == mod_obj) {
+                    mod_valid = true;
+                    mod = makeStrLowercase(mod);
+
+                    break;
+                }
+            }
+
+            if (!mod_valid) {
+                std::cout << getByKey("lapi.main.node.mod.error");
+            }
+        }
+
+        database["endpoint"] = endpoint;
+        database["featureSet"] = feature_set;
+        database["readOnly"] = read_only;
+        database["modifications"] = mod;
+    }
+
+    ret["database"] = database;
+
+    std::cout << getByKey("lapi.main.node.basic.in");
+
+    {
+        std::string internal_name;
+        std::cin >> internal_name;
+
+        ret["internalName"] = internal_name;
+        ret["levelDataPath"] = "levels";
+    }
+
+    std::cout << getByKey("lapi.main.node.policy.error");
+
+    nlohmann::json policy;
+
+    {
+        bool enable_lr = setupAskQuestion(getByKey("lapi.main.node.policy.1"), false);
+        bool enable_recent_tab = setupAskQuestion(getByKey("lapi.main.node.policy.2"), true);
+        bool enable_resolver = setupAskQuestion(getByKey("lapi.main.node.policy.3"), false);
+        bool no_output = setupAskQuestion(getByKey("lapi.main.node.policy.4"), false);
+        bool wait_rl = setupAskQuestion(getByKey("lapi.main.node.policy.5"), true);
+
+        float qpi = 0.f;
+        float ri = 0.f;
+
+        std::cout << getByKey("lapi.main.node.policy.6");
+        std::cin >> qpi;
+
+        if (enable_resolver) {
+            std::cout << getByKey("lapi.main.node.policy.7");
+            std::cin >> ri;
+        }
+
+        policy["enableLinearResolver"] = enable_lr;
+        policy["enableRecentTab"] = enable_recent_tab;
+        policy["enableResolver"] = enable_resolver;
+        policy["noOutput"] = no_output;
+        policy["queueProcessingInterval"] = qpi;
+        policy["resolverInterval"] = ri;
+        policy["waitResolverRateLimit"] = wait_rl;      
+    }
+
+    ret["policy"] = policy;
+
+    nlohmann::json queue;
+
+    queue["commandQueue"] = nlohmann::json::array();
+    queue["executeQueue"] = true;
+    queue["runtimeState"] = 0;
+
+    ret["queue"] = queue;
+
+    std::cout << getByKey("lapi.main.node.success");
+
+    return ret;
+}
+
+void setupInfo() {
+    std::cout << "Setting up database\n";
+
+    std::vector<std::string> languages_available = getLanguages();
+
+    bool language_valid = false;
+    std::string lang;
+
+    while (!language_valid) {
+        fmt::print("\n- Select language ({}) without the brackets: ", convertFromVector(languages_available));
+
+        std::cin >> lang; 
+
+        for (auto lang_obj : languages_available) {
+            if (makeStrLowercase(lang) == lang_obj) {
+                language_valid = true;
+                lang = makeStrLowercase(lang);
+
+                break;
+            }
+        }
+
+        if (!language_valid) {
+            std::cout << "* Error: Invalid language\n";
+        }
+    }
+
+    nlohmann::json database;
+    database["language"] = lang;
+
+    translation_language = lang;
+
+    bool make_node = setupAskQuestion(getByKey("lapi.main.node.new"), true);
+
+    if (!make_node) {
+        std::cout << getByKey("lapi.main.node.no");
+    }
+
+    nlohmann::json node_array = nlohmann::json::array();
+
+    while (make_node) {
+        node_array.push_back(setupInfoMakeNode());
+
+        make_node = setupAskQuestion(getByKey("lapi.main.node.new"), true);
+    }
+
+    database["nodes"] = node_array;
+
+    std::cout << "\n";
+
+    bool with_discord = setupAskQuestion(getByKey("lapi.main.discord.toggle"), false);
+
+    if (with_discord) {
+        std::cout << getByKey("lapi.main.discord");
+
+        std::string token;
+        
+        std::cout << getByKey("lapi.main.discord.token");
+        HideStdinKeystrokes();
+        std::cin >> token;
+
+        ShowStdinKeystrokes();
+
+        std::cout << getByKey("lapi.main.discord.warn");
+
+        std::string registeredCID1 = "";
+        std::string registeredCID2 = "";
+
+        bool with_cid1 = setupAskQuestion(getByKey("lapi.main.discord.main"), true);
+        if (with_cid1) {
+            std::cout << getByKey("lapi.main.discord.chid");
+            std::cin >> registeredCID1;
+        }
+
+        bool with_cid2 = setupAskQuestion(getByKey("lapi.main.discord.additional"), false);
+        if (with_cid2) {
+            std::cout << getByKey("lapi.main.discord.chid");
+            std::cin >> registeredCID2;
+        }
+
+        database["botToken"] = token;
+        database["registeredCID"] = registeredCID1;
+        database["registeredCID2"] = registeredCID2;
+    }
+    
+    std::cout << getByKey("lapi.main.db.save");
+
+    LevelAPI::DatabaseController::make_directories();
+
+    std::string p1 = "database/info.json";
+
+    std::ofstream file(p1);
+    file << database.dump(4);
+}
+
 int main(int argc, char *argv[]) {
     std::cout << "LevelAPI " << LEVELAPI_VERSION << "\n";
     std::cout << getByKey("lapi.main.alpha") << "\n\n";
@@ -181,7 +528,13 @@ int main(int argc, char *argv[]) {
             return 0;
         }
 
-        std::cout << "Help:\n - test  -> testing new LevelAPI features\n";
+        if (command == "setup") {
+            setupInfo();
+
+            return 0;
+        }
+
+        std::cout << "Help:\n - test  -> testing new LevelAPI features\n - setup -> setup LevelAPI database\n";
 
         return 1;
     }

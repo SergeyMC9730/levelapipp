@@ -19,6 +19,8 @@
 #include "GDServer_BoomlingsBase.h"
 #include "LevelRange.h"
 #include "ModuleGDHistory.h"
+#include "Level.h"
+#include "LevelRelease.h"
 
 using namespace LevelAPI::Backend;
 

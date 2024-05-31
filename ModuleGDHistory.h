@@ -21,14 +21,20 @@
 #include "ServerModule.h"
 
 #include <vector>
-#include "Level.h"
+#include <string>
 
 namespace LevelAPI {
+    namespace DatabaseController {
+        class Level;
+    }
+
     namespace Backend {
         class ModuleGDHistory : public ServerModule {
         protected:
+            // get gdhistory's api path
             std::string getAPIPath();
         public:
+            // download archived level inside gdhistory
             virtual LevelAPI::DatabaseController::Level *downloadArchivedLevel(int id);
         };
     }
