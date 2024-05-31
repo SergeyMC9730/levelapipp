@@ -60,7 +60,9 @@ CURLResult *CURLConnection::access_page(const char *url) {
     return access_page(url, "GET");
 }
 CURLResult *CURLConnection::access_page(const char *url, const char *method) {
-    CURLConnectionSettings *settings = new CURLConnectionSettings(malloc(1024), 1024);
+    int maxSize = 8192;
+
+    CURLConnectionSettings *settings = new CURLConnectionSettings(malloc(maxSize), maxSize);
     CURLResult *res = new CURLResult();
 
     curl_easy_setopt(m_pCurl, CURLOPT_URL, url);
@@ -101,7 +103,7 @@ CURLResult *CURLConnection::access_page(const char *url, const char *method) {
         std::cout << Translation::getByKey("curl.event.warning.connection", std::string(curl_easy_strerror((CURLcode)(result)))) << std::endl;
         res->result = result;
         res->data = (const char *)settings->m_pData;
-        res->maxSize = 1024;
+        res->maxSize = maxSize;
         return res;
     }
 
