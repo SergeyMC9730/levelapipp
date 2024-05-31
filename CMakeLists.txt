@@ -174,7 +174,7 @@ add_library(levelapi
 
 add_executable(test_mkdir test_mkdir.c)
 
-target_link_libraries(levelapi httpserver gmd2 dpp fmt opencv_core opencv_imgcodecs opencv_imgproc GDCrypto sqlitemanager robtopstrings iandy raylib)
+target_link_libraries(levelapi httpserver gmd2 dpp fmt GDCrypto sqlitemanager robtopstrings iandy raylib)
 
 add_executable(levelapi_server 
     main.cpp

@@ -26,9 +26,6 @@
 #include <filesystem>
 #include <fstream>
 #include "Time.h"
-#include <opencv4/opencv2/core.hpp>
-#include <opencv4/opencv2/core/hal/interface.h>
-#include <opencv4/opencv2/core/mat.hpp>
 #include <random>
 #include "Translation.h"
 #include <string>
@@ -36,9 +33,6 @@
 #include <vector>
 #include "HttpController.h"
 #include "LevelRelease.h"
-
-#include <opencv2/imgproc.hpp>
-#include <opencv4/opencv2/imgcodecs.hpp>
 
 using namespace LevelAPI::DatabaseController;
 using namespace LevelAPI::Frontend;
@@ -264,73 +258,17 @@ Level::~Level() {
     m_uRelease = nullptr;
 }
 
-void merge_images(cv::Mat* background, cv::Mat* upcoming, int x, int y)
-{
-    auto handle_cv_8uc4 = [=](int i, int j)
-            {
-
-                if(upcoming->at<cv::Vec4b>(j, i)[3] > 10)//10 is only epsilon for trash hold, you can put also 0 or anything else.
-                {
-                    background->at<cv::Vec4b>(y+j, x+i) = upcoming->at<cv::Vec4b>(j, i);
-                }
-            };
-
-    auto handle_cv_8uc3 = [=](int i, int j)
-    {
-        background->at<cv::Vec4b>(y+j, x+i)[0] = upcoming->at<cv::Vec3b>(j, i)[0];
-        background->at<cv::Vec4b>(y+j, x+i)[1] = upcoming->at<cv::Vec3b>(j, i)[1];
-        background->at<cv::Vec4b>(y+j, x+i)[2] = upcoming->at<cv::Vec3b>(j, i)[2];
-        background->at<cv::Vec4b>(y+j, x+i)[3] = 255;
-    };
-
-    for(int i = 0; i < upcoming->cols; i++)
-    {
-        for(int j = 0; j < upcoming->rows; j++)
-        {
-            if(j + y >= background->rows)
-            {
-                break;
-            }
-
-            if(x + i >= background->cols)
-            {
-                return;
-            }
-
-            switch(upcoming->channels())
-            {
-                case 3:
-                {
-                    handle_cv_8uc3(i, j);
-                    break;
-                }
-
-                case 4:
-                {
-                    handle_cv_8uc4(i, j);
-                    break;
-                }
-
-                default:
-                {
-                    //maybe error?
-                }
-            }
-
-        }
-    }
-}
+#include <raylib.h>
 
 std::string Level::generateDifficultyImage(std::string folder_prefix) {
+    std::vector<Image> layers = {};
+
+    int stars;
+    std::vector<bool> parameters;
+
     std::string path;
     std::string file = "rating_";
     std::string diffimage;
-    int stars;
-    std::vector<bool> parameters;
-    std::vector<cv::Mat> mats;
-    struct stat buffer;
-    
-    #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
     parameters.push_back(m_nFeatureScore > 0);
     parameters.push_back(m_nEpic);
@@ -386,35 +324,49 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
 
     path = folder_prefix + "/" + file;
 
-    if(file_exists(path.c_str())) {
+    if(std::filesystem::exists(path)) {
         return file;
     }
 
     if(parameters[0]) {
-        mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));  
+        // mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));  
+        std::string p = folder_prefix + "/feature.png";
+        layers.push_back(LoadImage(p.c_str()));
     };
     if(parameters[1]) {
-        mats.push_back(cv::imread(folder_prefix + "/epic.png", cv::IMREAD_UNCHANGED));
+        std::string p = folder_prefix + "/epic.png";
+        layers.push_back(LoadImage(p.c_str()));
     };
-    if(stars <= 10 && stars >= 0) mats.push_back(cv::imread(folder_prefix + "/star" + std::to_string(stars) + ".png", cv::IMREAD_UNCHANGED));
-    mats.push_back(cv::imread(folder_prefix + "/" + diffimage + ".png", cv::IMREAD_UNCHANGED));
-
-    cv::Mat final = cv::imread(folder_prefix + "/empty.png", cv::IMREAD_UNCHANGED);
-    cv::Mat final3 = final;
-    
-    i = 0;
-    while(i < mats.size()) {
-        merge_images(&final, &mats[i], 0, 0);
-        i++;
+    if(stars <= 10 && stars >= 0) {
+        std::string p = folder_prefix + "/star" + std::to_string(stars) + ".png";
+        layers.push_back(LoadImage(p.c_str()));
     }
 
-    //cv::Mat final2;
+    std::string p = folder_prefix + "/" + diffimage + ".png";
+    layers.push_back(LoadImage(p.c_str()));
 
-    //cv::resize(final, final2, cv::Size(), 1, 1, 2);
+    Image final = LoadImage((folder_prefix + "/empty.png").c_str());
 
-    cv::imwrite(path, final);
+    for (Image img : layers) {
+        Rectangle r1 = {
+            .width = (float)img.width,
+            .height = (float)img.height
+        };
+        Rectangle r2 = {
+            .width = (float)final.width,
+            .height = (float)final.height
+        };
 
-    return file;
+        ImageDraw(&final, img, r1, r2, WHITE);
+
+        UnloadImage(img);
+    }
+
+    ExportImage(final, path.c_str());
+
+    UnloadImage(final);
+
+    return path;
 }
 
 dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
