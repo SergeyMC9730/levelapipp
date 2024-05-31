@@ -121,7 +121,7 @@ namespace LevelAPI {
 
         ImageDrawRectangle(img, _x, _y, size, size, col);
 
-        return {size, size};
+        return {(float)size, (float)size};
     }
 }
 

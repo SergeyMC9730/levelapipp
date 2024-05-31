@@ -30,7 +30,7 @@ int main() {
 
     printf("[LevelAPI TEST] Creating folder with path: %s\n", path);
 
-    int res = mkpath(path, 0777);
+    int res = mkpath((char *)path, 0777);
 
     printf("[LevelAPI TEST] mkpath returned: %d\n", res);
 
