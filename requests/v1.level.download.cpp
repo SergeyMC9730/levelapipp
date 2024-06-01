@@ -73,7 +73,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
         supportedProviders.push_back("gdhistory");
     }
 
-    if (std::find(supportedProviders.begin(), supportedProviders.end(), provider_string) != supportedProviders.end()) {
+    if (std::find(supportedProviders.begin(), supportedProviders.end(), provider_string) == supportedProviders.end()) {
         response_fail["response"] = -3;
         return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
     }
