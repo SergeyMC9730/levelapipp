@@ -224,8 +224,12 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow row) {
     obj["username"] = row["username"];
     obj["actualGameVersion"] = row["actualGameVersion"];
 
-    obj["songIDs"] = nlohmann::json::parse(row["songIDs"]);
-    obj["sfxIDs"] = nlohmann::json::parse(row["sfxIDs"]);
+    if (row.count("songIDs")) {
+        obj["songIDs"] = nlohmann::json::parse(row["songIDs"]);
+    }
+    if (row.count("sfxIDs")) {
+        obj["sfxIDs"] = nlohmann::json::parse(row["sfxIDs"]);
+    }
 
     return obj;
 }
