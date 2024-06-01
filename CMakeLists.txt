@@ -182,7 +182,15 @@ add_executable(levelapi_server
 add_executable(levelapi_test_folders
     "ExternalTest_Folders.cc"
 )
+add_executable(levelapi-migrate-folders
+    "levelapi_migrate_folders.cpp"
+)
+
+add_library(levelapi-generic-tools
+    "GenericTools.cpp" "GenericTools.hpp"
+)
 
 file(COPY resources DESTINATION .)
 
-target_link_libraries(levelapi_server levelapi)
+target_link_libraries(levelapi_server levelapi levelapi-generic-tools)
+target_link_libraries(levelapi-migrate-folders levelapi-generic-tools)

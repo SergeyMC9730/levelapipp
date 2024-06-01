@@ -118,19 +118,7 @@ void route_test(std::string test) {
     return;
 }
 
-std::vector<std::string> getArguments(int argc, char *argv[]) {
-    if (argc == 1) return {};
-
-    int i = 1;
-    std::vector<std::string> arguments = {};
-
-    while(i < argc) {
-        arguments.push_back(argv[i]);
-        i++;
-    }
-
-    return arguments;
-}
+#include "GenericTools.hpp"
 
 int testcallback(void *sql, int columns, char **array1, char **array2) {
     int i = 0;
@@ -503,7 +491,7 @@ int main(int argc, char *argv[]) {
 
     srand(time(nullptr));
 
-    auto args = getArguments(argc, argv);
+    auto args = GenericTools::getArguments(argc, argv);
 
     if (args.size() != 0) {
         auto command = args[0];
