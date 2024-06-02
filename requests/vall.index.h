@@ -16,45 +16,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "GenericTools.hpp"
+#pragma once
 
-using namespace LevelAPI;
+#include "APIRequest.h"
 
-std::string GenericTools::convertFromVector(std::vector<std::string> vec) {
-    std::string res;
+#include <memory>
 
-    for (auto val : vec) {
-        res += "\"" + val + "\", ";
+using namespace httpserver;
+
+namespace LevelAPI {
+    namespace v1 {
+        class IndexRequest : public APIRequest {
+        public:
+            std::shared_ptr<http_response> render(const http_request&);
+
+            IndexRequest();
+        };
     }
-
-    res.pop_back();
-    res.pop_back();
-
-    return res;
-}
-std::string GenericTools::convertFromVector(std::vector<int> vec) {
-    std::string res;
-
-    for (auto val : vec) {
-        res += "\"" + std::to_string(val) + "\", ";
-    }
-
-    res.pop_back();
-    res.pop_back();
-
-    return res;
-}
-
-std::vector<std::string> GenericTools::getArguments(int argc, char *argv[]) {
-    if (argc == 1) return {};
-
-    int i = 1;
-    std::vector<std::string> arguments = {};
-
-    while(i < argc) {
-        arguments.push_back(argv[i]);
-        i++;
-    }
-
-    return arguments;
 }

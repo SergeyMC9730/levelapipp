@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2024  Sergei Baigerov
+    Copyright (C) 2023  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,15 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "HTTPContentTypeHTML.h"
 
-#include <string>
-#include <vector>
-
-namespace LevelAPI {
-    namespace GenericTools {
-        std::vector<std::string> getArguments(int argc, char *argv[]);
-        std::string convertFromVector(std::vector<std::string> vec);
-        std::string convertFromVector(std::vector<int> vec);
-    }
+HTTPContentTypeHTML::HTTPContentTypeHTML() {
+    m_sType = "text/html";
 }

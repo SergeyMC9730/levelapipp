@@ -16,15 +16,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "vall.index.2.h"
+#include "../lapi_database.h"
+#include "../HttpController.h"
+#include "HTTPContentTypeHTML.h"
 
-#include <string>
-#include <vector>
-
-namespace LevelAPI {
-    namespace GenericTools {
-        std::vector<std::string> getArguments(int argc, char *argv[]);
-        std::string convertFromVector(std::vector<std::string> vec);
-        std::string convertFromVector(std::vector<int> vec);
-    }
+LevelAPI::v1::IndexRequest2::IndexRequest2() {
+    this->request_name = "index page";
+    this->request_url = "/index.html";
 }

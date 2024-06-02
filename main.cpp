@@ -49,7 +49,6 @@
 
 #include "SQLiteManager.h"
 
-#include "requests/v1.level.search.h"
 #include "tests.h"
 
 #include "Translation.h"
@@ -142,33 +141,7 @@ int testcallback(void *sql, int columns, char **array1, char **array2) {
     return 0;
 }
 
-#include <fmt/format.h>
-
-std::string convertFromVector(std::vector<std::string> vec) {
-    std::string res;
-
-    for (auto val : vec) {
-        res += fmt::format("\"{}\", ", val);
-    }
-
-    res.pop_back();
-    res.pop_back();
-
-    return res;
-}
-std::string convertFromVector(std::vector<int> vec) {
-    std::string res;
-
-    for (auto val : vec) {
-        res += fmt::format("{}, ", val);
-    }
-
-    res.pop_back();
-    res.pop_back();
-
-    return res;
-}
-
+#include "GenericTools.hpp"
 #include <algorithm>
 
 std::string makeStrLowercase(std::string _str) {
@@ -277,7 +250,7 @@ nlohmann::json setupInfoMakeNode() {
                 getByKey("lapi.main.node.fs.1"),
                 feature_set_list.size(),
                 getByKey("lapi.main.node.fs.2"),
-                convertFromVector(feature_set_list),
+                GenericTools::convertFromVector(feature_set_list),
                 getByKey("lapi.main.node.fs.3")
             );
 
@@ -306,7 +279,7 @@ nlohmann::json setupInfoMakeNode() {
         while (!mod_valid) {
             fmt::print("{}     ({})\n  {} ", 
                 getByKey("lapi.main.node.mod.1"),
-                convertFromVector(mods),
+                GenericTools::convertFromVector(mods),
                 getByKey("lapi.main.node.mod.2")
             );
 
@@ -399,7 +372,7 @@ void setupInfo() {
     std::string lang;
 
     while (!language_valid) {
-        fmt::print("\n- Select language ({}) without the brackets: ", convertFromVector(languages_available));
+        fmt::print("\n- Select language ({}) without the brackets: ", GenericTools::convertFromVector(languages_available));
 
         std::cin >> lang; 
 
@@ -576,14 +549,16 @@ int main(int argc, char *argv[]) {
         new LevelAPI::v1::IMGRequest(),
         new LevelAPI::v1::ResourceRequest(),
         new LevelAPI::v1::StatsRequest(),
-        new LevelAPI::v1::LevelSearchRequest()
+        new LevelAPI::v1::LevelSearchRequest(),
+        new LevelAPI::v1::IndexRequest(),
+        new LevelAPI::v1::IndexRequest2()
     };
 
     int i = 0;
     while (i < requests.size()) {
         auto req = requests[i];
 
-        ws.register_resource(req->request_url, reinterpret_cast<http_resource *>(req));
+        ws.register_resource(req->request_url, req->getAsResource());
 
         i++;
     }

@@ -174,7 +174,11 @@ add_library(levelapi
 
 add_executable(test_mkdir test_mkdir.c)
 
-target_link_libraries(levelapi httpserver gmd2 dpp fmt GDCrypto sqlitemanager robtopstrings iandy raylib)
+add_library(levelapi-generic-tools
+    "GenericTools.cpp" "GenericTools.hpp"
+)
+
+target_link_libraries(levelapi httpserver gmd2 dpp fmt GDCrypto sqlitemanager robtopstrings iandy raylib levelapi-generic-tools)
 
 add_executable(levelapi_server 
     main.cpp
@@ -186,11 +190,7 @@ add_executable(levelapi-migrate-folders
     "levelapi_migrate_folders.cpp"
 )
 
-add_library(levelapi-generic-tools
-    "GenericTools.cpp" "GenericTools.hpp"
-)
-
 file(COPY resources DESTINATION .)
 
-target_link_libraries(levelapi_server levelapi levelapi-generic-tools)
+target_link_libraries(levelapi_server levelapi)
 target_link_libraries(levelapi-migrate-folders levelapi-generic-tools)

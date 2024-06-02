@@ -84,3 +84,58 @@ void HttpController::save() {
     j3 << j2;
     j3.close();
 }
+
+#include <fmt/format.h>
+
+#include "GenericTools.hpp"
+#include "Translation.h"
+#include <raylib.h>
+
+using namespace LevelAPI::Frontend;
+
+std::string HttpController::generateIndex(std::vector<std::string> nodes) {
+    std::string url = getURL();
+    std::string availableNodesArray = "[" + GenericTools::convertFromVector(nodes) + "]";
+    std::string buttons;
+
+    for (std::string node : nodes) {
+        buttons += fmt::format("<button onclick=\"selectNode('{}')\" type=\"button\"><code><b>{}</b></code></button>\n", 
+            node, node
+        );
+    }
+
+    if (buttons.length() >= 1) {
+        buttons.pop_back();
+    }
+
+    char *data = LoadFileText("resources/lapiui/index.html");
+
+    if (!data) return "error: \"resources/lapiui/index.html\" cannot be found";
+
+    size_t sz = strlen(data) * 2 + 1;
+    char *fmtdata = (char *)malloc(sz);
+
+    memset(fmtdata, 0, sz);
+
+    snprintf(fmtdata, sz, data,
+        availableNodesArray.c_str(),
+        url.c_str(),
+        Translation::getByKey("lapi.web.jobs").c_str(),
+        Translation::getByKey("lapi.web.download-jobs").c_str(),
+        Translation::getByKey("lapi.web.levels-downloaded").c_str(),
+        Translation::getByKey("lapi.web.latest-level").c_str(),
+        Translation::getByKey("lapi.web.title").c_str(),
+        Translation::getByKey("lapi.web.table.node").c_str(),
+        Translation::getByKey("lapi.web.table.information").c_str(),
+        Translation::getByKey("lapi.web.select-node").c_str(),
+        buttons.c_str(),
+        Translation::getByKey("lapi.web.level-app").c_str()
+    );
+
+    std::string ret = std::string(fmtdata);
+
+    free(fmtdata);
+    free(data);
+
+    return ret;
+}

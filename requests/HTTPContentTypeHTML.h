@@ -18,13 +18,9 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "HTTPContentTypeText.h"
 
-namespace LevelAPI {
-    namespace GenericTools {
-        std::vector<std::string> getArguments(int argc, char *argv[]);
-        std::string convertFromVector(std::vector<std::string> vec);
-        std::string convertFromVector(std::vector<int> vec);
-    }
-}
+class HTTPContentTypeHTML : public HTTPContentTypeText {
+public:
+    HTTPContentTypeHTML();
+};

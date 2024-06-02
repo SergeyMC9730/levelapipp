@@ -151,9 +151,17 @@ void DatabaseController::node_runner(Node *nd) {
                 while (i < proxy_list.size() && (i < this_node->m_uQueue->m_vResolverQueuedLevels.size() || dont_stop)) {
                     int id = this_node->m_uQueue->m_vResolverQueuedLevels[0];
 
+                    if (id == 0) {
+                        this_node->m_uQueue->m_vResolverQueuedLevels.erase(this_node->m_uQueue->m_vResolverQueuedLevels.begin());
+
+                        dont_stop = false;
+
+                        break;
+                    }
+
                     auto selected_proxy = proxy_list[i];
 
-                    std::string datapath = "database/nodes/" + this_node->m_sInternalName + "/" + this_node->m_sLevelDataPath + "/Level_" + std::to_string(id) + "/data.gmd2";
+                    std::string datapath = "database/nodes/" + this_node->m_sInternalName + "/" + this_node->m_sLevelDataPath + "/" + this_node->getLevelPathRepresentation(id) + "/data.gmd2";
 
                     if (!std::filesystem::exists(datapath)) {
                         std::cout << "Selecting proxy " << selected_proxy.getURL() << std::endl;
@@ -432,6 +440,7 @@ start:
         }
 
         case NC_ID: {
+            if (std::stoi(q->m_sText) == 0) break;
             nd->m_uQueue->m_vResolverQueuedLevels.push_back(std::stoi(q->m_sText));
         }
         default:

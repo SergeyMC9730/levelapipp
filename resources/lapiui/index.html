@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>LevelAPI</title>
+        <style>
+            .h1 {
+                font-family: Arial, Helvetica, sans-serif;
+                padding-bottom: 1px;
+            }
+            .title {
+                font-family: Arial, Helvetica, sans-serif;
+                text-align: center;
+            }
+            .title1 {
+                font-family: Arial, Helvetica, sans-serif;
+                text-align: center;
+                font-size: small;
+            }
+            table, th, td {
+                border: 1pt solid black;
+                border-collapse:separate
+            }
+            .td-ns {
+                padding: 50px;
+            }
+            table {
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
+        <script>
+            let availableNodes = %s // availableNodesArray.c_str()
+            let selectedNode = ""
+
+            function getAPI() {
+                return "%s"; // url.c_str() 
+            }
+            function getOrigin() {
+                let api = getAPI();
+                let split = api.split("//");
+
+                if (split.length <= 1) return api;
+
+                return split[1];
+            }
+            
+            function getAvailableNodes() {
+                return availableNodes;
+            }
+            function getSelectedNode() {
+                return selectedNode;
+            }
+
+            async function reloadStats() {
+                if (!getAvailableNodes().includes(getSelectedNode())) return
+
+                let level_freq = document.getElementById("level-frequency");
+                level_freq.src = `${getAPI()}/api/v1/level/search?node=${getSelectedNode()}&timestampEnd=1&asGraph=1&graphMembers=10?dummy=${new Date().getTime()}`
+            
+                const stats = await fetch(`${getAPI()}/api/v1/stats?node=${getSelectedNode()}`, {
+                    "method": "GET",
+                    "mode": "cors",
+                    "headers": {
+                        "Origin": getOrigin()
+                    }
+                })
+                const statsj = await stats.json();
+
+                console.log(statsj);
+
+                let queued_jobs = document.getElementById("queued-jobs");
+                let queued_download_jobs = document.getElementById("queued-download-jobs");
+                let levels_downloaded = document.getElementById("levels-downloaded");
+                let ldl = document.getElementById("last-downloaded-level");
+
+                const lvl = statsj.latestLevelsDownloaded[0];
+
+                queued_jobs.textContent = "%s" + statsj.queuedJobs; // lapi.web.jobs
+                queued_download_jobs.textContent = "%s" + statsj.queuedDownloadJobs; // lapi.web.download-jobs
+                levels_downloaded.textContent = "%s" + statsj.levels; // lapi.web.levels-downloaded
+                ldl.textContent = `%s\n${lvl.levelName} by ${lvl.username} (${lvl.levelID})` // lapi.web.latest-level
+            }
+
+            setInterval(reloadStats, 2000)
+
+            function selectNode(node = "") {
+                if (!getAvailableNodes().includes(node)) return;
+
+                let title = document.getElementById("lapi-title");
+
+                let node_up = node;
+                node_up[0] = node[0].toUpperCase();
+                title.textContent = `LevelAPI || ${node_up}`
+
+                let node_info = document.getElementById("node-info");
+                node_info.hidden = false;
+
+                let level_freq = document.getElementById("level-frequency");
+                level_freq.src = `${getAPI()}/api/v1/level/search?node=${node}&timestampEnd=1&asGraph=1&graphMembers=10`
+            
+                selectedNode = node;
+            }
+        </script>
+    </head>
+    <body>
+        <h1 class="title" id="lapi-title">%s</h1> <!-- lapi.web.title -->
+        <hr>
+        <br>
+        <table>
+            <tr>
+                <th>%s</th> <!-- lapi.web.table.node -->
+                <th>%s</th> <!-- lapi.web.table.information -->
+            </tr>
+            <tr>
+                <td class="td-ns">
+                    <div id="node-selector">
+                        <details>
+                            <summary class="h1">%s</summary> <!-- lapi.web.select-node -->
+                            %s <!-- buttons.c_str() -->
+                        </details>
+                    </div>
+                </td>
+                <td>
+                    <div hidden id="node-info">
+                        <picture>
+                            <h1 class="title1">%s</h1> <!-- lapi.web.level-app -->
+                            <img id="level-frequency" src="" class="table">
+                            <h5 class="title" id="levels-downloaded"></h1>
+                            <h5 class="title" id="last-downloaded-level"></h1>
+                            <h5 class="h1" id="queued-jobs"></h1>
+                            <h5 class="h1" id="queued-download-jobs"></h1>
+                        </picture>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

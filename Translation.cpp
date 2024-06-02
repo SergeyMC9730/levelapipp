@@ -1289,6 +1289,62 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "[cURL WARN] Couldn't connect to server: {}\n",
             "[cURL ПРЕД] Не удалось подключиться к серверу: {}\n"
         }
+    },
+
+    // from HttpController.cpp
+    {
+        "lapi.web.jobs", {
+            "Queued Jobs: ",
+            "Запланированные задачи: "
+        }
+    },
+    {
+        "lapi.web.download-jobs", {
+            "Queued Download Jobs: ",
+            "Запланированные задачи загрузчика: "
+        }
+    },
+    {
+        "lapi.web.levels-downloaded", {
+            "Levels Downloaded: ",
+            "Загружено уровней: "
+        }
+    },
+    {
+        "lapi.web.latest-level", {
+            "Latest Downloaded Level:",
+            "Последний загруженный уровень:"
+        }
+    },
+    {
+        "lapi.web.title", {
+            "Level API || No Node selected",
+            "Level API || Узел не выбран"
+        }
+    },
+    {
+        "lapi.web.table.node", {
+            "Node",
+            "Узел"
+        }
+    },
+    {
+        "lapi.web.table.information", {
+            "Information",
+            "Информация"
+        }
+    },
+    {
+        "lapi.web.select-node", {
+            "select node",
+            "выберите узел"
+        }
+    },
+    {
+        "lapi.web.level-app", {
+            "Level Appereance Frequency",
+            "Частота появления уровней"
+        }
     }
 };
 

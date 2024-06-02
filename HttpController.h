@@ -19,6 +19,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace LevelAPI {
     namespace HttpController {
@@ -29,5 +30,7 @@ namespace LevelAPI {
         int getPort();
         int getThreads();
         std::string getURL();
+
+        std::string generateIndex(std::vector<std::string> nodes);
     }
 }

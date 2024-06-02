@@ -16,45 +16,25 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "GenericTools.hpp"
+#include "vall.index.h"
 
-using namespace LevelAPI;
+#include "../lapi_database.h"
+#include "../HttpController.h"
+#include "HTTPContentTypeHTML.h"
 
-std::string GenericTools::convertFromVector(std::vector<std::string> vec) {
-    std::string res;
-
-    for (auto val : vec) {
-        res += "\"" + val + "\", ";
-    }
-
-    res.pop_back();
-    res.pop_back();
-
-    return res;
-}
-std::string GenericTools::convertFromVector(std::vector<int> vec) {
-    std::string res;
-
-    for (auto val : vec) {
-        res += "\"" + std::to_string(val) + "\", ";
-    }
-
-    res.pop_back();
-    res.pop_back();
-
-    return res;
+LevelAPI::v1::IndexRequest::IndexRequest() {
+    this->request_name = "index page";
+    this->request_url = "/";
 }
 
-std::vector<std::string> GenericTools::getArguments(int argc, char *argv[]) {
-    if (argc == 1) return {};
+std::shared_ptr<http_response> LevelAPI::v1::IndexRequest::render(const http_request &req) {
+    auto nodes = DatabaseController::database->m_vNodes;
 
-    int i = 1;
-    std::vector<std::string> arguments = {};
+    std::vector<std::string> node_names = {};
 
-    while(i < argc) {
-        arguments.push_back(argv[i]);
-        i++;
+    for (auto node : nodes) {
+        node_names.push_back(node->m_sInternalName);
     }
 
-    return arguments;
+    return generateResponse(HttpController::generateIndex(node_names), HTTPContentTypeHTML());
 }
