@@ -143,6 +143,12 @@ namespace LevelAPI {
 
             void setupJSON() override;
         };
+
+        struct NodeGraphGen {
+            std::vector<int> _values;
+            std::string _filename;
+        };
+
         class Node : public DatabaseCell {
         protected:
             Backend::GDServer *m_pCachedGDInstance = nullptr;
@@ -171,6 +177,8 @@ namespace LevelAPI {
             int m_nExperiment1Value;
 
             bool m_bRateLimitApplied;
+
+            std::vector<struct NodeGraphGen> m_vLastGraphs;
 
             static nlohmann::json jsonFromSQLLevel(SQLiteServerRow row); 
 

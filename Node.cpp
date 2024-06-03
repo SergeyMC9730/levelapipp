@@ -580,9 +580,27 @@ void Node::importLevelMetaFromLAPIold(std::string p) {
 #include "PixelCharacters.hpp"
 
 void Node::createGraph(std::vector<int> l__, std::string filename) {
+    for (struct NodeGraphGen gen : m_vLastGraphs) {
+        if (gen._values == l__) {
+            if (gen._filename == filename) return;
+
+            std::filesystem::copy_file(gen._filename, filename);
+
+            std::cout << "[LevelAPI {Node}] created copied " << filename << " from " << gen._filename << " (already exists)" << std::endl;
+
+            return;
+        }
+    }
+
+    struct NodeGraphGen gen;
+    gen._filename = filename;
+    gen._values = l__;
+
+    m_vLastGraphs.push_back(gen);
+
     int ii_ = 0;
     for (int val : l__) {
-        printf("[%d] -- %d\n", ii_, val);
+        // printf("[%d] -- %d\n", ii_, val);
            
         ii_++;
     }  

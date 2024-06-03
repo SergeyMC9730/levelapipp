@@ -41,7 +41,7 @@ SQLiteManager::~SQLiteManager() {
     }
 
     _exitSignal.set_value();
-    
+
     sqlite3_close(_database);
 }
 
@@ -151,7 +151,7 @@ void SQLiteManager::updateRow(std::string table, SQLiteRow newRow, SQLiteRow con
 
     _queue.push(
         std::pair<
-            std::string, 
+            std::string,
             std::function<SQLITE_CALLBACK_FUNC>>
                 (s, getPlaceholderCallback())
     );
@@ -160,7 +160,7 @@ void SQLiteManager::updateRow(std::string table, SQLiteRow newRow, SQLiteRow con
 void SQLiteManager::wipeTable(std::string table) {
     _queue.push(
         std::pair<
-            std::string, 
+            std::string,
             std::function<SQLITE_CALLBACK_FUNC>>
                 ("DELETE FROM " + table + " WHERE 1", getPlaceholderCallback())
     );
@@ -213,10 +213,10 @@ void SQLiteManager::pushRow(SQLiteRow row, std::string table) {
     s += ")";
 
     // std::cout << s << std::endl;
-    
+
     _queue.push(
         std::pair<
-            std::string, 
+            std::string,
             std::function<SQLITE_CALLBACK_FUNC>>
                 (s, getPlaceholderCallback())
     );
@@ -234,11 +234,13 @@ int SQLiteManager::sqlite_callback(void *data, int columns, char **array1, char 
     c->_array2 = array2;
 
     while (i < columns) {
-        m.insert(
-            std::pair<std::string, std::string>(
-                array2[i], array2[i + columns]
-            )
-        );
+        if (array2[i] != nullptr && array2[i + columns] != nullptr) {
+            m.insert(
+                std::pair<std::string, std::string>(
+                    array2[i], array2[i + columns]
+                )
+            );
+        }
 
         i++;
     }
@@ -266,7 +268,7 @@ void SQLiteManager::processQueue(SQLiteManager *self, std::future<void> signal) 
             // std::cout << pair.first << std::endl;
 
             sqlite3_exec(self->_database, pair.first.c_str(), SQLiteManager::sqlite_callback, (void *)callbackData, &error);
-        
+
             pair.second(self, callbackData->_result_vec, error != NULL);
 
             if (error) {
@@ -297,7 +299,7 @@ std::vector<SQLiteServerRow> SQLiteManager::getTable(std::string table, std::str
     auto vec = syncQuery(data1);
 
     sqlite3_free(data1);
-    
+
     return vec;
 }
 
@@ -384,7 +386,7 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondi
     auto vec = syncQuery(data1);
 
     sqlite3_free(data1);
-    
+
     return vec;
 }
 
@@ -408,16 +410,16 @@ std::vector<SQLiteServerRow> SQLiteManager::syncQuery(std::string query) {
 
     _queue.push(
         std::pair<
-            std::string, 
+            std::string,
             std::function<SQLITE_CALLBACK_FUNC>>
-                (query.c_str(),
+                (query,
                     [&](SQLiteManager *self, std::vector<std::map<std::string, std::string>> v, bool c) {
                         vec = v;
                         job_completed = true;
                     }
                 )
     );
-    
+
     while (!job_completed) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
