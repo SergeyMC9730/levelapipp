@@ -1,12 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
-        <meta charset="UTF-8">
+        <meta charset="UTF-8" />
         <title>LevelAPI</title>
         <style>
             .h1 {
                 font-family: Arial, Helvetica, sans-serif;
-                padding-bottom: 1px;
             }
             .title {
                 font-family: Arial, Helvetica, sans-serif;
@@ -17,24 +16,82 @@
                 text-align: center;
                 font-size: small;
             }
-            table, th, td {
+            table,
+            th,
+            td {
                 border: 1pt solid black;
-                border-collapse:separate
+                border-collapse: separate;
+                background: -webkit-linear-gradient(#eee, #fff);
             }
             .td-ns {
-                padding: 50px;
+                padding: 25px;
             }
             table {
                 margin-left: auto;
                 margin-right: auto;
+            }
+            .pixelimg,
+            .pixelimgtable,
+            .freqtable {
+                image-rendering: optimizeSpeed; /* STOP SMOOTHING, GIVE ME SPEED  */
+                image-rendering: -moz-crisp-edges; /* Firefox                        */
+                image-rendering: -o-crisp-edges; /* Opera                          */
+                image-rendering: -webkit-optimize-contrast; /* Chrome (and eventually Safari) */
+                image-rendering: pixelated; /* Universal support since 2021   */
+                image-rendering: optimize-contrast; /* CSS3 Proposed                  */
+                -ms-interpolation-mode: nearest-neighbor; /* IE8+                           */
+            }
+            .pixelimgtable,
+            .freqtable {
+                margin-left: 12.5%;
+                scale: inherit;
+            }
+            .freqtable {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 200px;
+            }
+            .center {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 25px;
+            }
+            .gradient1 {
+                background: -webkit-linear-gradient(#888, #000);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .buttoninvis {
+                background: linear-gradient(#bbb, #fff);
+            }
+            .redborder {
+                border:1px dashed black;
+            }
+            .cursive {
+                font-family: Arial, Helvetica, sans-serif cursive;
+            }
+            .unclickable {
+                pointer-events: none;
+                background: linear-gradient(#222, #000);
             }
         </style>
         <script>
             let availableNodes = %s // availableNodesArray.c_str()
             let selectedNode = ""
 
+            var searchInputs = {
+                levelID: 0,
+                levelName: "",
+                levelDesc: "",
+                username: "",
+                stars: 0,
+                difficulty: ""
+            }
+
             function getAPI() {
-                return "%s"; // url.c_str() 
+                return "%s"; // url.c_str()
             }
             function getOrigin() {
                 let api = getAPI();
@@ -44,7 +101,7 @@
 
                 return split[1];
             }
-            
+
             function getAvailableNodes() {
                 return availableNodes;
             }
@@ -52,12 +109,30 @@
                 return selectedNode;
             }
 
+            function closeSearchLevels() {
+                let node_info = document.getElementById("node-info");
+                let node_search_levels = document.getElementById("node-search-levels");
+
+                node_info.hidden = false;
+                node_search_levels.hidden = true;
+            }
+            function beginSearchLevels() {
+                let node_info = document.getElementById("node-info");
+                let node_search_levels = document.getElementById("node-search-levels");
+
+                node_info.hidden = true;
+                node_search_levels.hidden = false;
+            }
+
             async function reloadStats() {
                 if (!getAvailableNodes().includes(getSelectedNode())) return
 
+                let node_info = document.getElementById("node-info");
+                if (node_info.hidden) return;
+
                 let level_freq = document.getElementById("level-frequency");
                 level_freq.src = `${getAPI()}/api/v1/level/search?node=${getSelectedNode()}&timestampEnd=1&asGraph=1&graphMembers=10?dummy=${new Date().getTime()}`
-            
+
                 const stats = await fetch(`${getAPI()}/api/v1/stats?node=${getSelectedNode()}`, {
                     "method": "GET",
                     "mode": "cors",
@@ -82,7 +157,87 @@
                 ldl.textContent = `%s\n${lvl.levelName} by ${lvl.username} (${lvl.levelID})` // lapi.web.latest-level
             }
 
+            function unlockMetaSearch() {
+                let div = document.getElementById("meta-enter-div");
+                div.classList.remove("unclickable");
+            }
+            function lockMetaSearch() {
+                let div = document.getElementById("meta-enter-div");
+                div.classList.add("unclickable");
+            }
+
+            function setupLevelList(levels = []) {
+
+            }
+
+            async function onSearchWithID() {
+                // /api/v1/level/download?id=5&node=basement
+
+                const stats = await fetch(`${getAPI()}/api/v1/level/download?id=${searchInputs.levelID}&node=${getSelectedNode()}`, {
+                    "method": "GET",
+                    "mode": "cors",
+                    "headers": {
+                        "Origin": getOrigin()
+                    }
+                })
+                const lvl = await stats.json();
+
+                console.log(lvl);
+
+                switch(lvl.response) {
+                    case -1: {
+                        alert("Invalid node")
+
+                        return
+                    }
+                    case -2: {
+                        alert(`Level ${searchInputs.levelID} cannot be found!`);
+
+                        return
+                    }
+                    case -3: {
+                        alert("Invalid Node provider")
+
+                        return
+                    }
+                }
+
+                setupLevelList([lvl]);
+            }
+            async function onSearchGlobal() {
+
+            }
+
+            function onSearch() {
+                if (searchInputs.levelID > 0) {
+                    onSearchWithID();
+
+                    return;
+                }
+
+                onSearchGlobal();
+            }
+
+            async function processInputs() {
+                const levelid = document.getElementById("level-id");
+
+                const id = levelid.valueAsNumber;
+                if (id > 0) {
+                    lockMetaSearch();
+                } else {
+                    unlockMetaSearch();
+                }
+
+                searchInputs.levelID = id;
+                searchInputs.difficulty = document.getElementById("level-difficulty").value;
+                searchInputs.levelDesc = document.getElementById("level-desc").value;
+                searchInputs.levelName = document.getElementById("level-name").value;
+                searchInputs.stars = document.getElementById("level-stars").valueAsNumber;
+                searchInputs.username = document.getElementById("user-nick").value;
+            }
+
             setInterval(reloadStats, 2000)
+            setInterval(processInputs, 100)
 
             function selectNode(node = "") {
                 if (!getAvailableNodes().includes(node)) return;
@@ -94,19 +249,25 @@
                 title.textContent = `LevelAPI || ${node_up}`
 
                 let node_info = document.getElementById("node-info");
-                node_info.hidden = false;
+                let node_search_levels = document.getElementById("node-search-levels");
+
+                if (node_info.hidden && node_search_levels.hidden) {
+                    node_info.hidden = false;
+                }
 
                 let level_freq = document.getElementById("level-frequency");
                 level_freq.src = `${getAPI()}/api/v1/level/search?node=${node}&timestampEnd=1&asGraph=1&graphMembers=10`
-            
+
                 selectedNode = node;
+
+                reloadStats();
             }
         </script>
     </head>
     <body>
-        <h1 class="title" id="lapi-title">%s</h1> <!-- lapi.web.title -->
-        <hr>
-        <br>
+        <h1 class="title gradient1" id="lapi-title">%s</h1> <!-- lapi.web.title -->
+        <hr />
+        <br />
         <table>
             <tr>
                 <th>%s</th> <!-- lapi.web.table.node -->
@@ -115,22 +276,88 @@
             <tr>
                 <td class="td-ns">
                     <div id="node-selector">
-                        <details>
-                            <summary class="h1">%s</summary> <!-- lapi.web.select-node -->
-                            %s <!-- buttons.c_str() -->
-                        </details>
+                        <div class="center">
+                            <details class="redborder">
+                                <summary class="h1 center buttoninvis">%s</summary> <!-- lapi.web.select-node -->
+                                %s <!-- buttons.c_str() -->
+                            </details>
+                        </div>
                     </div>
                 </td>
                 <td>
                     <div hidden id="node-info">
-                        <picture>
-                            <h1 class="title1">%s</h1> <!-- lapi.web.level-app -->
-                            <img id="level-frequency" src="" class="table">
-                            <h5 class="title" id="levels-downloaded"></h1>
-                            <h5 class="title" id="last-downloaded-level"></h1>
-                            <h5 class="h1" id="queued-jobs"></h1>
-                            <h5 class="h1" id="queued-download-jobs"></h1>
-                        </picture>
+                        <h1 class="title1">%s</h1> <!-- lapi.web.level-app -->
+                        <img id="level-frequency" src="" class="freqtable" />
+                        <div class="h1" id="levels-downloaded"></div>
+                        <div class="h1" id="last-downloaded-level"></div>
+                        <div class="h1" id="queued-jobs"></div>
+                        <div class="h1" id="queued-download-jobs"></div>
+                        <br />
+                        <div class="center">
+                            <button onclick="beginSearchLevels()">
+                                Search Levels
+                            </button>
+                            <button onclick="beginSearchLevels()">Request a Node job</button>
+                            <button onclick="beginSearchLevels()">Administative Tools</button>
+                        </div>
+                    </div>
+                    <div hidden id="node-search-levels">
+                        <div class="center">
+                            <button onclick="closeSearchLevels()">Back</button>
+                            <button onclick="onSearch()">Search</button>
+                        </div>
+                        <br>
+                        <div class="center">
+                            <h2 class="h1 gradient1"><i>Search Levels</i></h2>
+                        </div>
+                        <br>
+                        <div>
+
+                        </div>
+                        <div class="center" id="id-enter-div">
+                            <div class="h1">
+                                Level ID <input type="number" id="level-id" name="level-id" min="0" maxlength="16" size="10"/>
+                            </div>
+                        </div>
+                        <hr>
+                        <div id="meta-enter-div">
+                            <div class="center">
+                                <div class="h1">
+                                    Difficulty <select name="level-difficulty" id="level-difficulty">
+                                        <option value="na"></option>
+                                        <option value="easy">Easy</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="hard">Hard</option>
+                                        <option value="harder">Harder</option>
+                                        <option value="insane">Insane</option>
+                                        <option value="demon">Demon</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="center">
+                                <div class="h1">
+                                    Stars <input type="number" id="level-stars" name="level-stars" min="0" maxlength="2" size="4"/>
+                                </div>
+                            </div>
+                            <div class="center">
+                                <div class="h1">
+                                    Name <input type="text" id="level-name" name="level-name" size="10"/>
+                                </div>
+                            </div>
+                            <div class="center">
+                                <div class="h1">
+                                    Description <input type="text" id="level-desc" name="level-desc" size="10"/>
+                                </div>
+                            </div>
+                            <div class="center">
+                                <div class="h1">
+                                    Nickname <input type="text" id="user-nick" name="user-nick" size="10"/>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                    <div hidden id="level-page">
+
                     </div>
                 </td>
             </tr>
