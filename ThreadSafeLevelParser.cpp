@@ -140,9 +140,29 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
         }
     );
 
+    container->setParserForVariable(
+        {
+            54
+        },
+        [&](std::string input, int id) {
+            return input == "1";
+        }
+    );
+    container->setParserForVariable(
+        {
+            57
+        },
+        [&](std::string input, int id) {
+            return input == "1";
+        }
+    );
+
     level->m_sRawData = response;
 
     container->parse();
+
+    bool legendary = false;
+    bool mystical = false;
 
     GET_KEY(container, 1, level->m_nLevelID, GKINT);
     GET_KEY(container, 5, level->m_nVersion, GKINT);
@@ -175,6 +195,8 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
     GET_KEY(container, 38, level->m_bVerifiedCoins, GKBOOL);
     GET_KEY(container, 40, level->m_bLDM, GKBOOL);
     GET_KEY(container, 44, level->m_bGauntlet, GKBOOL);
+    GET_KEY(container, 54, legendary, GKBOOL);
+    GET_KEY(container, 57, mystical, GKBOOL);
 
     GET_KEY(container, 2, level->m_sLevelName, GKSTRING);
     GET_KEY(container, 4, level->m_sLevelString, GKSTRING);
@@ -187,8 +209,18 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
 
     GET_KEY(container, 3, level->m_sDescription, GKBASE64);
 
+    GET_KEY(container, 52, level->m_vMusicList, GKVINT);
+    GET_KEY(container, 53, level->m_vSFXList, GKVINT);
+
     delete container;
     container = nullptr;
+
+    if (legendary) {
+        level->m_nEpic = 3;
+    }
+    if (mystical) {
+        level->m_nEpic = 4;
+    }
 
     return level;
 }

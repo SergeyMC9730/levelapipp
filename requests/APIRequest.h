@@ -9,6 +9,8 @@
 #include "HTTPContentType.h"
 
 class APIRequest : public httpserver::http_resource {
+protected:
+    std::string decodeURIComponent(std::string encoded);
 public:
     std::shared_ptr<httpserver::http_response> generateResponse(std::string data, int status = 200);
     std::shared_ptr<httpserver::http_response> generateResponse(std::string_view data, int status = 200);

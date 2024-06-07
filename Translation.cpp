@@ -1345,6 +1345,120 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "Level Appereance Frequency",
             "Частота появления уровней"
         }
+    },
+    {
+        "lapi.web.length.short", {
+            "Short",
+            "Короткий"
+        }
+    },
+    {
+        "lapi.web.length.medium", {
+            "Medium",
+            "Средний"
+        }
+    },
+    {
+        "lapi.web.length.long", {
+            "Long",
+            "Длинный"
+        }
+    },
+    {
+        "lapi.web.length.xl", {
+            "XL",
+            "Очень длинный"
+        }
+    },
+    {
+        "lapi.web.length.plat", {
+            "Plat.",
+            "Плат."
+        }
+    },
+    {
+        "lapi.web.by", {
+            "by",
+            "от"
+        }
+    },
+    {
+        "lapi.web.invalid-node", {
+            "Invalid node",
+            "Неизвестный узел"
+        }
+    },
+    {
+        "lapi.web.unknown-level", {
+            "Level $[searchInputs.levelID] cannot be found!",
+            "Уровень $[searchInputs.levelID] не может быть найден!"
+        }
+    },
+    {
+        "lapi.web.invalid-node-p", {
+            "Invalid Node provider",
+            "Неизвестный поставщик Узла"
+        }
+    },
+    {
+        "lapi.web.no-levels", {
+            "No levels were found.",
+            "Уровни не были найдены."
+        }
+    },
+    {
+        "lapi.web.search-levels", {
+            "Search Levels",
+            "Поиск уровней"
+        }
+    },
+    {
+        "lapi.web.back", {
+            "Back",
+            "Назад"
+        }
+    },
+    {
+        "lapi.web.search", {
+            "Search",
+            "Найти"
+        }
+    },
+    {
+        "lapi.web.search.id", {
+            "Level ID",
+            "ID уровня"
+        }
+    },
+    {
+        "lapi.web.search.stars", {
+            "Stars",
+            "Звёзды"
+        }
+    },
+    {
+        "lapi.web.search.page", {
+            "Page",
+            "Страница"
+        }
+    },
+    {
+        "lapi.web.search.name", {
+            "Name",
+            "Название"
+        }
+    },
+    {
+        "lapi.web.search.desc", {
+            "Portion of desc.",
+            "Часть описания"
+        }
+    },
+    {
+        "lapi.web.search.nick", {
+            "Nickname",
+            "Никнейм"
+        }
     }
 };
 

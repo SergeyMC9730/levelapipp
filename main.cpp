@@ -635,6 +635,8 @@ int main(int argc, char *argv[]) {
     //     i++;
     // }
 
+    HttpController::generateIndex({"a", "b"});
+
     ws.start(true);
 
     return 0;

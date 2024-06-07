@@ -13,6 +13,7 @@
 #include "HTTPContentTypeText.h"
 #include "HTTPContentTypeJSON.h"
 #include "HTTPContentTypeZip.h"
+#include "HTTPContentTypeImage.h"
 
 #define file_exists(cstr) (stat(cstr, &buffer) == 0)
 
@@ -128,6 +129,26 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelDownloadRequest::render(const 
             std::string filename = nodepointer->m_sInternalName + "_" + std::string(id.get_flat_value()) + ".gmd2";
 
             return sendFile(path, filename, HTTPContentTypeText());
+
+            break;
+        }
+        case 2: { // diff image
+            if (provider_string == "gdhistory") {
+                response_fail["response"] = -4;
+                return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 501);
+            }
+
+            auto level = nodepointer->getLevel(id2);
+
+            if(level == nullptr) {
+                return generateResponse("404 Level Not Found", 404);
+            }
+
+            std::string name = level->generateDifficultyImage("resources");
+
+            delete level;
+
+            return sendFile("resources/" + name, name, HTTPContentTypeImage());
 
             break;
         }

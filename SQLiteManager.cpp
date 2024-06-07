@@ -373,15 +373,18 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondi
     char *data1 = nullptr;
 
     std::string ordering_pref = "ORDER BY";
-    if (columnOrdering == "") ordering_pref = "";
-
-    if (condition.size() != 0) {
-        data1 = sqlite3_mprintf("SELECT * FROM %s WHERE %s %s ORDER BY %s LIMIT %d OFFSET %d;", table.c_str(), eq.c_str(), bw.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
-    } else {
-        data1 = sqlite3_mprintf("SELECT * FROM %s %s %s %s LIMIT %d OFFSET %d", table.c_str(), bw.c_str(), ordering_pref.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
+    if (columnOrdering == "" || columnOrdering == "none") {
+        ordering_pref = "";
+        columnOrdering = "";
     }
 
-    // printf("data1=%s\n", data1);
+    if (condition.size() != 0) {
+        data1 = sqlite3_mprintf("PRAGMA encoding=\"UTF-8\"; SELECT * FROM %s WHERE %s %s %s %s LIMIT %d OFFSET %d;", table.c_str(), eq.c_str(), bw.c_str(), ordering_pref.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
+    } else {
+        data1 = sqlite3_mprintf("PRAGMA encoding=\"UTF-8\"; SELECT * FROM %s %s %s %s LIMIT %d OFFSET %d", table.c_str(), bw.c_str(), ordering_pref.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
+    }
+
+    printf("data1=%s\n", data1);
 
     auto vec = syncQuery(data1);
 

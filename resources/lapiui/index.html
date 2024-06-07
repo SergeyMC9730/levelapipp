@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8"/>
         <title>LevelAPI</title>
         <style>
             .h1 {
@@ -21,7 +21,7 @@
             td {
                 border: 1pt solid black;
                 border-collapse: separate;
-                background: -webkit-linear-gradient(#eee, #fff);
+                background: -webkit-linear-gradient(#dfdede, #fff);
             }
             .td-ns {
                 padding: 25px;
@@ -61,6 +61,7 @@
             .gradient1 {
                 background: -webkit-linear-gradient(#888, #000);
                 -webkit-background-clip: text;
+                background-clip: text;
                 -webkit-text-fill-color: transparent;
             }
             .buttoninvis {
@@ -74,7 +75,43 @@
             }
             .unclickable {
                 pointer-events: none;
-                background: linear-gradient(#222, #000);
+                background: linear-gradient(#5e5d5d, #000);
+            }
+            .difficon {
+                width: 50px;
+                height: auto;
+            }
+            .td-lv {
+                padding: 8px;
+            }
+            .lvl-container {
+                display: flex;
+                align-items: center;
+                justify-content: center
+            }
+            levelname {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: medium;
+            }
+            levelauthor {
+                padding-left: 15px;
+                font-family: "Lucida Console", Courier, monospace;
+                font-size: 11px;
+                background: -webkit-linear-gradient(#ff7700, #ffc400);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .statimg {
+                width: 15px;
+                height: auto;
+                padding-left: 4pt;
+                vertical-align: middle;
+            }
+            levelstat {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 11px;
+                padding-left: 2pt;
             }
         </style>
         <script>
@@ -87,7 +124,8 @@
                 levelDesc: "",
                 username: "",
                 stars: 0,
-                difficulty: ""
+                difficulty: "",
+                page: 0
             }
 
             function getAPI() {
@@ -130,8 +168,10 @@
                 let node_info = document.getElementById("node-info");
                 if (node_info.hidden) return;
 
+                const time = Math.floor(new Date().getTime() / 1000);
+
                 let level_freq = document.getElementById("level-frequency");
-                level_freq.src = `${getAPI()}/api/v1/level/search?node=${getSelectedNode()}&timestampEnd=1&asGraph=1&graphMembers=10?dummy=${new Date().getTime()}`
+                level_freq.src = `${getAPI()}/api/v1/level/search?node=${getSelectedNode()}&timestampEnd=1&asGraph=1&graphMembers=10?dummy=${time}`
 
                 const stats = await fetch(`${getAPI()}/api/v1/stats?node=${getSelectedNode()}`, {
                     "method": "GET",
@@ -154,7 +194,8 @@
                 queued_jobs.textContent = "%s" + statsj.queuedJobs; // lapi.web.jobs
                 queued_download_jobs.textContent = "%s" + statsj.queuedDownloadJobs; // lapi.web.download-jobs
                 levels_downloaded.textContent = "%s" + statsj.levels; // lapi.web.levels-downloaded
-                ldl.textContent = `%s\n${lvl.levelName} by ${lvl.username} (${lvl.levelID})` // lapi.web.latest-level
+                // lapi.web.latest-level + lapi.web.by
+                ldl.textContent = `%s\n${lvl.levelName} %s ${lvl.username} (${lvl.levelID})`
             }
 
             function unlockMetaSearch() {
@@ -166,8 +207,57 @@
                 div.classList.add("unclickable");
             }
 
-            function setupLevelList(levels = []) {
+            function createLevelCell(json_data = {}) {
+                const template = document.querySelector("#level-cell-template");
+                const templatebase = document.querySelector("#level-cell-base-template");
+                const tbody = document.getElementById("level-table");
 
+                const length_table = [
+                    "%s",
+                    "%s",
+                    "%s",
+                    "%s",
+                    "%s"
+                ];
+
+                const clone = template.content.cloneNode(true);
+
+                let name = clone.getElementById("level-name-s");
+                name.textContent = json_data.levelName; 
+
+                let author = clone.getElementById("level-author-s");
+                author.textContent = `%s ${json_data.username}`; // lapi.web.by
+
+                let length = clone.getElementById("level-length-s");
+                length.textContent = length_table[json_data.length];
+
+                let likes = clone.getElementById("level-likes-s");
+                likes.textContent = `${json_data.likes}`
+
+                let downloads = clone.getElementById("level-downloads-s");
+                likes.textContent = `${json_data.downloads}`
+
+                let diff_img = clone.getElementById("diffimg");
+                diff_img.src = `${getAPI()}/api/v1/level/download?id=${json_data.levelID}&node=${getSelectedNode()}&type=2`
+
+                tbody.appendChild(clone);
+            }
+
+            function setupLevelList(levels = []) {
+                const tbody = document.getElementById("level-table");
+                tbody.hidden = false;
+                let table = document.getElementById("base-table");
+                table.hidden = false;
+
+                const old_nodes = tbody.childNodes;
+
+                while (tbody.childElementCount != 0) {
+                    tbody.removeChild(tbody.childNodes[tbody.childNodes.length - 1]);
+                }
+
+                levels.forEach(level => {
+                    createLevelCell(level);
+                });
             }
 
             async function onSearchWithID() {
@@ -186,17 +276,26 @@
 
                 switch(lvl.response) {
                     case -1: {
-                        alert("Invalid node")
+                        let table = document.getElementById("base-table");
+                        table.hidden = false;
+
+                        alert("%s") // lapi.web.invalid-node
 
                         return
                     }
                     case -2: {
-                        alert(`Level ${searchInputs.levelID} cannot be found!`);
+                        let table = document.getElementById("base-table");
+                        table.hidden = false;
+
+                        alert(`%s`.replace("[", "{").replace("]", "}")); // lapi.web.unknown-level
 
                         return
                     }
                     case -3: {
-                        alert("Invalid Node provider")
+                        let table = document.getElementById("base-table");
+                        table.hidden = false;
+
+                        alert("%s"); // lapi.web.invalid-node-p
 
                         return
                     }
@@ -205,10 +304,66 @@
                 setupLevelList([lvl]);
             }
             async function onSearchGlobal() {
+                const diff_table = {
+                    "na": -1,
+                    "easy": 1,
+                    "medium": 2,
+                    "hard": 3,
+                    "harder": 4,
+                    "insane": 5,
+                    "demon": 6
+                }
 
+                let stars = searchInputs.stars;
+                const diff = diff_table[searchInputs.difficulty];
+
+                if (stars == 0) {
+                    stars = -1;
+                }
+                if (stars == NaN) {
+                    stars = -1;
+                }
+
+                const _req = `${getAPI()}/api/v1/level/search?node=${getSelectedNode()}&name=${searchInputs.levelName}&username=${searchInputs.username}&stars=${stars}&page=${searchInputs.page}&description=${searchInputs.levelDesc}&difficulty=${diff}`;
+                const req = encodeURI(_req);
+
+                console.log(_req, req);
+
+                const stats = await fetch(req, {
+                    "method": "GET",
+                    "mode": "cors",
+                    "headers": {
+                        "Origin": getOrigin()
+                    }
+                })
+                const lvl = await stats.json();
+
+                console.log(lvl);
+
+                switch(lvl.response) {
+                    case -1: {
+                        let table = document.getElementById("base-table");
+                        table.hidden = false;
+
+                        alert("%s"); // lapi.web.invalid-node
+
+                        return
+                    }
+                }
+
+                setupLevelList(lvl.levels);
+
+                if (lvl.levels.length == 0) {
+                    alert("%s"); // lapi.web.no-levels
+                }
             }
 
             function onSearch() {
+                let table = document.getElementById("base-table");
+                table.hidden = true;
+                const tbody = document.getElementById("level-table");
+                tbody.hidden = true;
+
                 if (searchInputs.levelID > 0) {
                     onSearchWithID();
 
@@ -229,10 +384,11 @@
                 }
 
                 searchInputs.levelID = id;
-                searchInputs.difficulty = document.getElementById("level-difficulty").value;
+                // searchInputs.difficulty = document.getElementById("level-difficulty").value;
                 searchInputs.levelDesc = document.getElementById("level-desc").value;
                 searchInputs.levelName = document.getElementById("level-name").value;
                 searchInputs.stars = document.getElementById("level-stars").valueAsNumber;
+                searchInputs.page = document.getElementById("level-page").valueAsNumber;
                 searchInputs.username = document.getElementById("user-nick").value;
             }
 
@@ -265,10 +421,10 @@
         </script>
     </head>
     <body>
-        <h1 class="title gradient1" id="lapi-title">%s</h1> <!-- lapi.web.title -->
+        <h1 class="title gradient1" id="lapi-title">Level API || %s</h1> <!-- lapi.web.title -->
         <hr />
         <br />
-        <table>
+        <table id="base-table">
             <tr>
                 <th>%s</th> <!-- lapi.web.table.node -->
                 <th>%s</th> <!-- lapi.web.table.information -->
@@ -279,7 +435,7 @@
                         <div class="center">
                             <details class="redborder">
                                 <summary class="h1 center buttoninvis">%s</summary> <!-- lapi.web.select-node -->
-                                %s <!-- buttons.c_str() -->
+                                <!-- buttons.c_str() -->
                             </details>
                         </div>
                     </div>
@@ -295,20 +451,23 @@
                         <br />
                         <div class="center">
                             <button onclick="beginSearchLevels()">
-                                Search Levels
+                                %s <!-- lapi.web.search-levels -->
                             </button>
-                            <button onclick="beginSearchLevels()">Request a Node job</button>
-                            <button onclick="beginSearchLevels()">Administative Tools</button>
+                            <!-- <button onclick="beginSearchLevels()">Request a Node job</button>
+                            <button onclick="beginSearchLevels()">Administative Tools</button> -->
                         </div>
                     </div>
                     <div hidden id="node-search-levels">
                         <div class="center">
-                            <button onclick="closeSearchLevels()">Back</button>
-                            <button onclick="onSearch()">Search</button>
+                            <!-- lapi.web.back -->
+                            <button onclick="closeSearchLevels()">%s</button>
+                            <!-- lapi.web.search -->
+                            <button onclick="onSearch()">%s</button>
                         </div>
                         <br>
                         <div class="center">
-                            <h2 class="h1 gradient1"><i>Search Levels</i></h2>
+                            <!-- lapi.web.search-levels -->
+                            <h2 class="h1 gradient1"><i>%s</i></h2>
                         </div>
                         <br>
                         <div>
@@ -316,13 +475,14 @@
                         </div>
                         <div class="center" id="id-enter-div">
                             <div class="h1">
-                                Level ID <input type="number" id="level-id" name="level-id" min="0" maxlength="16" size="10"/>
+                                <!-- lapi.web.search.id -->
+                                %s <input type="number" id="level-id" name="level-id" min="0" maxlength="16" size="10"/>
                             </div>
                         </div>
                         <hr>
                         <div id="meta-enter-div">
-                            <div class="center">
-                                <div class="h1">
+                            <!-- <div class="center" hidden> -->
+                                <!-- <div class="h1" hidden>
                                     Difficulty <select name="level-difficulty" id="level-difficulty">
                                         <option value="na"></option>
                                         <option value="easy">Easy</option>
@@ -332,35 +492,85 @@
                                         <option value="insane">Insane</option>
                                         <option value="demon">Demon</option>
                                     </select>
+                                </div> -->
+                            <!-- </div> -->
+                            <div class="center">
+                                <div class="h1">
+                                    <!-- lapi.web.search.stars -->
+                                    %s <input type="number" id="level-stars" name="level-stars" min="0" maxlength="2" size="4"/>
                                 </div>
                             </div>
                             <div class="center">
                                 <div class="h1">
-                                    Stars <input type="number" id="level-stars" name="level-stars" min="0" maxlength="2" size="4"/>
+                                    <!-- lapi.web.search.page -->
+                                    %s <input type="number" id="level-page" name="level-page" min="0" maxlength="10" size="6"/>
                                 </div>
                             </div>
                             <div class="center">
                                 <div class="h1">
-                                    Name <input type="text" id="level-name" name="level-name" size="10"/>
+                                    <!-- lapi.web.search.name -->
+                                    %s <input type="text" id="level-name" name="level-name" size="10"/>
                                 </div>
                             </div>
                             <div class="center">
                                 <div class="h1">
-                                    Description <input type="text" id="level-desc" name="level-desc" size="10"/>
+                                    <!-- lapi.web.search.desc -->
+                                    %s <input type="text" id="level-desc" name="level-desc" size="10"/>
                                 </div>
                             </div>
                             <div class="center">
                                 <div class="h1">
-                                    Nickname <input type="text" id="user-nick" name="user-nick" size="10"/>
+                                    <!-- lapi.web.search.nick -->
+                                    %s <input type="text" id="user-nick" name="user-nick" size="10"/>
                                 </div>
                              </div>
                         </div>
                     </div>
-                    <div hidden id="level-page">
-
-                    </div>
                 </td>
             </tr>
         </table>
+        <table id="level-table" hidden>
+        </table>
+        <template id="level-cell-base-template">
+            <tr>
+                <th>Level</th>
+            </tr>
+        </template>
+        <template id="level-cell-template">
+            <tr>
+                <td class="td-lv">
+                    <div class="lvl-container">
+                        <div>
+                            <img id="diffimg" src="http://127.0.0.1:8000/api/v1/res/request/rating_na0_nn_new.png" class="difficon">
+                        </div>
+                        <div>
+                            <levelname id="level-name-s">Я не знаю</levelname> <br>
+                            <levelauthor id="level-author-s">by SoMeOnE</levelauthor>
+                            <hr>
+                            <div class="lvl-container">
+                                <div>
+                                    <img src="http://127.0.0.1:8000/api/v1/res/request/time.png" class="statimg">
+                                </div>
+                                <div>
+                                    <levelstat id="level-length-s">XL</levelstat>
+                                </div>
+                                <div>
+                                    <img src="http://127.0.0.1:8000/api/v1/res/request/like.png" class="statimg">
+                                </div>
+                                <div>
+                                    <levelstat id="level-likes-s">10</levelstat>
+                                </div>
+                                <div>
+                                    <img src="http://127.0.0.1:8000/api/v1/res/request/download.png" class="statimg">
+                                </div>
+                                <div>
+                                    <levelstat id="level-downloads-s">23</levelstat>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </template>
     </body>
 </html>

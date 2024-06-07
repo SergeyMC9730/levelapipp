@@ -356,7 +356,7 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter filter) {
         SQLiteRow r1 = {}; r1["databaseAppereanceDate"] = (uint64_t)filter.timestamp_start;
         SQLiteRow r2 = {}; r2["databaseAppereanceDate"] = (uint64_t)filter.timestamp_end;
 
-        // printf("!!: r1: %ld; r2: %ld\n", filter.timestamp_start, filter.timestamp_end);
+        // printf("!!: r1: %ld; r2: %ld\n", (uint64_t)filter.timestamp_start, (uint64_t)filter.timestamp_end);
 
         rw_between[0] = r1;
         rw_between[1] = r2;
@@ -375,7 +375,7 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter filter) {
         rw_condition["levelName"] = filter.m_sName;
     }
     if (!filter.m_sDescription.empty()) {
-        rw_condition["levelDescription"] = filter.m_sName;
+        rw_condition["levelDescription"] = filter.m_sDescription;
     }
 
     if (filter.m_nUID != 0) {
@@ -411,7 +411,8 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter filter) {
         {LevelAPI::Backend::SearchSort::SSMostDownloaded, "-downloads"},
         {LevelAPI::Backend::SearchSort::SSLatestDBApperead, "-databaseAppereanceDate"},
         {LevelAPI::Backend::SearchSort::SSRecentLevel, "-levelID"},
-        {LevelAPI::Backend::SearchSort::SSOldestLevel, "levelID"}
+        {LevelAPI::Backend::SearchSort::SSOldestLevel, "levelID"},
+        {LevelAPI::Backend::SearchSort::SSNone, "none"}
     };
 
     ordering = ordering_map[filter.m_eSort];
