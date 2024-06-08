@@ -278,13 +278,13 @@
                 }
 
                 let lengthimg = clone.getElementById("lengthimg");
-                lengthimg.src = `${getAPI()}/api/v1/res/request/time.png`
+                lengthimg.setAttribute("src", `${getAPI()}/api/v1/res/request/time.png`)
 
                 let likesimg = clone.getElementById("likesimg");
-                likesimg.src = `${getAPI()}/api/v1/res/request/like.png`
+                likesimg.setAttribute("src", `${getAPI()}/api/v1/res/request/like.png`)
 
                 let downloadsimg = clone.getElementById("downloadsimg");
-                downloadsimg.src = `${getAPI()}/api/v1/res/request/download.png`
+                downloadsimg.setAttribute("src", `${getAPI()}/api/v1/res/request/download.png`)
 
                 tbody.appendChild(clone);
             }
