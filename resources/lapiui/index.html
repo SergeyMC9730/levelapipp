@@ -277,6 +277,15 @@
                     parent.remove();
                 }
 
+                let lengthimg = clone.getElementById("lengthimg");
+                lengthimg.src = `${getAPI()}/api/v1/res/request/time.png`
+
+                let likesimg = clone.getElementById("likesimg");
+                likesimg.src = `${getAPI()}/api/v1/res/request/like.png`
+
+                let downloadsimg = clone.getElementById("downloadsimg");
+                downloadsimg.src = `${getAPI()}/api/v1/res/request/download.png`
+
                 tbody.appendChild(clone);
             }
 
@@ -620,19 +629,19 @@
                             <hr>
                             <div class="lvl-container">
                                 <div>
-                                    <img src="http://127.0.0.1:8000/api/v1/res/request/time.png" class="statimg">
+                                    <img id="lengthimg" src="http://127.0.0.1:8000/api/v1/res/request/time.png" class="statimg">
                                 </div>
                                 <div>
                                     <levelstat id="level-length-s">XL</levelstat>
                                 </div>
                                 <div>
-                                    <img src="http://127.0.0.1:8000/api/v1/res/request/like.png" class="statimg">
+                                    <img id="likesimg" src="http://127.0.0.1:8000/api/v1/res/request/like.png" class="statimg">
                                 </div>
                                 <div>
                                     <levelstat id="level-likes-s">10</levelstat>
                                 </div>
                                 <div>
-                                    <img src="http://127.0.0.1:8000/api/v1/res/request/download.png" class="statimg">
+                                    <img id="downloadsimg" src="http://127.0.0.1:8000/api/v1/res/request/download.png" class="statimg">
                                 </div>
                                 <div>
                                     <levelstat id="level-downloads-s">23</levelstat>
