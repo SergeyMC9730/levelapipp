@@ -31,6 +31,13 @@ namespace LevelAPI {
         int getThreads();
         std::string getURL();
 
-        std::string generateIndex(std::vector<std::string> nodes);
+        struct AutorunIndex {
+            std::string defaultNode;
+            int levelID;
+
+            bool enableAutorun;
+        };
+
+        std::string generateIndex(std::vector<std::string> nodes, struct AutorunIndex autorun = {});
     }
 }

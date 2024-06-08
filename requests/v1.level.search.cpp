@@ -140,6 +140,8 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
 
     int i = 0;
     while(i < levels.size()) {
+        levels[i]->_jsonObject["hasLevelString"] = levels[i]->m_bHasLevelString;
+
         resp["levels"].push_back(levels[i]->_jsonObject);
 
         delete levels[i];

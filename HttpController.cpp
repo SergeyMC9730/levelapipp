@@ -93,7 +93,7 @@ void HttpController::save() {
 
 using namespace LevelAPI::Frontend;
 
-std::string HttpController::generateIndex(std::vector<std::string> nodes) {
+std::string HttpController::generateIndex(std::vector<std::string> nodes, struct AutorunIndex autorun) {
     std::string url = getURL();
     std::string availableNodesArray = "[" + GenericTools::convertFromVector(nodes) + "]";
     std::string buttons;
@@ -106,6 +106,17 @@ std::string HttpController::generateIndex(std::vector<std::string> nodes) {
 
     if (buttons.length() >= 1) {
         buttons.pop_back();
+    }
+
+    std::string autorun_code = "";
+
+    if (autorun.enableAutorun) {
+        if (!autorun.defaultNode.empty() && autorun.levelID == 0) {
+            autorun_code = fmt::format("selectNode(\"{}\");", autorun.defaultNode);
+        }
+        if (!autorun.defaultNode.empty() && autorun.levelID != 0) {
+            autorun_code = fmt::format("switchToLevel(\"{}\", {});", autorun.defaultNode, autorun.levelID);
+        }
     }
 
     char *data = LoadFileText("resources/lapiui/index.html");
@@ -151,7 +162,11 @@ std::string HttpController::generateIndex(std::vector<std::string> nodes) {
         Translation::getByKey("lapi.web.search.page").c_str(),
         Translation::getByKey("lapi.web.search.name").c_str(),
         Translation::getByKey("lapi.web.search.desc").c_str(),
-        Translation::getByKey("lapi.web.search.nick").c_str()
+        Translation::getByKey("lapi.web.search.nick").c_str(),
+        Translation::getByKey("lapi.web.more-info").c_str(),
+        Translation::getByKey("lapi.web.download-level").c_str(),
+        Translation::getByKey("lapi.web.back").c_str(),
+        autorun_code.c_str()
     );
 
     std::string ret = std::string(fmtdata);

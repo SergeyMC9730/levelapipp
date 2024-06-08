@@ -156,7 +156,7 @@ std::string Level::getDownloadLinks(bool embed) {
 
     bool hasGMD2 = m_bHasLevelString;
 
-    std::string result = fmt::format("[{}]({}/api/v1/level/download?id={}&node={})",
+    std::string result = fmt::format("[{}]({}/?id={}&node={})",
         Translation::getByKey("lapi.level.embed.field.info.value.metadata"),
         url,
         this->m_nLevelID,

@@ -1390,8 +1390,8 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     },
     {
         "lapi.web.unknown-level", {
-            "Level $[searchInputs.levelID] cannot be found!",
-            "Уровень $[searchInputs.levelID] не может быть найден!"
+            "Level $[a] cannot be found!",
+            "Уровень $[a] не может быть найден!"
         }
     },
     {
@@ -1458,6 +1458,18 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
         "lapi.web.search.nick", {
             "Nickname",
             "Никнейм"
+        }
+    },
+    {
+        "lapi.web.more-info", {
+            "More Info",
+            "Подробнее"
+        }
+    },
+    {
+        "lapi.web.download-level", {
+            "Download Level",
+            "Скачать уровень"
         }
     }
 };

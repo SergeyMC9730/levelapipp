@@ -92,6 +92,9 @@
             levelname {
                 font-family: Arial, Helvetica, sans-serif;
                 font-size: medium;
+                word-wrap: break-word;
+                width: 100px;
+                display: inline-block;
             }
             levelauthor {
                 padding-left: 15px;
@@ -113,10 +116,14 @@
                 font-size: 11px;
                 padding-left: 2pt;
             }
+            .level-cell-element {
+                padding-left: 6px;
+            }
         </style>
         <script>
             let availableNodes = %s // availableNodesArray.c_str()
             let selectedNode = ""
+            let debugMode = false;
 
             var searchInputs = {
                 levelID: 0,
@@ -182,7 +189,7 @@
                 })
                 const statsj = await stats.json();
 
-                console.log(statsj);
+                if (debugMode) console.log(statsj);
 
                 let queued_jobs = document.getElementById("queued-jobs");
                 let queued_download_jobs = document.getElementById("queued-download-jobs");
@@ -207,17 +214,34 @@
                 div.classList.add("unclickable");
             }
 
+            function moreInfoBtnFunc(id = 0) {
+                if (id <= 0) return;
+
+                if (debugMode) console.log(id);
+
+                window.open(`${getAPI()}/api/v1/level/download?id=${id}&node=${getSelectedNode()}`, '_blank').focus();
+            }
+            function downloadLevelBtnFunc(id = 0) {
+                if (id <= 0) return;
+
+                if (debugMode) console.log(id);
+
+                window.open(`${getAPI()}/api/v1/level/download?id=${id}&node=${getSelectedNode()}&type=1`, '_blank').focus();
+            }
+
             function createLevelCell(json_data = {}) {
+                if (json_data.levelID <= 0) return;
+
                 const template = document.querySelector("#level-cell-template");
                 const templatebase = document.querySelector("#level-cell-base-template");
                 const tbody = document.getElementById("level-table");
 
                 const length_table = [
-                    "%s",
-                    "%s",
-                    "%s",
-                    "%s",
-                    "%s"
+                    "%s", // lapi.web.length.short
+                    "%s", // lapi.web.length.medium
+                    "%s", // lapi.web.length.long
+                    "%s", // lapi.web.length.xl
+                    "%s"  // lapi.web.length.plat
                 ];
 
                 const clone = template.content.cloneNode(true);
@@ -235,10 +259,23 @@
                 likes.textContent = `${json_data.likes}`
 
                 let downloads = clone.getElementById("level-downloads-s");
-                likes.textContent = `${json_data.downloads}`
+                downloads.textContent = `${json_data.downloads}`
 
                 let diff_img = clone.getElementById("diffimg");
                 diff_img.src = `${getAPI()}/api/v1/level/download?id=${json_data.levelID}&node=${getSelectedNode()}&type=2`
+
+                let mib = clone.getElementById("more-info-btn");
+                mib.setAttribute('onclick', `moreInfoBtnFunc(${json_data.levelID})`);
+
+                let dlb = clone.getElementById("download-level-btn");
+
+                if (json_data.hasLevelString) {
+                    dlb.setAttribute('onclick', `downloadLevelBtnFunc(${json_data.levelID})`);
+                } else {
+                    let parent = dlb.parentNode;
+                    dlb.remove();
+                    parent.remove();
+                }
 
                 tbody.appendChild(clone);
             }
@@ -272,7 +309,7 @@
                 })
                 const lvl = await stats.json();
 
-                console.log(lvl);
+                if (debugMode) console.log(lvl);
 
                 switch(lvl.response) {
                     case -1: {
@@ -287,7 +324,11 @@
                         let table = document.getElementById("base-table");
                         table.hidden = false;
 
-                        alert(`%s`.replace("[", "{").replace("]", "}")); // lapi.web.unknown-level
+                        // lapi.web.unknown-level
+                        const _value = `%s`.replace("[", "{").replace("]", "}");
+                        const value = eval(`const a = ${searchInputs.levelID}; \`${_value}\``);
+
+                        alert(value);
 
                         return
                     }
@@ -327,7 +368,7 @@
                 const _req = `${getAPI()}/api/v1/level/search?node=${getSelectedNode()}&name=${searchInputs.levelName}&username=${searchInputs.username}&stars=${stars}&page=${searchInputs.page}&description=${searchInputs.levelDesc}&difficulty=${diff}`;
                 const req = encodeURI(_req);
 
-                console.log(_req, req);
+                if (debugMode) console.log(_req, req);
 
                 const stats = await fetch(req, {
                     "method": "GET",
@@ -338,7 +379,7 @@
                 })
                 const lvl = await stats.json();
 
-                console.log(lvl);
+                if (debugMode) console.log(lvl);
 
                 switch(lvl.response) {
                     case -1: {
@@ -358,19 +399,19 @@
                 }
             }
 
-            function onSearch() {
+            async function onSearch() {
                 let table = document.getElementById("base-table");
                 table.hidden = true;
-                const tbody = document.getElementById("level-table");
+                let tbody = document.getElementById("level-table");
                 tbody.hidden = true;
 
                 if (searchInputs.levelID > 0) {
-                    onSearchWithID();
+                    await onSearchWithID();
 
                     return;
                 }
 
-                onSearchGlobal();
+                await onSearchGlobal();
             }
 
             async function processInputs() {
@@ -418,6 +459,35 @@
 
                 reloadStats();
             }
+
+            async function switchToLevel(node = "", id = 1) {
+                if (id <= 0) return;
+                if (!getAvailableNodes().includes(node)) return;
+
+                selectNode(node);
+
+                searchInputs.levelID = id;
+
+                await onSearch();
+
+                let table = document.getElementById("base-table");
+                table.hidden = true;
+                const tbody = document.getElementById("level-table");
+                tbody.hidden = false;
+                let qui = document.getElementById("quick-search-ui");
+                qui.hidden = false;
+                let node_info = document.getElementById("node-info");
+                node_info.hidden = true;
+            }
+
+            function returnFromQuickSearch() {
+                let table = document.getElementById("base-table");
+                table.hidden = false;
+                const tbody = document.getElementById("level-table");
+                tbody.hidden = true;
+                let qui = document.getElementById("quick-search-ui");
+                qui.hidden = true;
+            }
         </script>
     </head>
     <body>
@@ -436,6 +506,7 @@
                             <details class="redborder">
                                 <summary class="h1 center buttoninvis">%s</summary> <!-- lapi.web.select-node -->
                                 <!-- buttons.c_str() -->
+                                %s
                             </details>
                         </div>
                     </div>
@@ -543,7 +614,7 @@
                         <div>
                             <img id="diffimg" src="http://127.0.0.1:8000/api/v1/res/request/rating_na0_nn_new.png" class="difficon">
                         </div>
-                        <div>
+                        <div class="level-cell-element">
                             <levelname id="level-name-s">Я не знаю</levelname> <br>
                             <levelauthor id="level-author-s">by SoMeOnE</levelauthor>
                             <hr>
@@ -568,9 +639,32 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="level-cell-element">
+                            <div class="center">
+                                <button id="more-info-btn" onclick="moreInfoBtnFunc(0)">
+                                    %s <!-- lapi.web.more-info -->
+                                </button>
+                            </div>
+                            <div class="center">
+                                <button id="download-level-btn" onclick="downloadLevelBtnFunc(0)">
+                                    %s <!-- lapi.web.download-level -->
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </td>
             </tr>
         </template>
+        <div id="quick-search-ui" hidden>
+            <div class="center">
+                <button onclick="returnFromQuickSearch()">
+                    %s <!-- lapi.web.back -->
+                </button>
+            </div>
+        </div>
+
+        <script>
+            setTimeout(() => { %s }, 100);
+        </script>
     </body>
 </html>

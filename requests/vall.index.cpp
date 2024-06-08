@@ -36,5 +36,21 @@ std::shared_ptr<http_response> LevelAPI::v1::IndexRequest::render(const http_req
         node_names.push_back(node->m_sInternalName);
     }
 
-    return generateResponse(HttpController::generateIndex(node_names), HTTPContentTypeHTML());
+    std::string id = req.get_arg("id");
+    std::string node = req.get_arg("node");
+
+    struct LevelAPI::HttpController::AutorunIndex autorun = {};
+
+    if (!id.empty()) {
+        try {
+            autorun.levelID = std::stoi(id);
+            autorun.enableAutorun = true;
+        } catch (std::invalid_argument) {}
+    }
+    if (!node.empty()) {
+        autorun.defaultNode = node;
+        autorun.enableAutorun = true;
+    }
+
+    return generateResponse(HttpController::generateIndex(node_names, autorun), HTTPContentTypeHTML());
 }
