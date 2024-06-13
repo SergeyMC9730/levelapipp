@@ -141,6 +141,7 @@ std::string HttpController::generateIndex(std::vector<std::string> nodes, struct
         Translation::getByKey("lapi.web.length.long").c_str(),
         Translation::getByKey("lapi.web.length.xl").c_str(),
         Translation::getByKey("lapi.web.length.plat").c_str(),
+	Translation::getByKey("lapi.web.length.plat").c_str(),
         Translation::getByKey("lapi.web.by").c_str(),
         Translation::getByKey("lapi.web.invalid-node").c_str(),
         Translation::getByKey("lapi.web.unknown-level").c_str(),
