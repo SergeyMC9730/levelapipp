@@ -21,7 +21,7 @@
 #include "SearchFilter.h"
 #include "appcommand.h"
 #include "dispatcher.h"
-#include "format.h"
+#include <fmt/format.h>
 #include "message.h"
 #include "lapi_database.h"
 

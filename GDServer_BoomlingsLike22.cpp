@@ -62,3 +62,11 @@ std::string GDServer_BoomlingsLike22::getServerIdentifier() {
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike22::getReportedLevels(std::optional<CurlProxy> proxy) {
     return {}; // cannot test tho
 }
+
+LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike22::getLevelMetaByID(int id, std::optional<CurlProxy> proxy) {
+    auto list = fetchListOfLevels({id}, 0, proxy);
+
+    if (list.size() == 0) return nullptr;
+
+    return list[0];
+}

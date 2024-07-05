@@ -18,7 +18,7 @@
 
 #include "ModuleGDHistory.h"
 #include "Level.h"
-#include "format.h"
+#include <fmt/format.h>
 
 #include "curl_backend.h"
 

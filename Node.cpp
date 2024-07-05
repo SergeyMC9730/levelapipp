@@ -41,6 +41,7 @@
 #include "Translation.h"
 #include "Tools.h"
 #include "LevelRelease.h"
+#include <iostream>
 
 using namespace LevelAPI::DatabaseController;
 
@@ -181,7 +182,7 @@ void Node::setupJSON() {
     _jsonObject = nlohmann::json();
 }
 
-nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow row) {
+nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow &row) {
     nlohmann::json obj;
 
     obj["levelID"] = std::stoi(row["levelID"]);
@@ -235,9 +236,11 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow row) {
 }
 
 Level *Node::getLevel(int id) {
-    auto lvl = _sqliteObject->getTableWithCondition("levels", "levelID", 10, 1, {
+    SQLiteRow condition = {
         {"levelID", id}
-    });
+    };
+
+    auto lvl = _sqliteObject->getTableWithCondition("levels", "levelID", 10, 1, condition);
 
     std::string p1 = fmt::format("database/nodes/{}/levels/{}", m_sInternalName, getLevelPathRepresentation(id));
 
@@ -321,25 +324,31 @@ void Node::initLevel(Level *level) {
         std::filesystem::create_directories(p);
     }
 
-    auto user = _sqliteObject->getTableWithCondition("accounts", "userID", 10, 1, {
+    SQLiteRow condition = {
         {"userID", level->m_nPlayerID}
-    });
+    };
+
+    auto user = _sqliteObject->getTableWithCondition("accounts", "userID", 10, 1, condition);
 
     if (user.size() == 0) {
         // nlohmann::json j = {level->m_nLevelID};
 
-        _sqliteObject->pushRow({
+        SQLiteRow row = {
             {"accountID", level->m_nAccountID},
             {"username", level->m_sUsername},
             {"levels", "[]"},
             {"userID", level->m_nPlayerID}
-        }, "accounts");
+        };
+
+        _sqliteObject->pushRow(row, "accounts");
     }
 }
 bool Node::userIDExists(int uid) {
-    auto user = _sqliteObject->getTableWithCondition("accounts", "userID", 10, 1, {
+    SQLiteRow condition = {
         {"userID", uid}
-    });
+    };
+
+    auto user = _sqliteObject->getTableWithCondition("accounts", "userID", 10, 1, condition);
 
     return user.size() >= 1;
 }

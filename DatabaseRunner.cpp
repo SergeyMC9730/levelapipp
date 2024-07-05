@@ -31,7 +31,9 @@ void DatabaseController::database_runner(Database *db) {
     while(true) {
         std::this_thread::sleep_for(1s);
         if(db != nullptr) db->save();
+#ifdef _HTTPSERVER_HPP_INSIDE_
         HttpController::save();
+#endif
     }
 }
 

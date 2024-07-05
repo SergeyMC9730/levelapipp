@@ -35,8 +35,10 @@
 #include "GDServer.h"
 #include "Level.h"
 #include "lapi_database.h"
+#ifdef _DPP_ENABLED_
 #include "message.h"
 #include "restresults.h"
+#endif
 
 #include "Translation.h"
 
@@ -110,7 +112,11 @@ void DatabaseController::node_runner_waitResolverRL(Node *nd, int rate_limit_len
     return;
 }
 
+#ifdef _DPP_ENABLED_
 void DatabaseController::node_runner_wait_level(Node *nd, dpp::message message, int id) {}
+#else
+void DatabaseController::node_runner_wait_level(Node *nd, int id) {}
+#endif
 
 void DatabaseController::node_runner_resolve_level(Node *nd, NodeCommandQueue *q, Backend::GDServer *server) {}
 
@@ -167,7 +173,7 @@ void DatabaseController::node_runner(Node *nd) {
                         std::cout << "Selecting proxy " << selected_proxy.getURL() << std::endl;
                         std::cout << Translation::getByKey("lapi.noderunner.resolver.event.download.progress", this_node->m_sInternalName, id) << std::endl;
 
-                        auto level = this_server->getLevelMetaByID(id, false, selected_proxy);
+                        auto level = this_server->downloadLevel(id, selected_proxy);
 
                         if (!level || this_server->_rateLimitLength > 0) {
                             std::cout << "failed to download the level (proxy " << selected_proxy.getURL() << ")" << std::endl;;
@@ -212,7 +218,7 @@ void DatabaseController::node_runner(Node *nd) {
                     if (!std::filesystem::exists(datapath)) {
                         std::cout << Translation::getByKey("lapi.noderunner.resolver.event.download.progress", this_node->m_sInternalName, id) << std::endl;
 
-                        auto level = this_server->getLevelMetaByID(id, false);
+                        auto level = this_server->downloadLevel(id);
 
                         if (!level || this_server->_rateLimitLength > 0) {
                             std::cout << "failed to download the level" << std::endl;
@@ -283,11 +289,13 @@ void DatabaseController::node_runner(Node *nd) {
                         if (nd->m_pPolicy->m_bEnableResolver) {
                             nd->m_uQueue->m_vResolverQueuedLevels.push_back(levels[q]->m_nLevelID);   
                         }
+#ifdef _DPP_ENABLED_
                         if (!DatabaseController::database->m_sRegisteredCID2.empty() && DatabaseController::database->m_bBotReady && DatabaseController::database->m_pLinkedBot->m_pBot != nullptr) {
                             DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
                                 dpp::snowflake(DatabaseController::database->m_sRegisteredCID2), levels[q]->getAsEmbed(E_REGISTERED)
                             ));
                         }
+#endif
                         if(!nd->m_pPolicy->m_bNoOutput) {
                             std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
                         }
@@ -364,7 +372,7 @@ start:
             // break;
         // }
         case NC_USER: {
-            //if(server->m_eStatus == GSS_PERMANENT_BAN) break;
+            if(server->m_eStatus == Backend::GSS_PERMANENT_BAN) break;
 
             user_job(q->m_sText);
 
@@ -373,7 +381,7 @@ start:
         case NC_RECENT: {
             if(!nd->m_pPolicy->m_bEnableRecentTab) break;
 
-	    int page = atoi(q->m_sText.c_str());
+	        int page = atoi(q->m_sText.c_str());
 
             if(!nd->m_pPolicy->m_bNoOutput) {
                 std::cout << Translation::getByKey("lapi.noderunner.downloader.recenttab.fetch", nd->m_sInternalName) << std::endl;
@@ -412,11 +420,13 @@ start:
                     // if(!nd->m_bRateLimitApplied && nd->m_pPolicy->m_bEnableResolver) {
                     //     nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));
                     // }
+#ifdef _DPP_ENABLED_
                     if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady && DatabaseController::database->m_pLinkedBot != nullptr && DatabaseController::database->m_pLinkedBot->m_pBot != nullptr) {
                         DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
                             dpp::snowflake(DatabaseController::database->m_sRegisteredCID), levels[i]->getAsEmbed(E_RECENT)
                         ));
                     }
+#endif
                     if(!nd->m_pPolicy->m_bNoOutput) {
                         std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, levelid, levelname) << std::endl;
                     }

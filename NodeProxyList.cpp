@@ -17,6 +17,7 @@
 */
 
 #include "lapi_database.h"
+#include <iostream>
 
 using namespace LevelAPI::DatabaseController;
 

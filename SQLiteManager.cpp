@@ -74,7 +74,7 @@ SQLiteManager::SQLiteManager(std::string databasePath) {
     _processThread.detach();
 }
 
-void SQLiteManager::updateRow(std::string table, SQLiteRow newRow, SQLiteRow condition) {
+void SQLiteManager::updateRow(std::string table, SQLiteRow &newRow, SQLiteRow &condition) {
     std::string s = "UPDATE " + table + " SET";
 
     for (auto const [key, val] : newRow) {
@@ -166,7 +166,7 @@ void SQLiteManager::wipeTable(std::string table) {
     );
 }
 
-void SQLiteManager::pushRow(SQLiteRow row, std::string table) {
+void SQLiteManager::pushRow(SQLiteRow &row, std::string table) {
     std::string s = "INSERT INTO " + table + " (";
 
     for (auto const [key, val] : row) {
@@ -303,7 +303,7 @@ std::vector<SQLiteServerRow> SQLiteManager::getTable(std::string table, std::str
     return vec;
 }
 
-std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition, std::array<SQLiteRow, 2> between, bool useBetween) {
+std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow &condition, std::array<SQLiteRow, 2> between, bool useBetween) {
     if (page == 0) page = 1;
     if (rowsPerPage == 0) rowsPerPage = 1;
 
@@ -394,7 +394,7 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondi
 }
 
 
-std::vector<SQLiteServerRow> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition, std::array<SQLiteRow, 2> between, bool useBetween) {
+std::vector<SQLiteServerRow> SQLiteManager::getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow &condition, std::array<SQLiteRow, 2> between, bool useBetween) {
     return getTableWithCondition(table, columnOrdering, 10, page, condition, between);
 }
 
@@ -403,7 +403,7 @@ std::vector<SQLiteServerRow> SQLiteManager::getTable(std::string table, std::str
 }
 
 std::function<SQLITE_CALLBACK_FUNC> SQLiteManager::getPlaceholderCallback() {
-    return [](SQLiteManager *, std::vector<std::map<std::string, std::string>>, bool){};
+    return [](SQLiteManager *, std::vector<std::map<std::string, std::string>>&, bool){};
 }
 
 std::vector<SQLiteServerRow> SQLiteManager::syncQuery(std::string query) {
@@ -416,7 +416,7 @@ std::vector<SQLiteServerRow> SQLiteManager::syncQuery(std::string query) {
             std::string,
             std::function<SQLITE_CALLBACK_FUNC>>
                 (query,
-                    [&](SQLiteManager *self, std::vector<std::map<std::string, std::string>> v, bool c) {
+                    [&](SQLiteManager *self, std::vector<std::map<std::string, std::string>> &v, bool c) {
                         vec = v;
                         job_completed = true;
                     }

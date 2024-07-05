@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.5.0)
 project(gmd2 VERSION 1.0.0)
 
+option(GMD2PP_STATIC "compile gmd2pp as a static library" OFF)
+
+if (GMD2PP_STATIC)
+    set(COMPILE_MODE STATIC)
+else()
+    set(COMPILE_MODE SHARED)
+endif()
+
 file(GLOB zlib_files
     "${CMAKE_CURRENT_SOURCE_DIR}/ziplib/Source/ZipLib/extlibs/zlib/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/ziplib/Source/ZipLib/extlibs/zlib/*.h"
@@ -33,9 +41,9 @@ endif()
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ziplib/Source/ZipLib/extlibs/bzip2")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ziplib/Source/ZipLib/extlibs/zlib")
 
-add_library(ext_bzip2 ${bzip2_files})
-add_library(ext_lzma ${lzma_files})
-add_library(ext_zlib ${zlib_files})
+add_library(ext_bzip2 ${COMPILE_MODE} ${bzip2_files})
+add_library(ext_lzma ${COMPILE_MODE} ${lzma_files})
+add_library(ext_zlib ${COMPILE_MODE} ${zlib_files}) 
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED 11)
@@ -90,7 +98,7 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/ziplib/Source/ZipLib/compression/store"
 )
 
-add_library(ext_ziplib ${ziplib_files})
+add_library(ext_ziplib ${COMPILE_MODE} ${ziplib_files})
 link_libraries(ext_ziplib ext_bzip2 ext_lzma ext_zlib)
 
  #ext_bzip2 ext_lzma ext_zlib
@@ -105,31 +113,40 @@ install(TARGETS ext_ziplib EXPORT levelapi_workarounds)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED 17)
 
-add_library(gmdtools gmdtools.cpp)
+add_library(gmdtools ${COMPILE_MODE} gmdtools.cpp)
 link_libraries(gmdtools curl)
 
 install(TARGETS gmdtools EXPORT levelapi_workarounds)
 
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libs" FORCE)
+if (GMD2PP_STATIC)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libs" FORCE)
+    option(BUILD_SHARED_LIBS OFF)
+    set(PUGIXML_LINKAGE pugixml-static)
+    set(CJSON_LINKAGE cjson)
+else()
+    set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libs" FORCE)
+    option(BUILD_SHARED_LIBS ON)
+    set(PUGIXML_LINKAGE pugixml-shared)
+    set(CJSON_LINKAGE cjson)
+endif()
 set(ENABLE_TARGET_EXPORT OFF CACHE BOOL "Enable target exporting" FORCE)
 add_subdirectory(cJSON)
 
 install(TARGETS cjson EXPORT levelapi_workarounds)
 
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libs" FORCE)
 set(ENABLE_TARGET_EXPORT OFF CACHE BOOL "Enable target exporting" FORCE)
 add_subdirectory(pugixml_patch)
 
-install(TARGETS pugixml-shared EXPORT levelapi_workarounds)
+install(TARGETS ${PUGIXML_LINKAGE} EXPORT levelapi_workarounds)
 
-add_library(gmd2pp_hex
+add_library(gmd2pp_hex ${COMPILE_MODE}
     ${gmd2pp_helper_hex}
 )
 
-add_library(base64 cpp-base64/base64.cpp)
+add_library(base64 ${COMPILE_MODE} cpp-base64/base64.cpp)
 
 install(TARGETS base64 EXPORT levelapi_workarounds)
 install(TARGETS gmd2pp_hex EXPORT levelapi_workarounds)
 
-add_library(gmd2 impl.cpp GDLevelSaveable.cpp)
-target_link_libraries(gmd2 ext_ziplib gmdtools cjson pugixml-shared base64 gmd2pp_hex)
+add_library(gmd2 ${COMPILE_MODE} impl.cpp GDLevelSaveable.cpp)
+target_link_libraries(gmd2 ext_ziplib gmdtools ${CJSON_LINKAGE} ${PUGIXML_LINKAGE} base64 gmd2pp_hex)

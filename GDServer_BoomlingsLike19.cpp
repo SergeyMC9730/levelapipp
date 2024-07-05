@@ -96,7 +96,7 @@ bool GDServer_BoomlingsLike19::login(std::optional<CurlProxy> proxy) {
     return true;
 }
 
-LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy) {
+LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::downloadLevel(int id, std::optional<CurlProxy> proxy) {
     // create curl instance
     auto m_pLinkedCURL = _setupCURL(proxy, _getSecretValueStandard());
 
@@ -343,4 +343,10 @@ std::string GDServer_BoomlingsLike19::getServerIdentifier() {
 
 GDServerUploadResult *GDServer_BoomlingsLike19::uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy) {
     return nullptr;
+}
+
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsFromResponse(std::string &response) {
+    // TODO: implement this
+    
+    return {};
 }

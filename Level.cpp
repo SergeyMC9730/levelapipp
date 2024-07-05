@@ -18,11 +18,12 @@
 
 #include "Level.h"
 #include "SQLiteManager.h"
-#include "core.h"
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
 #include "gmd2pp/gmd2.h"
+#ifdef _DPP_ENBLED_
 #include "message.h"
+#endif
 #include <filesystem>
 #include <fstream>
 #include "Time.h"
@@ -31,7 +32,9 @@
 #include <string>
 #include <sys/stat.h>
 #include <vector>
+#ifdef _HTTPSERVER_HPP_INSIDE_
 #include "HttpController.h"
+#endif
 #include "LevelRelease.h"
 
 using namespace LevelAPI::DatabaseController;
@@ -152,6 +155,7 @@ void Level::save(bool onlyLevelString) {
 }
 
 std::string Level::getDownloadLinks(bool embed) {
+#ifdef _HTTPSERVER_HPP_INSIDE_
     std::string url = HttpController::getURL();
 
     bool hasGMD2 = m_bHasLevelString;
@@ -173,6 +177,9 @@ std::string Level::getDownloadLinks(bool embed) {
     }
 
     return result;
+#else
+    return "";
+#endif
 }
 
 void Level::recover() {
@@ -369,6 +376,7 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     return path;
 }
 
+#ifdef _DPP_ENABLED_
 dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
     std::vector<std::string> eventtable = {
         "lapi.level.embed.description",
@@ -384,7 +392,11 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
         "lapi.level.embed.info.title",
     };
 
+#ifdef _HTTPSERVER_HPP_INSIDE_
     std::string url = HttpController::getURL();
+#else
+    std::string url = "https://www.google.com";
+#endif
 
     std::string img_path = generateDifficultyImage("resources");
 
@@ -443,11 +455,14 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
         );
     }
 
+#ifdef _HTTPSERVER_HPP_INSIDE_
     embed.add_field(
         Translation::getByKey("lapi.level.embed.field.info"),
         getDownloadLinks(true),
         true
     );
+#endif
 
     return embed;
 }
+#endif

@@ -29,12 +29,14 @@ namespace LevelAPI {
             GDServer_BoomlingsLike22(std::string endpoint, std::vector<LevelRange> list);
             GDServer_BoomlingsLike22(std::string endpoint, LevelRangeList list);
 
-	    // get metadata for a list of levels
+	        // get metadata for a list of levels
             virtual std::vector<LevelAPI::DatabaseController::Level *> fetchListOfLevels(std::vector<int> levels, int page, std::optional<CurlProxy> proxy = std::nullopt);
 
-	    // get list of latest reported levels.
-	    // UNTESTED
+            // get list of latest reported levels.
+            // UNTESTED
             virtual std::vector<LevelAPI::DatabaseController::Level *> getReportedLevels(std::optional<CurlProxy> proxy = std::nullopt);
+
+            LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, std::optional<CurlProxy> proxy = std::nullopt) override;
 
             int getGameVersion() override;
             std::string getServerName() override;

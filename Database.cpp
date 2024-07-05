@@ -16,15 +16,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#ifdef _DPP_ENABLED_
 #include "DiscordInstance.h"
-#include "cluster.h"
-#include "dispatcher.h"
-#include "intents.h"
+#include <dpp/dpp.h>
+#endif
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
 #include "DatabaseControllerThreads.h"
-#include "snowflake.h"
-
 #include <filesystem>
 #include <fstream>
 #include <vector>
@@ -126,6 +124,7 @@ Database::Database(std::string path) {
 
     recalculate();
 
+#ifdef _DPP_ENABLED_
     if (_jsonObject.contains("botToken")) {
         m_bEnableBot = true;
         GET_JSON_VALUE(_jsonObject, "botToken", m_sBotToken, std::string);
@@ -139,6 +138,7 @@ Database::Database(std::string path) {
         m_pLinkedBot = new LevelAPI::Frontend::DiscordInstance(this);
         m_vThreads.push_back(m_pLinkedBot->start());
     }
+#endif
 
     runThreads();
 
@@ -173,9 +173,11 @@ void Database::save() {
 
     _jsonObject["nodes"] = nlohmann::json::array();
     _jsonObject["nodeSize"] = m_nNodeSize;
+#ifdef _DPP_ENABLED_
     if(m_bEnableBot) _jsonObject["botToken"] = m_sBotToken;
     _jsonObject["registeredCID"] = m_sRegisteredCID;
     _jsonObject["registeredCID2"] = m_sRegisteredCID2;
+#endif
 
     int i = 0;
     while(i < m_vNodes.size()) {

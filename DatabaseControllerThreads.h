@@ -20,7 +20,9 @@
 
 #include "GDServer.h"
 // #include "lapi_database.h"
+#ifdef _DPP_ENABLED_
 #include <dpp/message.h>
+#endif
 
 namespace LevelAPI {
     namespace Backend {
@@ -37,7 +39,11 @@ namespace LevelAPI {
         void node_runner_waitResolverRL(Node *nd, int rate_limit_length);
         void node_runner_recentBot(Node *nd);
         void node_runner_recount_task(Node *nds);
+#ifdef _DPP_ENABLED_
         void node_runner_wait_level(Node *nd, dpp::message message, int id);
+#else
+        void node_runner_wait_level(Node *nd, int id);
+#endif
         void node_runner_resolve_level(Node *nd, NodeCommandQueue *q, Backend::GDServer *server);
     }
 }

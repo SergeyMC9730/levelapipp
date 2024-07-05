@@ -31,8 +31,6 @@
 #include "GDServer_BasementLike21.h"
 #include "GDServer_BoomlingsLike19.h"
 #include "lapi_database.h"
-#include "message.h"
-#include "restresults.h"
 
 #include "Translation.h"
 

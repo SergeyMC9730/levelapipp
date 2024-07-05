@@ -95,14 +95,14 @@ namespace LevelAPI {
             virtual CURLConnection *_setupCURL(std::optional<CurlProxy> proxy, std::string secret);
         public:
             GDServer();
-	    // create gdserver with a list of level ranges
+	        // create gdserver with a list of level ranges
             GDServer(std::vector<LevelRange> list);
             // create gdserver with a single level range
             GDServer(LevelRangeList list);
 
             ~GDServer();
 
-	    // current status of this server
+	        // current status of this server
             GDServerStatus m_eStatus;
             // how much user should wait for a next request
             int _rateLimitLength;
@@ -112,16 +112,20 @@ namespace LevelAPI {
             // get debug mode flag
             virtual bool getDebug();
 
-	    // get level metadata by id
-	    // should be removed in the future or renamed into downloadLevel
-            virtual LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy = std::nullopt);
+	        // get level metadata by id
+            virtual LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, std::optional<CurlProxy> proxy = std::nullopt);
+            // download level by id
+            virtual LevelAPI::DatabaseController::Level *downloadLevel(int id, std::optional<CurlProxy> proxy = std::nullopt);
             // returns self
             virtual LevelAPI::DatabaseController::Level *resolveLevelData(LevelAPI::DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt);
             // get a list of levels with type and standard parameters
-	    virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::optional<CurlProxy> proxy = std::nullopt);
+	        virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::optional<CurlProxy> proxy = std::nullopt);
             // implements basic search functionality
             // it doesn't allow searching requests that use gjp password
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy = std::nullopt);
+
+            // get a list of levels based on the server response
+            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsFromResponse(std::string &response);
 
             // set credentials for this account
             virtual void setCredentials(std::string u, std::string p);
@@ -134,7 +138,7 @@ namespace LevelAPI {
             // get max size of max pack page (in levels)
             virtual int getMaxMapPackPageSize();
 
-	    // get gameversion for this server
+	        // get gameversion for this server
             virtual int getGameVersion();
 
             // get server name

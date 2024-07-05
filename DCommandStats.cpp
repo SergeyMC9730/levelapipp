@@ -23,7 +23,7 @@
 #include "HttpController.h"
 #include "SearchFilter.h"
 #include "appcommand.h"
-#include "format.h"
+#include <fmt/format.h>
 #include "lapi_database.h"
 #include "message.h"
 #include "Level.h"
@@ -113,6 +113,7 @@ DCommand::DCommandCallback DCommandStats::getDefaultCallback() {
 
         actionrow1.add_component(component_latest);
 
+#ifdef _HTTPSERVER_HPP_INSIDE_
         int i = 0;
         while (i < levels.size()) {
             dpp::component component_level;
@@ -134,12 +135,14 @@ DCommand::DCommandCallback DCommandStats::getDefaultCallback() {
 
             i++;
         }
-
+#endif
         dpp::message msg;
 
         msg.add_embed(emb);
         msg.add_component(actionrow1);
+#ifdef _HTTPSERVER_HPP_INSIDE_
         msg.add_component(actionrow2);
+#endif
 
         event->getCommandEvent().reply(msg);
 

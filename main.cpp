@@ -17,7 +17,11 @@
 */
 
 #include <iostream>
+#ifdef _HTTPSERVER_HPP_INSIDE_
 #include <httpserver.hpp>
+#include "requests/requests.h"
+#include "HttpController.h"
+#endif
 #include <iterator>
 #include <dirent.h>
 #include <sys/statvfs.h>
@@ -29,14 +33,10 @@
 
 #include "TestingBoomlings22.h"
 // #include "connection.h"
-#include "requests/requests.h"
-
 #include "gmd2pp/gmd2.h"
 
 #include "lapi_database.h"
 #include "lapi_version.h"
-
-#include "HttpController.h"
 
 #include "GDServer_BoomlingsLike21.h"
 
@@ -201,6 +201,7 @@ bool setupAskQuestion(std::string q, bool default_yes) {
 }
 
 #include <termios.h>
+#include <unistd.h>
 
 // https://stackoverflow.com/questions/13694170/how-do-i-hide-user-input-with-cin-in-c
 void HideStdinKeystrokes()
@@ -363,6 +364,8 @@ nlohmann::json setupInfoMakeNode() {
     return ret;
 }
 
+#include <fstream>
+
 void setupInfo() {
     std::cout << "Setting up database\n";
 
@@ -413,6 +416,7 @@ void setupInfo() {
 
     std::cout << "\n";
 
+#ifdef _DPP_ENABLED_
     bool with_discord = setupAskQuestion(getByKey("lapi.main.discord.toggle"), false);
 
     if (with_discord) {
@@ -447,6 +451,7 @@ void setupInfo() {
         database["registeredCID"] = registeredCID1;
         database["registeredCID2"] = registeredCID2;
     }
+#endif
     
     std::cout << getByKey("lapi.main.db.save");
 
@@ -528,11 +533,15 @@ int main(int argc, char *argv[]) {
     //     i++;
     // }
 
+
     DatabaseController::setup();
+
+    LevelAPI::Tests::testCurl();
+
+#ifdef _HTTPSERVER_HPP_INSIDE_
     HttpController::setup();
     HttpController::parse();
 
-    LevelAPI::Tests::testCurl();
     // LevelAPI::Tests::testGDParsers();
 
     webserver ws = create_webserver()
@@ -563,8 +572,16 @@ int main(int argc, char *argv[]) {
         i++;
     }
 
+    {
+        HttpController::generateIndex({"a", "b"});
+    }
+
     std::cout << getByKey("lapi.main.portstart", HttpController::getPort()) << std::endl;
 
+    ws.start(true);
+#else
+    while (true) {;;}
+#endif
     // int i = 0;
     // int size = DatabaseController::database->m_vNodes.size();
 
@@ -634,12 +651,6 @@ int main(int argc, char *argv[]) {
 
     //     i++;
     // }
-
-    {
-        HttpController::generateIndex({"a", "b"});\
-    }
-
-    ws.start(true);
 
     return 0;
 }

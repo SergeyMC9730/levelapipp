@@ -36,7 +36,7 @@ using SQLiteRow = std::map<std::string, std::variant<std::string, int, bool, uin
 // server row. this is what sqlite backend sends back
 using SQLiteServerRow = std::map<std::string, std::string>;
 
-#define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::vector<SQLiteServerRow>, bool)
+#define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::vector<SQLiteServerRow>&, bool)
 
 class SQLiteManager {
 protected:
@@ -71,7 +71,7 @@ public:
     ~SQLiteManager();
 
     // push a row into table
-    void pushRow(SQLiteRow row, std::string table);
+    void pushRow(SQLiteRow &row, std::string table);
 
     // wipes table's contents
     void wipeTable(std::string table);
@@ -88,12 +88,12 @@ public:
     std::vector<SQLiteServerRow> getTable(std::string table, std::string columnOrdering, int page);
 
     // get rows from table
-    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow condition, std::array<SQLiteRow, 2> between = {}, bool useBetween = false);
+    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int rowsPerPage, int page, SQLiteRow &condition, std::array<SQLiteRow, 2> between = {}, bool useBetween = false);
     // get rows from table
-    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow condition, std::array<SQLiteRow, 2> between = {}, bool useBetween = false);
+    std::vector<SQLiteServerRow> getTableWithCondition(std::string table, std::string columnOrdering, int page, SQLiteRow &condition, std::array<SQLiteRow, 2> between = {}, bool useBetween = false);
 
     // update row in table
-    void updateRow(std::string table, SQLiteRow newRow, SQLiteRow condition);
+    void updateRow(std::string table, SQLiteRow &newRow, SQLiteRow &condition);
 
     std::function<SQLITE_CALLBACK_FUNC> getPlaceholderCallback();
 

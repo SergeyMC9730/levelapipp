@@ -19,7 +19,6 @@
 #pragma once
 
 #include "DatabaseCell.h"
-#include "cluster.h"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -28,9 +27,10 @@
 
 #include "json/single_include/nlohmann/json.hpp"
 
+#ifdef _DPP_ENABLED_
 #include <dpp/dpp.h>
-
 #include "DiscordInstance.h"
+#endif
 
 #include "SearchFilter.h"
 
@@ -180,7 +180,7 @@ namespace LevelAPI {
 
             std::vector<struct NodeGraphGen> m_vLastGraphs;
 
-            static nlohmann::json jsonFromSQLLevel(SQLiteServerRow row); 
+            static nlohmann::json jsonFromSQLLevel(SQLiteServerRow &row); 
 
             void initLevel(Level *level);
             
@@ -215,15 +215,15 @@ namespace LevelAPI {
             bool m_bLoadedFromBackup = false;
         public:
             std::string databasePath;
+#ifdef _DPP_ENABLED_
             LevelAPI::Frontend::DiscordInstance *m_pLinkedBot;
             bool m_bEnableBot;
-            std::vector<std::thread *> m_vThreads;
             std::string m_sBotToken;
-
             bool m_bBotReady;
-
             std::string m_sRegisteredCID;
             std::string m_sRegisteredCID2;
+#endif
+            std::vector<std::thread *> m_vThreads;
 
             bool exists();
 

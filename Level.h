@@ -23,7 +23,9 @@
 
 #include "json/single_include/nlohmann/json.hpp"
 
+#ifdef _DPP_ENABLED_
 #include <dpp/dpp.h>
+#endif
 
 namespace LevelAPI {
     namespace Frontend {
@@ -76,8 +78,10 @@ namespace LevelAPI {
             // get legacy timestamp for this level
             Frontend::Time *getTimeLegacy();
 
+#ifdef _DPP_ENABLED_
             // render this level as an discord embed
             dpp::embed getAsEmbed(LevelAppearanceEvent e);
+#endif
             // returns filename without its path
             std::string generateDifficultyImage(std::string folder_prefix);
 

@@ -34,7 +34,7 @@ namespace LevelAPI {
             GATGodlike,
             // level has been rated to legendary
             GATLegendary,
-            // level coins were been approved
+            // level coins were approved
             GATCoins
         };
 

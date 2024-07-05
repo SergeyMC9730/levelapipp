@@ -42,7 +42,7 @@ GDServer::GDServer(LevelRangeList list) : _ranges(list) {
 GDServer::~GDServer() {
     m_eStatus = GSS_OFFLINE;
 }
-LevelAPI::DatabaseController::Level *GDServer::getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy) {
+LevelAPI::DatabaseController::Level *GDServer::getLevelMetaByID(int id, std::optional<CurlProxy> proxy) {
     return nullptr;
 }
 
@@ -174,4 +174,13 @@ CURLConnection *GDServer::_setupCURL(std::optional<CurlProxy> proxy, std::string
     });
 
     return m_pLinkedCURL;
+}
+
+// get a list of levels based on the server response
+std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsFromResponse(std::string &response) {
+    return {};
+}
+
+LevelAPI::DatabaseController::Level *GDServer::downloadLevel(int id, std::optional<CurlProxy> proxy) {
+    return nullptr;
 }

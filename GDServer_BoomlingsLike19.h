@@ -45,10 +45,8 @@ namespace LevelAPI {
             GDServer_BoomlingsLike19(std::string endpoint, std::vector<LevelRange> list);
             GDServer_BoomlingsLike19(std::string endpoint, LevelRangeList list);
 
-	    // get level metadata by id
-            // should be removed from 1.9 and 2.1 client implementations because they just call downloadGJLevel.
-	    // in 2.2 new endpoint has been added for it and getLevelMetaByID should be properly implemented in BoomlingsLike22 class.
-            LevelAPI::DatabaseController::Level *getLevelMetaByID(int id, bool resolveAccountInfo, std::optional<CurlProxy> proxy = std::nullopt) override;
+	        // download level by id
+            LevelAPI::DatabaseController::Level *downloadLevel(int id, std::optional<CurlProxy> proxy = std::nullopt) override;
             // implements basic search functionality.
             // it doesn't allow searching requests that use gjp
             std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy = std::nullopt) override;
@@ -62,9 +60,11 @@ namespace LevelAPI {
             int getMaxLevelPageSize() override;
             int getMaxMapPackPageSize() override;
 
-	    // try to upload a level.
-	    // NOT IMPLEMENTED
+	        // try to upload a level.
+	        // NOT IMPLEMENTED
             GDServerUploadResult *uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt) override;
+
+            std::vector<LevelAPI::DatabaseController::Level *> getLevelsFromResponse(std::string &response) override;
 
             int getGameVersion() override;
             std::string getServerName() override;
