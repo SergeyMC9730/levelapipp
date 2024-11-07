@@ -47,7 +47,8 @@ namespace LevelAPI {
         enum NodeCommands {
             NC_ID = 0, 
             NC_USER, NC_RECENT, NC_EXPERIMENT1,
-            NC_NONE, NC_IDLE
+            NC_NONE, NC_IDLE,
+            NC_EXPERIMENT2, NC_22REGION_META
         };
 
         class NodeCommandQueue : public DatabaseCell {
@@ -55,8 +56,8 @@ namespace LevelAPI {
             NodeCommandQueue(int command, std::string text);
             NodeCommandQueue();
 
-            uint8_t m_nCommand;
-            std::string m_sText;
+            uint8_t m_nCommand = 0;
+            std::string m_sText = "";
 
             void save() override;
             void recover() override;
@@ -67,12 +68,12 @@ namespace LevelAPI {
         };
         class NodeQueue : public DatabaseCell {
         public:
-            NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState);
-            NodeQueue(std::vector<NodeCommandQueue *> vec, bool executeQueue, int runtimeState);
+            NodeQueue(const NodeCommandQueue &q, bool executeQueue, int runtimeState);
+            NodeQueue(const std::vector<NodeCommandQueue> &vec, bool executeQueue, int runtimeState);
             NodeQueue(bool executeQueue, int runtimeState);
             NodeQueue();
 
-            std::vector<NodeCommandQueue *> m_vCommandQueue = {};
+            std::vector<NodeCommandQueue> m_vCommandQueue = {};
             std::vector<int> m_vResolverQueuedLevels = {};
     
             bool m_bExecuteQueue;

@@ -29,7 +29,7 @@ namespace LevelAPI {
             // sqlite instance if we want to use it
             SQLiteManager *_sqliteObject = nullptr;
             // json data for saving and recovering the cell
-            nlohmann::json _jsonObject = {};
+            nlohmann::json _jsonObject = nlohmann::json::object();
         public:
             // destructor
             ~DatabaseCell();
@@ -43,6 +43,10 @@ namespace LevelAPI {
             virtual void setupJSON();
             // create sqlite instance
             virtual void setupSQLite();
+
+            operator nlohmann::json () const {
+                return _jsonObject;
+            }
         };
     }
 }

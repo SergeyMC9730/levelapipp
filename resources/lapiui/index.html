@@ -282,7 +282,12 @@
                 lengthimg.setAttribute("src", `${getAPI()}/api/v1/res/request/time.png`)
 
                 let likesimg = clone.getElementById("likesimg");
-                likesimg.setAttribute("src", `${getAPI()}/api/v1/res/request/like.png`)
+                
+                if (json_data.likes >= 0) {
+                    likesimg.setAttribute("src", `${getAPI()}/api/v1/res/request/like.png`)
+                } else {
+                    likesimg.setAttribute("src", `${getAPI()}/api/v1/res/request/dislike.png`)
+                }
 
                 let downloadsimg = clone.getElementById("downloadsimg");
                 downloadsimg.setAttribute("src", `${getAPI()}/api/v1/res/request/download.png`)

@@ -384,7 +384,7 @@ std::vector<std::map<std::string, std::string>> SQLiteManager::getTableWithCondi
         data1 = sqlite3_mprintf("PRAGMA encoding=\"UTF-8\"; SELECT * FROM %s %s %s %s LIMIT %d OFFSET %d", table.c_str(), bw.c_str(), ordering_pref.c_str(), columnOrdering.c_str(), rowsPerPage, (page - 1) * rowsPerPage);
     }
 
-    printf("data1=%s\n", data1);
+    // printf("data1=%s\n", data1);
 
     auto vec = syncQuery(data1);
 

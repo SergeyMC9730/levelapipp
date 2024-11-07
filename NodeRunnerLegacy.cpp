@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "GDServer_BoomlingsLike22.h"
 #include "curl_backend.h"
 #include "DatabaseControllerThreads.h"
 
@@ -24,6 +25,7 @@
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -85,9 +87,9 @@ void DatabaseController::node_runner_recount_task(Node *nd) {
 void DatabaseController::node_runner_recentBot(Node *nd) {
     if(!nd->m_pPolicy->m_bEnableRecentTab) return;
 start:
-    std::this_thread::sleep_for(std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000)));
+    std::this_thread::sleep_for(std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000.f)));
     if(nd->m_uQueue->m_vCommandQueue.size() == 0) {
-        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_RECENT, "-"));
+        nd->m_uQueue->m_vCommandQueue.push_back({NC_RECENT, "-"});
         nd->m_uQueue->save();
     }
     goto start;
@@ -352,36 +354,36 @@ run_again:
 start:
     if(nd->m_uQueue->m_vCommandQueue.size() == 0) goto error_ignore;
 
-    auto q = nd->m_uQueue->m_vCommandQueue.at(0);
+    const NodeCommandQueue &q = nd->m_uQueue->m_vCommandQueue.at(0);
 
-    nd->m_uQueue->currentState = q->m_nCommand;
-    prev_q = q->m_nCommand;
+    nd->m_uQueue->currentState = q.m_nCommand;
+    prev_q = q.m_nCommand;
 
     bool wait_after_command = true;
 
-    switch(q->m_nCommand) {
-        // case NC_EXPERIMENT1: { // downloads levels from all gd users (or, atleast, tries to do so)
-            // break;
-            // if(nd->m_nExperiment1Value < 0) nd->m_nExperiment1Value = 0;
-            // int n = nd->m_nExperiment1Value;
-            // for(;;) {
-                // user_job(std::to_string(n));
-                // n++;
-                // nd->m_nExperiment1Value = n;
-            // }
-            // break;
-        // }
+    switch(q.m_nCommand) {
+        case NC_EXPERIMENT1: { // downloads levels from all gd users (or, atleast, tries to do so)
+            break;
+            if(nd->m_nExperiment1Value < 0) nd->m_nExperiment1Value = 0;
+            int n = nd->m_nExperiment1Value;
+            for(;;) {
+                user_job(std::to_string(n));
+                n++;
+                nd->m_nExperiment1Value = n;
+            }
+            break;
+        }
         case NC_USER: {
             if(server->m_eStatus == Backend::GSS_PERMANENT_BAN) break;
 
-            user_job(q->m_sText);
+            user_job(q.m_sText);
 
             break;
         }
         case NC_RECENT: {
             if(!nd->m_pPolicy->m_bEnableRecentTab) break;
 
-	        int page = atoi(q->m_sText.c_str());
+	        int page = atoi(q.m_sText.c_str());
 
             if(!nd->m_pPolicy->m_bNoOutput) {
                 std::cout << Translation::getByKey("lapi.noderunner.downloader.recenttab.fetch", nd->m_sInternalName) << std::endl;
@@ -409,7 +411,7 @@ start:
                     auto identifier = server->getServerIdentifier();
                     
                     if(!userIDExists) {
-                        nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_USER, std::to_string(levels[i]->m_nPlayerID)));
+                        nd->m_uQueue->m_vCommandQueue.push_back({NC_USER, std::to_string(levels[i]->m_nPlayerID)});
                     }
 
                     nd->initLevel(levels[i]);
@@ -450,8 +452,8 @@ start:
         }
 
         case NC_ID: {
-            if (std::stoi(q->m_sText) == 0) break;
-            nd->m_uQueue->m_vResolverQueuedLevels.push_back(std::stoi(q->m_sText));
+            if (std::stoi(q.m_sText) == 0) break;
+            nd->m_uQueue->m_vResolverQueuedLevels.push_back(std::stoi(q.m_sText));
         }
         default:
         case NC_NONE:
@@ -460,10 +462,87 @@ start:
 
             break;
         }
+        case NC_EXPERIMENT2: {
+            std::cout << "performing experiment 2\n";
+
+            int pages = std::stoi(q.m_sText);
+
+            for (int i = 0; i < pages; i++) {
+                nd->m_uQueue->m_vCommandQueue.push_back({NC_22REGION_META, std::to_string(i)});
+            }
+            
+            std::cout << "performed experiment 2: " << pages << " NC_22REGION_META commands were added\n";
+            
+            break;
+        }
+        case NC_22REGION_META: {
+            if (server->getGameVersion() < 22) {
+                std::cout << "NC_22REGION_META command is not supported on " << server->getGameVersion() << " server\n";
+                
+                break;
+            }
+
+            auto srv22 = dynamic_cast<Backend::GDServer_BoomlingsLike22 *>(server);
+            if (!srv22) {
+                std::cout << "NC_22REGION_META command is not supported on " << server->getServerIdentifier() << " server\n";
+                
+                break;
+            }
+
+            int offset = std::stoi(q.m_sText);
+            std::vector<int> vlist;
+            int max = 100;
+
+            for (int i = 0; i < max; i++) {
+                vlist.push_back(i + (max * offset));
+            }
+
+            std::optional<Backend::CurlProxy> proxy = std::nullopt;
+
+            if (nd->m_pProxy && nd->m_pProxy->m_vProxies.size() != 0) {
+                std::cout << "NC_22REGION_META selected proxy " << nd->m_pProxy->m_vProxies[0] << "\n";
+                proxy = Backend::CurlProxy(nd->m_pProxy->m_vProxies[0]);
+            }
+
+            auto list = srv22->fetchListOfLevels(vlist, 0, proxy);
+
+            while (list.size() != 0) {
+                for (Level *lvl : list) {
+                    std::vector<int> newvlist = {};
+                    for (int id : vlist) {
+                        if (id != lvl->m_nLevelID) newvlist.push_back(id);
+                    }
+                    vlist = newvlist;
+
+                    if (nd->levelExists(lvl->m_nLevelID)) {
+                        continue;
+                    }
+
+                    nd->initLevel(lvl);
+                    lvl->m_bHasLevelString = false;
+                    lvl->m_sUsername = "-";
+                    lvl->save();
+
+                    if(!nd->m_pPolicy->m_bNoOutput) {
+                        std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, lvl->m_nLevelID, lvl->m_sLevelName) << std::endl;
+                    }
+                }
+
+                srv22->destroyLevelVector(list);
+                list.clear();
+
+                std::this_thread::sleep_for(std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000.f)));
+
+                list = srv22->fetchListOfLevels(vlist, 0, proxy);
+
+                printf("NC_22REGION_META: GOT %ld levels\n", list.size());
+            }
+
+            srv22->destroyLevelVector(list);
+
+            break;
+        }
     }
-    
-    delete q;
-    q = nullptr;
     
     nd->m_uQueue->m_vCommandQueue.erase(nd->m_uQueue->m_vCommandQueue.begin());
     // nd->m_uQueue->save();

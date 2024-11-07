@@ -281,38 +281,59 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     parameters.push_back(m_nEpic);
     if(parameters[1]) parameters[0] = false;
 
-    switch(m_nStars == 0 ? m_nStarsRequested : m_nStars) {
-        case 1:
-        case 2: {
-            diffimage = "easy";
-            break;
+    // std::map<int, int> fixStars = {
+    //     {}
+    // }
+
+    if (m_nStars == 0 && m_nStarsRequested == 0) {
+        switch (m_nDemonDifficulty) {
+            case 0: {
+                diffimage = "hard";
+                break;
+            }
+            case 4: {
+                diffimage = "normal";
+                break;
+            }
+            case 5: {
+                diffimage = "harder";
+                break;
+            }
         }
-        case 3: {
-            diffimage = "normal";
-            break;
-        }
-        case 4:
-        case 5: {
-            diffimage = "hard";
-            break;
-        }
-        case 6:
-        case 7: {
-            diffimage = "harder";
-            break;
-        }
-        case 8:
-        case 9: {
-            diffimage = "insane";
-            break;
-        }
-        case 10: {
-            diffimage = "demon";
-            break;
-        }
-        default: {
-            diffimage = "na";
-            break;
+    } else {
+        switch(m_nStars == 0 ? m_nStarsRequested : m_nStars) {
+            case 1:
+            case 2: {
+                diffimage = "easy";
+                break;
+            }
+            case 3: {
+                diffimage = "normal";
+                break;
+            }
+            case 4:
+            case 5: {
+                diffimage = "hard";
+                break;
+            }
+            case 6:
+            case 7: {
+                diffimage = "harder";
+                break;
+            }
+            case 8:
+            case 9: {
+                diffimage = "insane";
+                break;
+            }
+            case 10: {
+                diffimage = "demon";
+                break;
+            }
+            default: {
+                diffimage = "na";
+                break;
+            }
         }
     }
 

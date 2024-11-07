@@ -22,8 +22,8 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     filter.m_sReleaseGV = req.get_arg_flat("actualGameVersion").data();
     filter.m_sUsername = decodeURIComponent(req.get_arg_flat("username").data());
 
-    printf("------ USERNAME: %s ------\n", filter.m_sUsername.c_str());
-    printf("------ DESCRIPT: %s ------\n", filter.m_sDescription.c_str());
+    // printf("------ USERNAME: %s ------\n", filter.m_sUsername.c_str());
+    // printf("------ DESCRIPT: %s ------\n", filter.m_sDescription.c_str());
 
     #define PARSE_VAL(key, type, value) try { data = req.get_arg_flat(key).data(); if (!data.empty()) value = (type)std::stoi(data); } catch (std::invalid_argument invarg) {}
 
@@ -62,7 +62,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
         filter.timestamp_start = 0;
     }
 
-    printf("t0: %ld; t1: %ld\n", filter.timestamp_start, filter.timestamp_end);
+    // printf("t0: %ld; t1: %ld\n", filter.timestamp_start, filter.timestamp_end);
 
     std::string sort_type = req.get_arg_flat("sort").data();
 
@@ -109,9 +109,9 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
             }
         }
 
-        for (int i = 0; i < levels_arr.size(); i++) {
-            printf("[%d]: %d\n", i, levels_arr.at(i));
-        }
+        // for (int i = 0; i < levels_arr.size(); i++) {
+        //     printf("[%d]: %d\n", i, levels_arr.at(i));
+        // }
 
         if (levels_arr.size() != 0) {
             std::filesystem::create_directory("graphs");

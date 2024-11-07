@@ -95,7 +95,7 @@ void NodeRunner::thread_pushRecentTab(NodeRunner *self) {
     while(true) {
         std::this_thread::sleep_for(std::chrono::milliseconds((int)(self->m_pLinkedNode->m_pPolicy->m_nQueueProcessingInterval * 1000)));
         if(true) { // self->m_pLinkedNode->m_uQueue->m_vCommandQueue->size() == 0
-            self->m_pLinkedNode->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_RECENT, "-"));
+            self->m_pLinkedNode->m_uQueue->m_vCommandQueue.push_back({NC_RECENT, "-"});
             self->m_pLinkedNode->m_uQueue->save();
         }
     }

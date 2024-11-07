@@ -47,6 +47,8 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike22::fet
 
         i++;
     }
+
+    // printf("str=%s\n", str.c_str());
     
     return getLevelsBySearchType(26, str, page, proxy);
 }

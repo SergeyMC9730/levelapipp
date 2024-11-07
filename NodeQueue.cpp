@@ -23,7 +23,7 @@
 
 using namespace LevelAPI::DatabaseController;
 
-NodeQueue::NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState) {
+NodeQueue::NodeQueue(const NodeCommandQueue &q, bool executeQueue, int runtimeState) {
     m_vCommandQueue.push_back(q);
     m_bExecuteQueue = executeQueue;
     m_nRuntimeState = runtimeState;
@@ -31,15 +31,12 @@ NodeQueue::NodeQueue(NodeCommandQueue *q, bool executeQueue, int runtimeState) {
     
     setupJSON();
 
-    int i = 0;
-    while(i < m_vCommandQueue.size()) {
-        _jsonObject["commandQueue"].push_back(m_vCommandQueue.at(i)->_jsonObject);
-        i++;
-    }
+    _jsonObject["commandQueue"].push_back(q);
+
     _jsonObject["executeQueue"] = executeQueue;
     _jsonObject["runtimeState"] = runtimeState;
 }
-NodeQueue::NodeQueue(std::vector<NodeCommandQueue *> vec, bool executeQueue, int runtimeState) {
+NodeQueue::NodeQueue(const std::vector<NodeCommandQueue> &vec, bool executeQueue, int runtimeState) {
     m_vCommandQueue = vec;
     m_bExecuteQueue = executeQueue;
     m_nRuntimeState = runtimeState;
@@ -49,10 +46,8 @@ NodeQueue::NodeQueue(std::vector<NodeCommandQueue *> vec, bool executeQueue, int
 
     _jsonObject["commandQueue"] = nlohmann::json::array();
 
-    int i = 0;
-    while(i < m_vCommandQueue.size()) {
-        _jsonObject["commandQueue"].push_back(m_vCommandQueue.at(i)->_jsonObject);
-        i++;
+    for (const NodeCommandQueue &q : m_vCommandQueue) {
+        _jsonObject["commandQueue"].push_back(q);
     }
     _jsonObject["executeQueue"] = executeQueue;
     _jsonObject["runtimeState"] = runtimeState;
@@ -86,10 +81,11 @@ void NodeQueue::save() {
     // printf("rsize: %d %d\n", _jsonObject["resolverQueue"].size(), m_vResolverQueuedLevels.size());
 
     int i = 0;
-    while(i < m_vCommandQueue.size()) {
-        m_vCommandQueue.at(i)->save();
-        _jsonObject["commandQueue"].push_back(m_vCommandQueue.at(i)->_jsonObject);
-        i++;
+
+    for (NodeCommandQueue &q : m_vCommandQueue) {
+        q.save();
+
+        _jsonObject["commandQueue"].push_back(q);
     }
 }
 
@@ -99,9 +95,12 @@ void NodeQueue::recover() {
 
     int i = 0;
     while(i < _jsonObject["commandQueue"].size()) {
-        m_vCommandQueue.push_back(new NodeCommandQueue());
-        m_vCommandQueue.at(i)->_jsonObject = _jsonObject["commandQueue"].at(i);
-        m_vCommandQueue.at(i)->recover();
+        NodeCommandQueue cmd;
+        cmd._jsonObject = _jsonObject["commandQueue"].at(i);
+        cmd.recover();
+
+        m_vCommandQueue.push_back(cmd);
+
         i++;
     }
 
@@ -118,10 +117,5 @@ void NodeQueue::setupJSON() {
 }
 
 NodeQueue::~NodeQueue() {
-    int i = 0;
-    while(i < m_vCommandQueue.size()) {
-        delete m_vCommandQueue.at(i);
-        i++;
-    }
 
 }
