@@ -18,7 +18,6 @@
 
 #include "SQLiteManager.h"
 #include <chrono>
-#include <exception>
 #include <functional>
 #include <thread>
 #include <utility>

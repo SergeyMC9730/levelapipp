@@ -348,6 +348,11 @@ loop_readonly:
 run_again:
     nd->m_bRateLimitApplied = false;
     if(nd->m_bRateLimitApplied) {
+        printf("rate limit happened. waiting for %d seconds\n", server->_rateLimitLength);
+        std::this_thread::sleep_for(
+            std::chrono::seconds(server->_rateLimitLength)
+        );
+
         std::thread rlt(DatabaseController::node_runner_waitResolverRL, nd, server->_rateLimitLength);
         rlt.detach();
     }
@@ -506,36 +511,29 @@ start:
 
             auto list = srv22->fetchListOfLevels(vlist, 0, proxy);
 
-            while (list.size() != 0) {
-                for (Level *lvl : list) {
-                    std::vector<int> newvlist = {};
-                    for (int id : vlist) {
-                        if (id != lvl->m_nLevelID) newvlist.push_back(id);
-                    }
-                    vlist = newvlist;
+            if (server->m_eStatus == Backend::GDServerStatus::GSS_OFFLINE) {
+                std::cout << "NC_22REGION_META cannot reach server\n";
+                break;
+            } else if (server->m_eStatus == Backend::GDServerStatus::GSS_PERMANENT_BAN) {
+                std::cout << "NC_22REGION_META cannot reach server because host ip is permabanned\n";
 
-                    if (nd->levelExists(lvl->m_nLevelID)) {
-                        continue;
-                    }
-
-                    nd->initLevel(lvl);
-                    lvl->m_bHasLevelString = false;
-                    lvl->m_sUsername = "-";
-                    lvl->save();
-
-                    if(!nd->m_pPolicy->m_bNoOutput) {
-                        std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, lvl->m_nLevelID, lvl->m_sLevelName) << std::endl;
-                    }
+                while (1) {
+                    std::this_thread::sleep_for(5s);
+                }
+            }
+            
+            for (Level *lvl : list) {
+                if (nd->levelExists(lvl->m_nLevelID)) {
+                    continue;
                 }
 
-                srv22->destroyLevelVector(list);
-                list.clear();
+                nd->initLevel(lvl);
+                lvl->m_bHasLevelString = false;
+                lvl->save();
 
-                std::this_thread::sleep_for(std::chrono::milliseconds((int)(nd->m_pPolicy->m_nQueueProcessingInterval * 1000.f)));
-
-                list = srv22->fetchListOfLevels(vlist, 0, proxy);
-
-                printf("NC_22REGION_META: GOT %ld levels\n", list.size());
+                if(!nd->m_pPolicy->m_bNoOutput) {
+                    std::cout << Translation::getByKey("lapi.noderunner.downloader.event.complete.noresolver", nd->m_sInternalName, lvl->m_nLevelID, lvl->m_sLevelName) << std::endl;
+                }
             }
 
             srv22->destroyLevelVector(list);

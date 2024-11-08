@@ -96,6 +96,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
 
     if (graph) {
         std::vector<int> levels_arr;
+	filter.m_nLevelsPerPage = 100;
         
         for (int i = 0; i < graphMembers; i++) {
             filter.timestamp_start = tA - (tB * graphMembers) + (tB * i);

@@ -219,8 +219,8 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
         if (player_data.size() >= 3) {
             // get strings for each array element;
             std::string userID_string = player_data[0];
-            std::string accountID_string = player_data[1];
-            std::string username = player_data[2];
+            std::string accountID_string = player_data[2];
+            std::string username = player_data[1];
 
             // parse userID
             int userID = atoi(userID_string.c_str());
