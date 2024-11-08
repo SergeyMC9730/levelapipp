@@ -726,3 +726,21 @@ std::vector<int> Node::getIDs(LevelAPI::Backend::SearchFilter filter) {
     
     return ids;
 }
+
+std::vector<Level *> Node::getRandomLevels(int amount) {
+    auto request = _sqliteObject->getRandomEntries("levels", amount);
+    std::vector<Level *> res = {};
+
+    for (SQLiteServerRow &row : request) {
+        auto jsonobj = jsonFromSQLLevel(row);
+        auto level = new Level(m_sInternalName);
+
+        level->_jsonObject = jsonobj;
+        level->m_sLinkedNode = m_sInternalName;
+        level->recover();
+
+        res.push_back(level);
+    }
+
+    return res;
+}

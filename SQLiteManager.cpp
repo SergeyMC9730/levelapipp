@@ -17,6 +17,7 @@
 */
 
 #include "SQLiteManager.h"
+#include "format.h"
 #include <chrono>
 #include <functional>
 #include <thread>
@@ -433,4 +434,8 @@ int SQLiteManager::countTable(std::string table) {
     auto vec = syncQuery("SELECT COUNT(*) AS length FROM " + table);
 
     return std::stoi(vec.at(0)["length"]);
+}
+
+std::vector<SQLiteServerRow> SQLiteManager::getRandomEntries(std::string table, int size) {
+    return syncQuery(fmt::format("SELECT * FROM {} ORDER BY RANDOM() LIMIT {}", table, size));
 }

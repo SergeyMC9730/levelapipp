@@ -35,6 +35,10 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     bool graph = false;
     int graphMembers = 0;
 
+    bool randomized = false;
+
+    bool only_ids = false;
+
     PARSE_VAL("songOfficial", bool, filter.m_bSongOfficial);
     PARSE_VAL("accountID", int, filter.m_nAID);
     PARSE_VAL("stars", int, filter.m_nStars);
@@ -47,6 +51,8 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     PARSE_VAL("asGraph", int, graph);
     PARSE_VAL("graphMembers", int, graphMembers);
     PARSE_VAL("difficulty", int, filter.m_nDifficulty);
+    PARSE_VAL("randomized", bool, randomized);
+    PARSE_VAL("ids", bool, only_ids);
 
     uint64_t tA = filter.timestamp_start;
     uint64_t tB = filter.timestamp_end;
@@ -94,9 +100,15 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
         return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
     }
 
+    std::vector<LevelAPI::DatabaseController::Level *> levels = {};
+
+    if (randomized) {
+        levels = node_object->getRandomLevels(10);
+    }
+
     if (graph) {
         std::vector<int> levels_arr;
-	filter.m_nLevelsPerPage = 100;
+	    filter.m_nLevelsPerPage = 100;
         
         for (int i = 0; i < graphMembers; i++) {
             filter.timestamp_start = tA - (tB * graphMembers) + (tB * i);
@@ -132,7 +144,9 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
         return generateResponse(resp.dump(), HTTPContentTypeJSON());
     }
 
-    auto levels = node_object->getLevels(filter);
+    if (levels.size() == 0) {
+        levels = node_object->getLevels(filter);
+    }
 
     nlohmann::json resp;
 
@@ -141,9 +155,13 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
 
     int i = 0;
     while(i < levels.size()) {
-        levels[i]->_jsonObject["hasLevelString"] = levels[i]->m_bHasLevelString;
+        if (only_ids) {
+            resp["levels"].push_back(levels[i]->m_nLevelID);
+        } else {
+            levels[i]->_jsonObject["hasLevelString"] = levels[i]->m_bHasLevelString;
 
-        resp["levels"].push_back(levels[i]->_jsonObject);
+            resp["levels"].push_back(levels[i]->_jsonObject);
+        }
 
         delete levels[i];
         levels[i] = nullptr;

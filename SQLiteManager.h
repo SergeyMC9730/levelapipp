@@ -99,6 +99,8 @@ public:
 
     static int sqlite_callback(void *data, int columns, char **array1, char **array2);
     static void processQueue(SQLiteManager *self, std::future<void> signal);
+
+    std::vector<SQLiteServerRow> getRandomEntries(std::string table, int size);
 };
 
 class SQLiteCallbackData {

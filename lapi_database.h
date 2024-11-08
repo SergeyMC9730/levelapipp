@@ -170,6 +170,8 @@ namespace LevelAPI {
             std::vector<int> m_vCachedLevels;
             int m_nCachedLevels;
 
+            int m_nTableLevels = 0;
+
             nlohmann::json m_jLastDownloadedLevel;
 
             bool m_bResolverIsActive;
@@ -203,6 +205,8 @@ namespace LevelAPI {
             LevelAPI::Backend::GDServer *createServer();
 
             std::vector<Level *> getLevels(LevelAPI::Backend::SearchFilter filter);
+            std::vector<Level *> getRandomLevels(int amount);
+
             std::vector<int> getIDs(LevelAPI::Backend::SearchFilter filter);
 
             void importLevelMetaFromLAPIold(std::string path);

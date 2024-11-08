@@ -18,4 +18,4 @@
 
 #pragma once
 
-#define GET_JSON_VALUE(container, jsonval, memberval, type) if (container.contains(jsonval)) memberval = container[jsonval].get<type>();
+#define GET_JSON_VALUE(container, jsonval, memberval, type) if (container.contains(jsonval)) try {memberval = container[jsonval].get<type>();} catch (nlohmann::json::type_error &e) {};
