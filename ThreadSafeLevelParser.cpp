@@ -179,6 +179,8 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
     GET_KEY(container, 45, level->m_nObjects, GKINT);
     GET_KEY(container, 46, level->m_nEditorTime, GKINT);
     GET_KEY(container, 47, level->m_nEditorTimeTotal, GKINT);
+    GET_KEY(container, 54, level->m_nUnknown54, GKINT);
+    GET_KEY(container, 57, level->m_nVerifTime, GKINT);
 
     GET_KEY(container, 17, level->m_bDemon, GKBOOL);
     GET_KEY(container, 25, level->m_bAuto, GKBOOL);
