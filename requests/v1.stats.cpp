@@ -27,29 +27,33 @@ std::shared_ptr<http_response> LevelAPI::v1::StatsRequest::render(const http_req
         return generateResponse(response_fail.dump(), HTTPContentTypeJSON(), 404);
     }
 
-    LevelAPI::Backend::SearchFilter filter;
-
-    filter.m_eSort = LevelAPI::Backend::SearchSort::SSLatestDBApperead;
-    
-    auto levels = node_object->getLevels(filter);
-
+    bool no_levels = false;
+    std::string data = "";
     nlohmann::json resp;
-
     resp["response"] = 0;
+
+#define PARSE_VAL(key, type, value) try { data = req.get_arg_flat(key).data(); if (!data.empty()) value = (type)std::stoi(data); } catch (std::invalid_argument invarg) {}
+
+    PARSE_VAL("noLevels", bool, no_levels);
+
+    if (!no_levels) {
+        LevelAPI::Backend::SearchFilter filter;
+        filter.m_eSort = LevelAPI::Backend::SearchSort::SSLatestDBApperead;
+        
+        auto levels = node_object->getLevels(filter);
+    
+        resp["latestLevelsDownloaded"] = nlohmann::json::array();
+
+        for (auto lvl : levels) {
+            resp["latestLevelsDownloaded"].push_back(lvl->_jsonObject);
+        }
+
+        Backend::GDServer::destroyLevelVector(levels);
+    }
+    
     resp["levels"] = node_object->m_nCachedLevels;
-    resp["latestLevelsDownloaded"] = nlohmann::json::array();
     resp["queuedJobs"] = node_object->m_uQueue->m_vCommandQueue.size();
     resp["queuedDownloadJobs"] = node_object->m_uQueue->m_vResolverQueuedLevels.size();
-
-    int i = 0;
-    while(i < levels.size()) {
-        resp["latestLevelsDownloaded"].push_back(levels[i]->_jsonObject);
-
-        delete levels[i];
-        levels[i] = nullptr;
-
-        i++;
-    }
 
     return generateResponse(resp.dump(), HTTPContentTypeJSON());
 }

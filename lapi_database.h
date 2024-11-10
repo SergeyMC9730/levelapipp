@@ -153,6 +153,8 @@ namespace LevelAPI {
         class Node : public DatabaseCell {
         protected:
             Backend::GDServer *m_pCachedGDInstance = nullptr;
+
+            void addColumn(std::string table, const SQLiteColumn &column);
         public:
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath, NodeQueue *queue);
             Node(NodeDatabase *database, std::string internalName, std::string levelDataPath);

@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "requests/v1.node.queue.h"
 #include <iostream>
 #ifdef _HTTPSERVER_HPP_INSIDE_
 #include <httpserver.hpp>
@@ -369,6 +370,15 @@ nlohmann::json setupInfoMakeNode() {
 void setupInfo() {
     std::cout << "Setting up database\n";
 
+    auto db = DatabaseController::database;
+
+    if (DatabaseController::database->m_vNodes.size() != 0) {
+        fmt::print("  Your database is already configured with {} nodes.\n  Would you like to create a new node or\n  modify different?\n", db->m_vNodes.size());
+        fmt::print("Type \"create\" or \"modify\" without brackets.\n");
+
+        return;
+    }
+
     std::vector<std::string> languages_available = getLanguages();
 
     bool language_valid = false;
@@ -495,7 +505,10 @@ int main(int argc, char *argv[]) {
         }
 
         if (command == "setup") {
+            DatabaseController::setup();
             setupInfo();
+
+            DatabaseController::database->save();
 
             return 0;
         }
@@ -535,6 +548,7 @@ int main(int argc, char *argv[]) {
 
 
     DatabaseController::setup();
+    DatabaseController::database->runThreads();
 
     LevelAPI::Tests::testCurl();
 
@@ -560,7 +574,8 @@ int main(int argc, char *argv[]) {
         new LevelAPI::v1::StatsRequest(),
         new LevelAPI::v1::LevelSearchRequest(),
         new LevelAPI::v1::IndexRequest(),
-        new LevelAPI::v1::IndexRequest2()
+        new LevelAPI::v1::IndexRequest2(),
+        new LevelAPI::v1::QueueAddRequest()
     };
 
     int i = 0;

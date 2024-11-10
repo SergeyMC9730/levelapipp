@@ -26,7 +26,7 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if (LAPI_ENABLE_HTTP)
-    file(GLOB httpserver_src
+    file(GLOB httpserver_src CONFIGURE_DEPENDS
         "libhttpserver/src/*.hpp"
         "libhttpserver/src/*.h"
         "libhttpserver/src/*.cpp"
@@ -36,7 +36,7 @@ if (LAPI_ENABLE_HTTP)
         "libhttpserver/src/httpserver/*.hpp"
         "libhttpserver/src/httpserver/details/*.hpp"
     )
-    file(GLOB levelapi_server_requests
+    file(GLOB levelapi_server_requests CONFIGURE_DEPENDS
         "requests/*.cpp"
         "requests/*.h"
     )
@@ -79,6 +79,7 @@ set(levelapi_baselibrary
     GDServer_BasementLike22.cpp GDServer_BasementLike22.h
     GDServer_BasementGDPS.cpp GDServer_BasementGDPS.h
     GDServer_19GDPS.h GDServer_19GDPS.cpp
+    GDServer_NelisPS.h GDServer_NelisPS.cpp
     gmd.cpp gmd.h
     Level.cpp Level.h
     LevelRange.cpp LevelRange.h

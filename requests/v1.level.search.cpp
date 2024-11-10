@@ -25,7 +25,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     // printf("------ USERNAME: %s ------\n", filter.m_sUsername.c_str());
     // printf("------ DESCRIPT: %s ------\n", filter.m_sDescription.c_str());
 
-    #define PARSE_VAL(key, type, value) try { data = req.get_arg_flat(key).data(); if (!data.empty()) value = (type)std::stoi(data); } catch (std::invalid_argument invarg) {}
+#define PARSE_VAL(key, type, value) try { data = req.get_arg_flat(key).data(); if (!data.empty()) value = (type)std::stoi(data); } catch (std::invalid_argument invarg) {}
 
     std::string data = "";
 

@@ -54,8 +54,6 @@ Database::Database(std::vector<Node *> nodes) {
     _jsonObject["nodeSize"] = m_nNodeSize;
 
     save();
-
-    runThreads();
 }
 Database::Database(Node *node) {
     m_vNodes.push_back(node);
@@ -67,8 +65,6 @@ Database::Database(Node *node) {
     _jsonObject["nodeSize"] = m_nNodeSize;
 
     save();
-
-    runThreads();
 }
 Database::Database(std::string path) {
     databasePath = path;
@@ -140,8 +136,6 @@ Database::Database(std::string path) {
     }
 #endif
 
-    runThreads();
-
     return;
 }
 Database::Database() {
@@ -153,8 +147,6 @@ Database::Database() {
     _jsonObject["nodeSize"] = m_nNodeSize;
 
     save();
-
-    runThreads();
 }
 
 void Database::recalculate() {

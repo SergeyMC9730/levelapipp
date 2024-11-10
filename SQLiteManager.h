@@ -35,6 +35,9 @@
 using SQLiteRow = std::map<std::string, std::variant<std::string, int, bool, uint32_t, uint64_t>>;
 // server row. this is what sqlite backend sends back
 using SQLiteServerRow = std::map<std::string, std::string>;
+// server column
+using SQLiteColumn = std::pair<std::string, std::string>;
+using SQLiteColumnList = std::map<std::string, std::string>;
 
 #define SQLITE_CALLBACK_FUNC void(SQLiteManager *, std::vector<SQLiteServerRow>&, bool)
 
@@ -81,6 +84,8 @@ public:
 
     // execute query (synchronious)
     std::vector<SQLiteServerRow> syncQuery(std::string query);
+    // execute query (asynchronious)
+    void asyncQuery(std::string query, std::vector<SQLiteServerRow> *result);
 
     // get rows from table without conditions
     std::vector<SQLiteServerRow> getTable(std::string table, std::string columnOrdering, int rowsPerPage, int page);
@@ -101,6 +106,9 @@ public:
     static void processQueue(SQLiteManager *self, std::future<void> signal);
 
     std::vector<SQLiteServerRow> getRandomEntries(std::string table, int size);
+
+    void addColumn(std::string table, const SQLiteColumn &column);
+    bool columnExists(std::string table, std::string column);
 };
 
 class SQLiteCallbackData {

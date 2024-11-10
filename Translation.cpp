@@ -368,6 +368,13 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "Сервер \"Подвал ГДшеров\""
         }
     },
+    // from GDServer_NelisPS.cpp
+    {
+        "lapi.gdserver_nelisps.name", {
+            "Nelis PS server",
+            "Сервер \"Nelis PS\""
+        }
+    },
     // from GDServer_BasementLike21.cpp
     {
         "lapi.gdserver_basementlike21.name", {

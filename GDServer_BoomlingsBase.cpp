@@ -39,7 +39,7 @@ LevelAPI::LevelRangeList GDServer_BoomlingsBase::getRanges() {
     m_vRanges.push_back({2810919, 11020426, "1.9"});
     m_vRanges.push_back({11020427, 28356225, "2.0"});
     m_vRanges.push_back({28356226, 99900002, "2.1"});
-    m_vRanges.push_back({99000002, 100800002, "2.2"});
+    m_vRanges.push_back({99000002, 170800002, "2.2"});
 
     return m_vRanges;
 }

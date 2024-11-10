@@ -18,17 +18,14 @@
 
 #include <iostream>
 #include <stdexcept>
-#include <string_view>
 
 #include "RobTopStringContainer.hpp"
 #include "ThreadSafeLevelParser.h"
 #include "StringSplit.h"
-#include "lapi_database.h"
 #include "gmd2pp/cpp-base64/base64.h"
 #include "Translation.h"
 
 #include "Level.h"
-#include "LevelRelease.h"
 
 using namespace LevelAPI::Backend;
 using namespace LevelAPI::Frontend;
@@ -45,7 +42,8 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
             13, 14, 15, 16,
             18, 19, 30, 35,
             37, 39, 41, 42,
-            43, 45, 46,  47
+            43, 45, 46,  47,
+            54, 57
         },
         [&](std::string input, int id) {
             try {
@@ -141,17 +139,13 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
     );
 
     container->setParserForVariable(
-        {
-            54
-        },
+        54,
         [&](std::string input, int id) {
             return input == "1";
         }
     );
     container->setParserForVariable(
-        {
-            57
-        },
+        57,
         [&](std::string input, int id) {
             return input == "1";
         }
@@ -160,9 +154,6 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
     level->m_sRawData = response;
 
     container->parse();
-
-    bool legendary = false;
-    bool mystical = false;
 
     GET_KEY(container, 1, level->m_nLevelID, GKINT);
     GET_KEY(container, 5, level->m_nVersion, GKINT);
@@ -195,8 +186,6 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
     GET_KEY(container, 38, level->m_bVerifiedCoins, GKBOOL);
     GET_KEY(container, 40, level->m_bLDM, GKBOOL);
     GET_KEY(container, 44, level->m_bGauntlet, GKBOOL);
-    GET_KEY(container, 54, legendary, GKBOOL);
-    GET_KEY(container, 57, mystical, GKBOOL);
 
     GET_KEY(container, 2, level->m_sLevelName, GKSTRING);
     GET_KEY(container, 4, level->m_sLevelString, GKSTRING);
@@ -215,11 +204,15 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
     delete container;
     container = nullptr;
 
-    if (legendary) {
-        level->m_nEpic = 3;
+    if (level->m_nEpic == 2) {
+        level->m_bLegendary = true;
+    } else if (level->m_nEpic >= 3) {
+        level->m_bMythic = true;
     }
-    if (mystical) {
-        level->m_nEpic = 4;
+
+    if (level->m_nLength == 5) {
+        level->m_nMoons = level->m_nStars;
+        level->m_nStars = 0;
     }
 
     return level;

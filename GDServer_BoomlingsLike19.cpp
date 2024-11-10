@@ -164,6 +164,8 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
     // add parameters
     m_pLinkedCURL->addData(_setupGJLevelsArgs(type, str, page));
 
+    // printf("str=%s\n", str.c_str());
+
     // create url
     std::string url = m_sEndpointURL + "/" + _getLevelListEndpointName();
     // send request to the server

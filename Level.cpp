@@ -138,7 +138,15 @@ void Level::save(bool onlyLevelString) {
         {"databaseAppereanceDate", (uint64_t)m_nAppereanceTimestamp},
         {"levelID", m_nLevelID},
         {"songIDs", _songs.dump()},
-        {"sfxIDs", _sfx.dump()}
+        {"sfxIDs", _sfx.dump()},
+        {"extraString", m_sExtraString},
+        {"recordString", m_sRecordString},
+        {"settingsString", m_sSettings},
+        {"verifTime", m_nVerifTime},
+        {"unknown54", m_nUnknown54},
+        {"legendary", m_bLegendary},
+        {"mythic", m_bMythic},
+        {"gauntlet", m_bGauntlet}
     };
 
     lambda_save();
@@ -210,6 +218,8 @@ void Level::recover() {
     RS(int, "songID", m_nSongID)
     RS(int, "objects", m_nObjects)
     RS(int, "moons", m_nMoons);
+    RS(int, "verifTime", m_nVerifTime);
+    RS(int, "unknown54", m_nUnknown54);
 
     RS(uint64_t, "appereanceTimestamp", m_nAppereanceTimestamp);
 
@@ -218,6 +228,9 @@ void Level::recover() {
     RS(bool, "areCoinsVerified", m_bVerifiedCoins)
     RS(bool, "ldmAvailable", m_bLDM)
     RS(bool, "is2P", m_b2P)
+    RS(bool, "legendary", m_bLegendary);
+    RS(bool, "mythic", m_bMythic);
+    RS(bool, "gauntlet", m_bGauntlet);
 
     RS(std::string, "levelName", m_sLevelName)
     RS(std::string, "levelDescription", m_sDescription)
@@ -226,6 +239,9 @@ void Level::recover() {
     RS(std::string, "username", m_sUsername)
     RS(std::string, "actualGameVersion", m_uRelease->m_fActualVersion)
     RS(std::string, "publicationDate", m_sCreatedTimestamp);
+    RS(std::string, "settingsString", m_sSettings);
+    RS(std::string, "extraString", m_sExtraString);
+    RS(std::string, "recordString", m_sRecordString);
 
     if (m_nAppereanceTimestamp != 0) {
         Time *t = new Time(m_nAppereanceTimestamp);
@@ -271,6 +287,7 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     std::vector<Image> layers = {};
 
     int stars;
+    int moons;
     std::vector<bool> parameters;
 
     std::string path;
@@ -279,11 +296,18 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
 
     parameters.push_back(m_nFeatureScore > 0);
     parameters.push_back(m_nEpic);
+    parameters.push_back(m_bLegendary);
+    parameters.push_back(m_bMythic);
+    parameters.push_back(m_nLength == 5);
+
     if(parameters[1]) parameters[0] = false;
 
-    // std::map<int, int> fixStars = {
-    //     {}
-    // }
+    if (parameters[2]) {
+        parameters[1] = false;
+    }
+    if (parameters[3]) {
+        parameters[2] = false;
+    }
 
     if (m_nStars == 0 && m_nStarsRequested == 0) {
         switch (m_nDemonDifficulty) {
@@ -297,6 +321,14 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
             }
             case 5: {
                 diffimage = "harder";
+                break;
+            }
+            case 6: {
+                diffimage = "insane";
+                break;
+            }
+            default: {
+                diffimage = "na";
                 break;
             }
         }
@@ -338,6 +370,7 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     }
 
     stars = m_nStars;
+    moons = m_nMoons;
 
     if(m_bAuto) diffimage = "auto";
     if(m_bDemon) diffimage = "demon";
@@ -348,13 +381,16 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
         file += (parameters[i]) ? "y" : "n";
         i++;
     }
-    file += "_new.png";
+    file += "_new2.png";
 
     path = folder_prefix + "/" + file;
 
     if(std::filesystem::exists(path)) {
         return file;
     }
+
+    int max_stars = 10;
+    int max_moons = 10;
 
     if(parameters[0]) {
         // mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));  
@@ -365,8 +401,20 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
         std::string p = folder_prefix + "/epic.png";
         layers.push_back(LoadImage(p.c_str()));
     };
-    if(stars <= 10 && stars >= 0) {
-        std::string p = folder_prefix + "/star" + std::to_string(stars) + ".png";
+    if(parameters[2]) {
+        std::string p = folder_prefix + "/legendary.png";
+        layers.push_back(LoadImage(p.c_str()));
+    };
+    if(parameters[3]) {
+        std::string p = folder_prefix + "/mythic.png";
+        layers.push_back(LoadImage(p.c_str()));
+    };
+    if(stars >= 0 && !parameters[4]) {
+        std::string p = folder_prefix + "/star" + std::to_string(std::min(max_stars, stars)) + ".png";
+        layers.push_back(LoadImage(p.c_str()));
+    }
+    if(moons >= 0 && parameters[4]) {
+        std::string p = folder_prefix + "/moon" + std::to_string(std::min(max_moons, moons)) + ".png";
         layers.push_back(LoadImage(p.c_str()));
     }
 

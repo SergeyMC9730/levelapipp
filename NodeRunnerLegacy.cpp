@@ -19,6 +19,7 @@
 #include "GDServer_BoomlingsLike22.h"
 #include "curl_backend.h"
 #include "DatabaseControllerThreads.h"
+#include "StringSplit.h"
 
 #include "json/single_include/nlohmann/json.hpp"
 #include <chrono>
@@ -455,13 +456,31 @@ start:
         case NC_EXPERIMENT2: {
             std::cout << "performing experiment 2\n";
 
-            int pages = std::stoi(q.m_sText);
+            std::vector<std::string> objects = splitString(q.m_sText.c_str(), ':');
+
+            int pages = 0;
+            int offset = 0;
+
+            if (objects.size() >= 1) {
+                try {
+                    pages = std::stoi(objects[0]);
+                } catch (std::invalid_argument &e) {
+                    printf("inv arg 0: %s\n", e.what());
+                }
+            }
+            if (objects.size() >= 2) {
+                try {
+                    offset = std::stoi(objects[1]);
+                } catch (std::invalid_argument &e) {
+                    printf("inv arg 1: %s\n", e.what());
+                }
+            }
 
             for (int i = 0; i < pages; i++) {
-                nd->m_uQueue->m_vCommandQueue.push_back({NC_22REGION_META, std::to_string(i)});
+                nd->m_uQueue->m_vCommandQueue.push_back({NC_22REGION_META, std::to_string(i + offset)});
             }
             
-            std::cout << "performed experiment 2: " << pages << " NC_22REGION_META commands were added\n";
+            std::cout << "performed experiment 2: " << pages << " NC_22REGION_META commands with offset " << offset << " were added\n";
             
             break;
         }
@@ -479,8 +498,13 @@ start:
                 break;
             }
 
-            int offset = std::stoi(q.m_sText);
-            std::vector<int> vlist;
+            int offset = 0;
+	    try {
+	        offset = std::stoi(q.m_sText);
+            } catch (std::invalid_argument &e) {
+		std::cout << "NC_22REGION_META: invalid offset " << q.m_sText << ": " << e.what() << "\n";
+	    }
+	    std::vector<int> vlist;
             int max = 100;
 
             for (int i = 0; i < max; i++) {

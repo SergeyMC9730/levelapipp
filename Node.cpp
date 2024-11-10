@@ -26,6 +26,7 @@
 #include "gmd2pp/gmd2.h"
 #include "lapi_database.h"
 #include "json/single_include/nlohmann/json.hpp"
+#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include <new>
@@ -96,6 +97,73 @@ void Node::setupSQLite() {
     }
 
     _sqliteObject = SQLiteManager::create(path);
+    assert(_sqliteObject != nullptr);
+    
+    {
+        addColumn("accounts", {"accountID", "INTEGER"});
+        addColumn("accounts", {"username", "TEXT"});
+        addColumn("accounts", {"levels", "JSON"});
+        addColumn("accounts", {"userID", "INTEGER"});
+    }
+
+    {
+        addColumn("comments", {"message", "TEXT"});
+        addColumn("comments", {"percentage", "INTEGER"});
+        addColumn("comments", {"userID", "INTEGER"});
+        addColumn("comments", {"levelID", "INTEGER"});
+        addColumn("comments", {"commentID", "INTEGER"});
+    }
+
+    {
+        addColumn("levels", {"version", "INTEGER"});
+        addColumn("levels", {"playerID", "INTEGER"});
+        addColumn("levels", {"downloads", "INTEGER"});
+        addColumn("levels", {"musicID", "INTEGER"});
+        addColumn("levels", {"likes", "INTEGER"});
+        addColumn("levels", {"length", "INTEGER"});
+        addColumn("levels", {"difficulty_denominator", "INTEGER"});
+        addColumn("levels", {"difficulty_numenator", "INTEGER"});
+        addColumn("levels", {"fakeGameVersion", "INTEGER"});
+        addColumn("levels", {"dislikes", "INTEGER"});
+        addColumn("levels", {"stars", "INTEGER"});
+        addColumn("levels", {"featureScore", "INTEGER"});
+        addColumn("levels", {"copiedFrom", "INTEGER"});
+        addColumn("levels", {"dailyNumber", "INTEGER"});
+        addColumn("levels", {"coins", "INTEGER"});
+        addColumn("levels", {"starsRequested", "INTEGER"});
+        addColumn("levels", {"isEpic", "INTEGER"});
+        addColumn("levels", {"demonDifficulty", "INTEGER"});
+        addColumn("levels", {"editorTime", "INTEGER"});
+        addColumn("levels", {"editorTimeTotal", "INTEGER"});
+        addColumn("levels", {"accountID", "INTEGER"});
+        addColumn("levels", {"songID", "INTEGER"});
+        addColumn("levels", {"objects", "INTEGER"});
+        addColumn("levels", {"moons", "INTEGER"});
+        addColumn("levels", {"isAuto", "INTEGER"});
+        addColumn("levels", {"isDemon", "INTEGER"});
+        addColumn("levels", {"areCoinsVerified", "INTEGER"});
+        addColumn("levels", {"ldmAvailable", "INTEGER"});
+        addColumn("levels", {"is2P", "INTEGER"});
+        addColumn("levels", {"levelName", "TEXT"});
+        addColumn("levels", {"levelDescription", "TEXT"});
+        addColumn("levels", {"uploadDate", "TEXT"});
+        addColumn("levels", {"updateDate", "TEXT"});
+        addColumn("levels", {"username", "TEXT"});
+        addColumn("levels", {"actualGameVersion", "TEXT"});
+        addColumn("levels", {"actualGameVersion", "TEXT"});
+        addColumn("levels", {"databaseAppereanceDate", "INTEGER"});
+        addColumn("levels", {"levelID", "INTEGER"});
+        addColumn("levels", {"verifTime", "INTEGER"});
+        addColumn("levels", {"unknown54", "INTEGER"});
+        addColumn("levels", {"mythic", "INTEGER"});
+        addColumn("levels", {"legendary", "INTEGER"});
+        addColumn("levels", {"gauntlet", "INTEGER"});
+        addColumn("levels", {"settingsString", "TEXT"});
+        addColumn("levels", {"extraString", "TEXT"});
+        addColumn("levels", {"recordString", "TEXT"});
+        addColumn("levels", {"songIDs", "TEXT"});
+        addColumn("levels", {"sfxIDs", "TEXT"});
+    }
 }
 
 bool Node::levelExists(int id) {
@@ -209,6 +277,8 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow &row) {
     obj["songID"] = std::stoi(row["songID"]);
     obj["objects"] = std::stoi(row["objects"]);
     obj["moons"] = std::stoi(row["moons"]);
+    obj["verifTime"] = std::stoi(row["verifTime"]);
+    obj["unknown54"] = std::stoi(row["unknown54"]);
 
     obj["appereanceTimestamp"] = std::stoi(row["databaseAppereanceDate"]);
    
@@ -217,6 +287,9 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow &row) {
     obj["areCoinsVerified"] = (bool)std::stoi(row["areCoinsVerified"]);
     obj["ldmAvailable"] = (bool)std::stoi(row["ldmAvailable"]);
     obj["is2P"] = (bool)std::stoi(row["is2P"]);
+    obj["legendary"] = (bool)std::stoi(row["legendary"]);
+    obj["mythic"] = (bool)std::stoi(row["mythic"]);
+    obj["gauntlet"] = (bool)std::stoi(row["gauntlet"]);
 
     obj["levelName"] = row["levelName"];
     obj["levelDescription"] = row["levelDescription"];
@@ -224,6 +297,9 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow &row) {
     obj["updateDate"] = row["updateDate"];
     obj["username"] = row["username"];
     obj["actualGameVersion"] = row["actualGameVersion"];
+    obj["settingsString"] = row["settingsString"];
+    obj["extraString"] = row["extraString"];
+    obj["recordString"] = row["recordString"];
 
     if (row.count("songIDs")) {
         obj["songIDs"] = nlohmann::json::parse(row["songIDs"]);
@@ -743,4 +819,13 @@ std::vector<Level *> Node::getRandomLevels(int amount) {
     }
 
     return res;
+}
+
+void Node::addColumn(std::string table, const SQLiteColumn &column) {
+    if (!_sqliteObject->columnExists(table, column.first)) {
+        printf("adding column %s of table %s\n", column.first.c_str(), table.c_str());
+        _sqliteObject->addColumn(table, column);
+    } else {
+        // printf("column %s of table %s exists\n", column.first.c_str(), table.c_str());
+    }
 }

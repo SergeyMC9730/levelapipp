@@ -403,7 +403,7 @@ std::vector<SQLiteServerRow> SQLiteManager::getTable(std::string table, std::str
 }
 
 std::function<SQLITE_CALLBACK_FUNC> SQLiteManager::getPlaceholderCallback() {
-    return [](SQLiteManager *, std::vector<std::map<std::string, std::string>>&, bool){};
+    return [](SQLiteManager *, std::vector<SQLiteServerRow>&, bool){};
 }
 
 std::vector<SQLiteServerRow> SQLiteManager::syncQuery(std::string query) {
@@ -416,7 +416,7 @@ std::vector<SQLiteServerRow> SQLiteManager::syncQuery(std::string query) {
             std::string,
             std::function<SQLITE_CALLBACK_FUNC>>
                 (query,
-                    [&](SQLiteManager *self, std::vector<std::map<std::string, std::string>> &v, bool c) {
+                    [&](SQLiteManager *self, std::vector<SQLiteServerRow> &v, bool c) {
                         vec = v;
                         job_completed = true;
                     }
@@ -438,4 +438,30 @@ int SQLiteManager::countTable(std::string table) {
 
 std::vector<SQLiteServerRow> SQLiteManager::getRandomEntries(std::string table, int size) {
     return syncQuery(fmt::format("SELECT * FROM {} ORDER BY RANDOM() LIMIT {}", table, size));
+}
+
+void SQLiteManager::addColumn(std::string table, const SQLiteColumn &column) {
+    asyncQuery(fmt::format("ALTER TABLE {} ADD COLUMN {} {}", table, column.first, column.second), nullptr);
+}
+bool SQLiteManager::columnExists(std::string table, std::string column) {
+    return sqlite3_table_column_metadata(_database, NULL, table.c_str(), column.c_str(), NULL, NULL, NULL, NULL, NULL) == SQLITE_OK;
+}
+
+// execute query (asynchronious)
+void SQLiteManager::asyncQuery(std::string query, std::vector<SQLiteServerRow> *result) {
+    _queue.push(
+        std::pair<
+            std::string,
+            std::function<SQLITE_CALLBACK_FUNC>>
+                (query,
+                    [result](SQLiteManager *self, std::vector<SQLiteServerRow> &v, bool c) {
+                        if (!result) return;
+
+                        result->clear();
+                        for (const auto &entry : v) {
+                            result->push_back(entry);
+                        }
+                    }
+                )
+    );
 }

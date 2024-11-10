@@ -39,6 +39,8 @@ namespace LevelAPI {
                 int m_nSongID = 0;
                 int m_nAccountID = 0;
                 int m_nMoons = 0;
+                int m_nVerifTime = 0;
+                int m_nUnknown54 = 0;
                 
                 bool m_bAuto = false;
                 bool m_bDemon = false;
@@ -46,6 +48,8 @@ namespace LevelAPI {
                 bool m_bLDM = false;
                 bool m_bGauntlet = false;
                 bool m_b2P = false;
+                bool m_bLegendary = false;
+                bool m_bMythic = false;
 
                 std::string m_sLevelName = "";
                 std::string m_sDescription = "";
