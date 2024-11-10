@@ -39,6 +39,7 @@
 #include "GDServer_Boomlings22.h"
 #include "GDServer_BasementGDPS.h"
 #include "GDServer_19GDPS.h"
+#include "GDServer_NelisPS.h"
 #include "Translation.h"
 #include "Tools.h"
 #include "LevelRelease.h"
@@ -540,7 +541,9 @@ LevelAPI::Backend::GDServer *Node::createServer() {
             break;
         }
         case 22: {
-            if (m_uDatabase->m_sModifications.empty() || m_uDatabase->m_sModifications == "boomlings") {
+            if (m_uDatabase->m_sModifications == "nelisps-custom") {
+                serv = new Backend::GDServer_NelisPS(m_uDatabase->m_sEndpoint);
+            } else if (m_uDatabase->m_sModifications.empty() || m_uDatabase->m_sModifications == "boomlings") {
                 serv = new Backend::GDServer_Boomlings22(m_uDatabase->m_sEndpoint);
             } else {
                 serv = new Backend::GDServer_BoomlingsLike22(m_uDatabase->m_sEndpoint);

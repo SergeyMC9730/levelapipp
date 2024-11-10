@@ -17,6 +17,7 @@
 */
 
 #include "requests/v1.node.queue.h"
+#include <cstdio>
 #include <iostream>
 #ifdef _HTTPSERVER_HPP_INSIDE_
 #include <httpserver.hpp>
@@ -473,6 +474,13 @@ void setupInfo() {
     file << database.dump(4);
 }
 
+void httpAccess(const std::string &mesg) {
+    printf("standard http access: %s\n", mesg.c_str());
+}
+void httpError(const std::string &mesg) {
+    printf("!!! http request error: %s\n", mesg.c_str());
+}
+
 int main(int argc, char *argv[]) {
     std::cout << "LevelAPI " << LEVELAPI_VERSION << "\n";
     std::cout << getByKey("lapi.main.alpha") << "\n\n";
@@ -563,6 +571,8 @@ int main(int argc, char *argv[]) {
         .max_threads(HttpController::getThreads())
         .memory_limit(256 * 1024)
         .debug()
+        .log_access(httpAccess)
+        .log_error(httpError)
         // .file_upload_target(FILE_UPLOAD_MEMORY_AND_DISK)
     ;
 

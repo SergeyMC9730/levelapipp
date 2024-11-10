@@ -153,21 +153,16 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     resp["response"] = 0;
     resp["levels"] = nlohmann::json::array();
 
-    int i = 0;
-    while(i < levels.size()) {
+    for (auto lvl : levels) {
         if (only_ids) {
-            resp["levels"].push_back(levels[i]->m_nLevelID);
+            resp["levels"].push_back(lvl->m_nLevelID);
         } else {
-            levels[i]->_jsonObject["hasLevelString"] = levels[i]->m_bHasLevelString;
-
-            resp["levels"].push_back(levels[i]->_jsonObject);
+            lvl->_jsonObject["hasLevelString"] = lvl->m_bHasLevelString;
+            resp["levels"].push_back(lvl->_jsonObject);
         }
-
-        delete levels[i];
-        levels[i] = nullptr;
-
-        i++;
     }
+
+    Backend::GDServer::destroyLevelVector(levels);
 
     return generateResponse(resp.dump(), HTTPContentTypeJSON());
 }
