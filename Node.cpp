@@ -254,6 +254,8 @@ void Node::setupJSON() {
 nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow &row) {
     nlohmann::json obj;
 
+#define SAFE_STOI(i, o) if (!i.empty()) {o = std::stoi(i);} else {o = 0;}
+
     obj["levelID"] = std::stoi(row["levelID"]);
     obj["version"] = std::stoi(row["version"]);
     obj["playerID"] = std::stoi(row["playerID"]);
@@ -278,8 +280,8 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow &row) {
     obj["songID"] = std::stoi(row["songID"]);
     obj["objects"] = std::stoi(row["objects"]);
     obj["moons"] = std::stoi(row["moons"]);
-    obj["verifTime"] = std::stoi(row["verifTime"]);
-    obj["unknown54"] = std::stoi(row["unknown54"]);
+    SAFE_STOI(row["verifTime"], obj["verifTime"]);
+    SAFE_STOI(row["unknown54"], obj["unknown54"]);
 
     obj["appereanceTimestamp"] = std::stoi(row["databaseAppereanceDate"]);
    
@@ -288,9 +290,9 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow &row) {
     obj["areCoinsVerified"] = (bool)std::stoi(row["areCoinsVerified"]);
     obj["ldmAvailable"] = (bool)std::stoi(row["ldmAvailable"]);
     obj["is2P"] = (bool)std::stoi(row["is2P"]);
-    obj["legendary"] = (bool)std::stoi(row["legendary"]);
-    obj["mythic"] = (bool)std::stoi(row["mythic"]);
-    obj["gauntlet"] = (bool)std::stoi(row["gauntlet"]);
+    SAFE_STOI(row["legendary"], obj["legendary"]);
+    SAFE_STOI(row["mythic"], obj["mythic"]);
+    SAFE_STOI(row["gauntlet"], obj["gauntlet"]);
 
     obj["levelName"] = row["levelName"];
     obj["levelDescription"] = row["levelDescription"];
@@ -502,24 +504,33 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter filter) {
     };
 
     ordering = ordering_map[filter.m_eSort];
+    
+    printf("sending table request with filters\n");
 
     auto request = _sqliteObject->getTableWithCondition("levels", ordering, filter.m_nLevelsPerPage, filter.m_nPage, rw_condition, rw_between, useBetween);
 
     int i = 0;
 
-    while(i < request.size()) {
-        auto sqlobj = request[i];
+    for (auto &sqlobj : request) {
+        printf("%d: converting sql output to json output for level\n", i);
         auto jsonobj = jsonFromSQLLevel(sqlobj);
+
+        printf("%d: creating new level\n", i);
         auto level = new Level(m_sInternalName);
 
+        printf("%d: applying json object to this level\n", i);
         level->_jsonObject = jsonobj;
         level->m_sLinkedNode = m_sInternalName;
+
+        printf("%d: recovering level from json\n", i);
         level->recover();
 
         res.push_back(level);
 
         i++;
     }
+
+    printf("returning levels\n");
 
     return res;
 }

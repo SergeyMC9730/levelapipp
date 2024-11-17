@@ -69,11 +69,11 @@ namespace LevelAPI {
         class NodeQueue : public DatabaseCell {
         public:
             NodeQueue(const NodeCommandQueue &q, bool executeQueue, int runtimeState);
-            NodeQueue(const std::vector<NodeCommandQueue> &vec, bool executeQueue, int runtimeState);
+            NodeQueue(const std::list<NodeCommandQueue> &vec, bool executeQueue, int runtimeState);
             NodeQueue(bool executeQueue, int runtimeState);
             NodeQueue();
 
-            std::vector<NodeCommandQueue> m_vCommandQueue = {};
+            std::list<NodeCommandQueue> m_vCommandQueue = {};
             std::vector<int> m_vResolverQueuedLevels = {};
     
             bool m_bExecuteQueue;

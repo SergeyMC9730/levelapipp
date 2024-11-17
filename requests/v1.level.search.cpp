@@ -16,6 +16,8 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     std::string node = req.get_arg_flat("node").data();
 
     LevelAPI::Backend::SearchFilter filter;
+
+    printf("string parsing began\n");
     
     filter.m_sName = decodeURIComponent(req.get_arg_flat("name").data());
     filter.m_sDescription = decodeURIComponent(req.get_arg_flat("description").data());
@@ -39,6 +41,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
 
     bool only_ids = false;
 
+    printf("interger parsing began\n");
     PARSE_VAL("songOfficial", bool, filter.m_bSongOfficial);
     PARSE_VAL("accountID", int, filter.m_nAID);
     PARSE_VAL("stars", int, filter.m_nStars);
@@ -53,6 +56,8 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     PARSE_VAL("difficulty", int, filter.m_nDifficulty);
     PARSE_VAL("randomized", bool, randomized);
     PARSE_VAL("ids", bool, only_ids);
+
+    printf("timestamp processing bega\n");
 
     uint64_t tA = filter.timestamp_start;
     uint64_t tB = filter.timestamp_end;
@@ -72,6 +77,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
 
     std::string sort_type = req.get_arg_flat("sort").data();
 
+    printf("sort processing began\n");
     if (!sort_type.empty()) {
         filter.m_eSort = LevelAPI::Backend::SearchSort::SSNone;
 
@@ -103,10 +109,12 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     std::vector<LevelAPI::DatabaseController::Level *> levels = {};
 
     if (randomized) {
+        printf("working with random list\n");
         levels = node_object->getRandomLevels(10);
     }
 
     if (graph) {
+        printf("working with graph\n");
         std::vector<int> levels_arr;
 	    filter.m_nLevelsPerPage = 100;
         
@@ -145,6 +153,7 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
     }
 
     if (levels.size() == 0) {
+        printf("working with basic filter\n");
         levels = node_object->getLevels(filter);
     }
 
@@ -152,6 +161,8 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
 
     resp["response"] = 0;
     resp["levels"] = nlohmann::json::array();
+
+    printf("adding levels\n");
 
     for (auto lvl : levels) {
         if (only_ids) {
@@ -162,7 +173,9 @@ std::shared_ptr<http_response> LevelAPI::v1::LevelSearchRequest::render(const ht
         }
     }
 
+    printf("deleting levels\n");
     Backend::GDServer::destroyLevelVector(levels);
 
+    printf("sending response\n");
     return generateResponse(resp.dump(), HTTPContentTypeJSON());
 }

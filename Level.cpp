@@ -228,9 +228,9 @@ void Level::recover() {
     RS(bool, "areCoinsVerified", m_bVerifiedCoins)
     RS(bool, "ldmAvailable", m_bLDM)
     RS(bool, "is2P", m_b2P)
-    RS(bool, "legendary", m_bLegendary);
-    RS(bool, "mythic", m_bMythic);
-    RS(bool, "gauntlet", m_bGauntlet);
+    RS(int, "legendary", m_bLegendary);
+    RS(int, "mythic", m_bMythic);
+    RS(int, "gauntlet", m_bGauntlet);
 
     RS(std::string, "levelName", m_sLevelName)
     RS(std::string, "levelDescription", m_sDescription)

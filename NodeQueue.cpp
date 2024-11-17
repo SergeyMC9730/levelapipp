@@ -36,7 +36,7 @@ NodeQueue::NodeQueue(const NodeCommandQueue &q, bool executeQueue, int runtimeSt
     _jsonObject["executeQueue"] = executeQueue;
     _jsonObject["runtimeState"] = runtimeState;
 }
-NodeQueue::NodeQueue(const std::vector<NodeCommandQueue> &vec, bool executeQueue, int runtimeState) {
+NodeQueue::NodeQueue(const std::list<NodeCommandQueue> &vec, bool executeQueue, int runtimeState) {
     m_vCommandQueue = vec;
     m_bExecuteQueue = executeQueue;
     m_nRuntimeState = runtimeState;

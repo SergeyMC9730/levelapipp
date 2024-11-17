@@ -7,6 +7,8 @@
 
 #include "../Level.h"
 
+#include <math.h>
+
 LevelAPI::v1::StatsRequest::StatsRequest() {
     this->request_name = "get node statistics";
     this->request_url = "/api/v1/stats";
@@ -15,6 +17,7 @@ LevelAPI::v1::StatsRequest::StatsRequest() {
 std::shared_ptr<http_response> LevelAPI::v1::StatsRequest::render(const http_request &req) {
     auto node = req.get_arg("node");
     std::string node_string = node.get_flat_value().data();
+    int ids = atoi(req.get_arg("ids").get_flat_value().data());
 
     auto node_object = DatabaseController::database->getNode(node_string);
 
@@ -45,7 +48,8 @@ std::shared_ptr<http_response> LevelAPI::v1::StatsRequest::render(const http_req
         resp["latestLevelsDownloaded"] = nlohmann::json::array();
 
         for (auto lvl : levels) {
-            resp["latestLevelsDownloaded"].push_back(lvl->_jsonObject);
+	    if (ids) resp["latestLevelsDownloaded"].push_back(lvl->m_nLevelID);
+            else resp["latestLevelsDownloaded"].push_back(lvl->_jsonObject);
         }
 
         Backend::GDServer::destroyLevelVector(levels);

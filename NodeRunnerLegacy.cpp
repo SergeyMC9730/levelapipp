@@ -345,7 +345,7 @@ run_again:
 start:
     if(nd->m_uQueue->m_vCommandQueue.size() == 0) goto error_ignore;
 
-    const NodeCommandQueue &q = nd->m_uQueue->m_vCommandQueue.at(0);
+    const NodeCommandQueue q = nd->m_uQueue->m_vCommandQueue.front();
 
     nd->m_uQueue->currentState = q.m_nCommand;
     prev_q = q.m_nCommand;
@@ -551,7 +551,7 @@ start:
         }
     }
     
-    nd->m_uQueue->m_vCommandQueue.erase(nd->m_uQueue->m_vCommandQueue.begin());
+    nd->m_uQueue->m_vCommandQueue.pop_front();
     // nd->m_uQueue->save();
 
     nd->m_uQueue->currentState = NC_NONE;
