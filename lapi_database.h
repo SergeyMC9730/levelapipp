@@ -24,6 +24,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <list>
 
 #include "json/single_include/nlohmann/json.hpp"
 
