@@ -38,7 +38,7 @@
 
 using namespace LevelAPI::DatabaseController;
 
-bool Database::exists(){ 
+bool Database::exists(){
     struct stat buffer;
     std::string p = databasePath + "/info.json";
     return std::filesystem::exists(p);
@@ -98,6 +98,8 @@ Database::Database(std::string path) {
             _jsonObject = nlohmann::json::parse(i2);
 
             i2.close();
+        } else {
+            std::cout << "Backup file is not available" << std::endl;
         }
     }
 
@@ -127,7 +129,7 @@ Database::Database(std::string path) {
     }
     GET_JSON_VALUE(_jsonObject, "registeredCID", m_sRegisteredCID, std::string);
     GET_JSON_VALUE(_jsonObject, "registeredCID2", m_sRegisteredCID2, std::string);
-    
+
     GET_JSON_VALUE(_jsonObject, "language", translation_language, std::string);
 
     if(m_bEnableBot && !m_sBotToken.empty()) {
@@ -154,10 +156,16 @@ void Database::recalculate() {
 }
 
 void Database::save() {
+    std::string p1 = databasePath + "/info.json";
+    std::string p2 = databasePath + "/info_backup.json";
     if (!m_bLoadedFromBackup) {
-        std::filesystem::copy(databasePath + "/info.json", databasePath + "/info_backup.json", std::filesystem::copy_options::overwrite_existing);
+        if (std::filesystem::exists(p1)) {
+            std::filesystem::copy(p1, p2, std::filesystem::copy_options::overwrite_existing);
+        }
     } else {
-        std::filesystem::copy(databasePath + "/info_backup.json", databasePath + "/info.json", std::filesystem::copy_options::overwrite_existing);
+        if (std::filesystem::exists(p2)) {
+            std::filesystem::copy(p2, p1, std::filesystem::copy_options::overwrite_existing);
+        }
     }
     //auto start = std::chrono::high_resolution_clock::now();
 
@@ -178,8 +186,6 @@ void Database::save() {
         _jsonObject["nodes"].push_back(m_vNodes.at(i)->_jsonObject);
         i++;
     }
-
-    std::string p1 = databasePath + "/info.json";
 
     std::ofstream file(p1);
     file << _jsonObject.dump(4);
@@ -205,13 +211,13 @@ Node *Database::getNode(std::string internalName) {
 
 Database::~Database() {
     int i = 0;
-    
+
     while(i < m_vThreads.size()) {
         delete m_vThreads[i];
         m_vThreads[i] = nullptr;
         i++;
     }
-    
+
     i = 0;
     while(i < m_vNodes.size()) {
         delete m_vNodes.at(i);

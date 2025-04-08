@@ -73,7 +73,7 @@ namespace LevelAPI {
             LevelRangeList _ranges;
 
             // run this server in debug mode
-	    bool m_bDebug;
+            bool m_bDebug;
 
             // get endpint for login action
             virtual std::string _getDownloadLevelEndpointName();
@@ -94,6 +94,77 @@ namespace LevelAPI {
             // create curl connection for this request
             virtual CURLConnection *_setupCURL(std::optional<CurlProxy> proxy, std::string secret);
         public:
+            enum SearchType {
+                STQuery = 0,
+                STMostDownloaded = 1,
+                STMostLiked = 2,
+                STTrending = 3,
+                STRecent = 4,
+                STUserLevels = 5,
+                STFeatured = 6,
+                STMagic = 7,
+                STModSent = 8,
+                STMapPack = 10,
+                STAwarded = 11,
+                STFollowed = 12,
+                STFriends = 13,
+                STWorldMostLiked = 15,
+                STHallOfFlame = 16,
+                STWorldFeatured = 17,
+                STUnknownEmpty = 18,
+                STUnknownMapPackPaged = 19,
+                STDailyHistory = 21,
+                STWeeklyHistory = 22,
+                STLevelList = 25,
+                STUnknownMapPackPaged100 = 26
+            };
+            enum SearchDifficulty {
+                SDNa = -1,
+                SDDemons = -2,
+                SDEasy = 1,
+                SDNormal = 2,
+                SDHard = 3,
+                SDHarder = 4,
+                SDInsane = 5
+            };
+            enum SearchDemonDiff {
+                SDDNone = 0,
+                SDDEasy = 1,
+                SDDMedium = 2,
+                SDDHard = 3,
+                SDDInsane = 4,
+                SDDExtreme = 5
+            };
+            enum SearchLength {
+                SLNone = -1,
+                SLTiny = 0,
+                SLShort = 1,
+                SLMedium = 2,
+                SLLong = 3,
+                SLExtraLong = 4,
+                SLPlatformer = 5
+            };
+
+            struct ExtendedParams {
+                SearchType type = STQuery;
+                SearchDifficulty diff = SDNa;
+                SearchDemonDiff demon = SDDNone;
+                SearchLength len = SLNone;
+                std::string str = "";
+                int page = 0;
+                struct {
+                    unsigned short featured : 1;
+                    unsigned short original : 1;
+                    unsigned short two_player : 1;
+                    unsigned short coins : 1;
+                    unsigned short epic : 1;
+                    unsigned short legendary : 1;
+                    unsigned short mythic : 1;
+                    unsigned short no_star : 1;
+                    unsigned short star : 1;
+                } filter;
+            };
+
             GDServer();
 	        // create gdserver with a list of level ranges
             GDServer(std::vector<LevelRange> list);
@@ -103,9 +174,9 @@ namespace LevelAPI {
             ~GDServer();
 
 	        // current status of this server
-            GDServerStatus m_eStatus;
+            GDServerStatus m_eStatus = GDServerStatus::GSS_ONLINE;
             // how much user should wait for a next request
-            int _rateLimitLength;
+            int _rateLimitLength = 0;
 
             // emab;e or disable debug mode
             virtual void setDebug(bool d);
@@ -123,6 +194,10 @@ namespace LevelAPI {
             // implements basic search functionality
             // it doesn't allow searching requests that use gjp password
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy = std::nullopt);
+
+            // implements full search functionality
+            // it doesn't allow searching requests that require gjp password
+            virtual std::vector<LevelAPI::DatabaseController::Level *> getLevels(ExtendedParams &params, std::optional<CurlProxy> proxy = std::nullopt);
 
             // get a list of levels based on the server response
             virtual std::vector<LevelAPI::DatabaseController::Level *> getLevelsFromResponse(std::string &response);
@@ -152,12 +227,14 @@ namespace LevelAPI {
             // try to upload a level
             // NOT IMPLEMENTED
             virtual GDServerUploadResult *uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt);
-        
+
             // unload level array
             static void destroyLevelVector(std::vector<LevelAPI::DatabaseController::Level *> v);
 
             // returns true if curl or cloudflare returned error
             bool processCURLAnswer(CURLResult *res);
+
+            static ExtendedParams createEmptyParams();
         };
     }
 }

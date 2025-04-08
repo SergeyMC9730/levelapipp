@@ -65,6 +65,7 @@ namespace LevelAPI {
             GDServerUploadResult *uploadLevel(DatabaseController::Level *level, std::optional<CurlProxy> proxy = std::nullopt) override;
 
             std::vector<LevelAPI::DatabaseController::Level *> getLevelsFromResponse(std::string &response) override;
+            std::vector<LevelAPI::DatabaseController::Level *> getLevels(ExtendedParams &params, std::optional<CurlProxy> proxy) override;
 
             int getGameVersion() override;
             std::string getServerName() override;

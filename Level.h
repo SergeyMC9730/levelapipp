@@ -35,13 +35,13 @@ namespace LevelAPI {
     namespace DatabaseController {
       	// how level card should be appeared
         enum LevelAppearanceEvent {
-            // render as the recently published level
+            // render as recently published level
             E_RECENT = 0,
-            // render as the recentely registered level
-            E_REGISTERED, 
-	    // render as the recentely rated level
-	    E_RATE,
-            // render as the standard level
+            // render as recentely registered level
+            E_REGISTERED,
+            // render as recentely rated level
+            E_RATE,
+            // render as standard level
             E_INFORMATION
         };
 

@@ -24,39 +24,16 @@
 #include "requests/requests.h"
 #include "HttpController.h"
 #endif
-#include <iterator>
 #include <dirent.h>
 #include <sys/statvfs.h>
-#include <thread>
 #include <vector>
-
-#include "GDServer.h"
-#include "Level.h"
-
+#include "tasks.h"
 #include "TestingBoomlings22.h"
-// #include "connection.h"
-#include "gmd2pp/gmd2.h"
-
 #include "lapi_database.h"
 #include "lapi_version.h"
-
-#include "GDServer_BoomlingsLike21.h"
-
-#include "UUID.h"
-
 #include <ctime>
-
-// #include "sqlite3/connection.h"
-// #include "sqlite3/connection_config.h"
-
-#include "SQLiteManager.h"
-
 #include "tests.h"
-
 #include "Translation.h"
-
-#include <chrono>
-
 #include <iostream>
 
 // #include <sqlpp11/sqlpp11.h>
@@ -72,6 +49,11 @@ std::vector<std::string> get_tests() {
         "robtop-parser"
     };
 }
+std::vector<std::string> get_tasks() {
+    return {
+        "get-list-levels"
+    };
+}
 
 void print_tests() {
     auto tests = get_tests();
@@ -79,11 +61,28 @@ void print_tests() {
     int i = 0;
 
     std::cout << "Available tests:" << std::endl;
-    
+
     while(i < tests.size()) {
         auto test = tests[i];
 
         std::cout << " - " << test << std::endl;
+
+        i++;
+    }
+
+    return;
+}
+void print_tasks() {
+    auto tasks = get_tasks();
+
+    int i = 0;
+
+    std::cout << "Available tasks:" << std::endl;
+
+    while(i < tasks.size()) {
+        auto task = tasks[i];
+
+        std::cout << " - " << task << std::endl;
 
         i++;
     }
@@ -102,21 +101,41 @@ bool is_test_valid(std::string test) {
 
     return false;
 }
+bool is_task_valid(std::string task) {
+    auto tasks = get_tasks();
+
+    int i = 0;
+    while(i < tasks.size()) {
+        if (tasks[i] == task) return true;
+        i++;
+    }
+
+    return false;
+}
 
 void route_test(std::string test) {
-    if (!is_test_valid(test)) return;
+    if (!is_test_valid(test)) {
+        std::cout << "Test not found\n";
+        return;
+    }
 
     if (test == "boomlings2.2") {
-        LevelAPI::Tests::test_boomlings_ver22(); return;
+        LevelAPI::Tests::test_boomlings_ver22();
+    } else if (test == "basement") {
+        LevelAPI::Tests::testBasementFeatures();
+    } else if (test == "robtop-parser") {
+        LevelAPI::Tests::testRobtopParser();
     }
-    if (test == "basement") {
-        LevelAPI::Tests::testBasementFeatures(); return;
-    }
-    if (test == "robtop-parser") {
-        LevelAPI::Tests::testRobtopParser(); return;
+}
+void route_task(std::string task) {
+    if (!is_task_valid(task)) {
+        std::cout << "Task not found\n";
+        return;
     }
 
-    return;
+    if (task == "get-list-levels") {
+        LevelAPI::Tasks::findListLevels();
+    }
 }
 
 #include "GenericTools.hpp"
@@ -126,19 +145,19 @@ int testcallback(void *sql, int columns, char **array1, char **array2) {
 
     std::cout << "Columns: " << columns << std::endl;
 
-    // std::cout << "ARRAY 1:" << std::endl;
-    // while (array1[i] != NULL) {
-    //     std::cout << array1[i] << std::endl; 
-    //     i++;
-    // }
+    std::cout << "ARRAY 1:" << std::endl;
+    while (array1[i] != NULL) {
+        std::cout << array1[i] << std::endl;
+        i++;
+    }
 
-    // i = 0;
+    i = 0;
 
-    // std::cout << "ARRAY 2:" << std::endl;
-    // while (array2[i] != NULL) {
-    //     std::cout << array2[i] << std::endl; 
-    //     i++;
-    // }
+    std::cout << "ARRAY 2:" << std::endl;
+    while (array2[i] != NULL) {
+        std::cout << array2[i] << std::endl;
+        i++;
+    }
 
     return 0;
 }
@@ -280,13 +299,13 @@ nlohmann::json setupInfoMakeNode() {
         mods.push_back(getByKey("lapi.main.node.mod.none"));
 
         while (!mod_valid) {
-            fmt::print("{}     ({})\n  {} ", 
+            fmt::print("{}     ({})\n  {} ",
                 getByKey("lapi.main.node.mod.1"),
                 GenericTools::convertFromVector(mods),
                 getByKey("lapi.main.node.mod.2")
             );
 
-            std::cin >> mod; 
+            std::cin >> mod;
 
             for (auto mod_obj : mods) {
                 if (makeStrLowercase(mod) == mod_obj) {
@@ -348,7 +367,7 @@ nlohmann::json setupInfoMakeNode() {
         policy["noOutput"] = no_output;
         policy["queueProcessingInterval"] = qpi;
         policy["resolverInterval"] = ri;
-        policy["waitResolverRateLimit"] = wait_rl;      
+        policy["waitResolverRateLimit"] = wait_rl;
     }
 
     ret["policy"] = policy;
@@ -388,7 +407,7 @@ void setupInfo() {
     while (!language_valid) {
         fmt::print("\n- Select language ({}) without the brackets: ", GenericTools::convertFromVector(languages_available));
 
-        std::cin >> lang; 
+        std::cin >> lang;
 
         for (auto lang_obj : languages_available) {
             if (makeStrLowercase(lang) == lang_obj) {
@@ -434,7 +453,7 @@ void setupInfo() {
         std::cout << getByKey("lapi.main.discord");
 
         std::string token;
-        
+
         std::cout << getByKey("lapi.main.discord.token");
         HideStdinKeystrokes();
         std::cin >> token;
@@ -463,7 +482,7 @@ void setupInfo() {
         database["registeredCID2"] = registeredCID2;
     }
 #endif
-    
+
     std::cout << getByKey("lapi.main.db.save");
 
     LevelAPI::DatabaseController::make_directories();
@@ -510,9 +529,25 @@ int main(int argc, char *argv[]) {
             route_test(subtest);
 
             return 0;
-        }
+        } else if (command == "task") {
+            if (args.size() == 1) {
+                print_tasks();
 
-        if (command == "setup") {
+                return 1;
+            }
+
+            auto subtest = args[1];
+
+            if (!is_task_valid(subtest)) {
+                print_tasks();
+
+                return 1;
+            }
+
+            route_task(subtest);
+
+            return 0;
+        } else if (command == "setup") {
             DatabaseController::setup();
             setupInfo();
 
@@ -521,7 +556,7 @@ int main(int argc, char *argv[]) {
             return 0;
         }
 
-        std::cout << "Help:\n - test  -> testing new LevelAPI features\n - setup -> setup LevelAPI database\n";
+        std::cout << "Help:\n - test  -> testing new LevelAPI features\n - setup -> setup LevelAPI database\n - task -> run LevelAPI task";
 
         return 1;
     }
@@ -671,7 +706,7 @@ int main(int argc, char *argv[]) {
     //             level = nullptr;
     //         }
     //     }
-            
+
     //     closedir(d);
 
     //     i++;

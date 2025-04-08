@@ -77,7 +77,7 @@ bool GDServer_BoomlingsLike19::login(std::optional<CurlProxy> proxy) {
     std::string url = m_sEndpointURL + "/accounts/" + _getLoginAccountEndpointName();
     // create request to the server
     CURLResult *res = m_pLinkedCURL->access_page(url.c_str(), "POST");
-    
+
     printf("response login: %s\n", res->data);
     printf("%d %d %d\n", res->http_status, res->result, res->retry_after);
 
@@ -88,7 +88,7 @@ bool GDServer_BoomlingsLike19::login(std::optional<CurlProxy> proxy) {
         delete res; res = nullptr;
 
         return false;
-    } 
+    }
 
     delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
     delete res; res = nullptr;
@@ -113,7 +113,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::downloadLevel(int
     if (!processCURLAnswer(res)) {
         free((char *)res->data);
         delete res; res = nullptr;
-        
+
         delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
         return nullptr;
@@ -124,7 +124,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::downloadLevel(int
     if(!strtest.compare("-1")) {
         free((char *)res->data);
         delete res; res = nullptr;
-        
+
         delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
         return nullptr;
@@ -139,7 +139,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::downloadLevel(int
 
     free((char *)res->data);
     delete res; res = nullptr;
-        
+
     delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
     return lvl;
@@ -148,13 +148,17 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::downloadLevel(int
 std::vector<CURLParameter *> GDServer_BoomlingsLike19::_setupGJLevelsArgs(int type, std::string str, int page) {
     std::string _str = str;
     if (str.empty()) _str = "-";
-    
-    return {
+
+    std::vector<CURLParameter *> v = {
         new CURLParameter("type", type),
         new CURLParameter("page", page),
-        new CURLParameter("str", _str),
         new CURLParameter("total", getMaxLevelPageSize())
     };
+    if (!str.empty()) {
+        v.push_back(new CURLParameter("str", _str));
+    }
+
+    return v;
 }
 
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsBySearchType(int type, std::string str, int page, std::optional<CurlProxy> proxy) {
@@ -174,7 +178,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
     if (!processCURLAnswer(res)) {
         free((char *)res->data);
         delete res; res = nullptr;
-        
+
         delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
         return {};
@@ -183,7 +187,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
     if(res->data[0] == '-') {
         free((char *)res->data);
         delete res; res = nullptr;
-        
+
         delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
         return {};
@@ -243,7 +247,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
     for (auto level_string : vec5levels) {
         // parse level
         LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(level_string);
-        
+
         // get account by user id
         Account19 *account = playerMap[lvl->m_nPlayerID];
 
@@ -259,13 +263,13 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::get
 
         vec1.push_back(lvl);
     }
-    
+
     // delete accounts
     for (auto account : accounts) delete account;
 
     free((char *)res->data);
     delete res; res = nullptr;
-        
+
     delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
     // reserse array to make first level to be the latest one
@@ -296,7 +300,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
     if (!processCURLAnswer(res)) {
         free((char *)res->data);
         delete res; res = nullptr;
-        
+
         delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
         return level;
@@ -307,7 +311,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
     if(!strtest.compare("-1")) {
         free((char *)res->data);
         delete res; res = nullptr;
-        
+
         delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
         return level;
@@ -315,7 +319,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
 
     // parse level
     LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(res->data);
-    
+
     // set values
     level->m_sLevelString = lvl->m_sLevelString;
     level->m_nMusicID = lvl->m_nMusicID;
@@ -325,7 +329,7 @@ LevelAPI::DatabaseController::Level *GDServer_BoomlingsLike19::resolveLevelData(
 
     free((char *)res->data);
     delete res; res = nullptr;
-        
+
     delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
 
     delete lvl; lvl = nullptr;
@@ -349,6 +353,143 @@ GDServerUploadResult *GDServer_BoomlingsLike19::uploadLevel(DatabaseController::
 
 std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevelsFromResponse(std::string &response) {
     // TODO: implement this
-    
+
     return {};
+}
+
+std::vector<LevelAPI::DatabaseController::Level *> GDServer_BoomlingsLike19::getLevels(ExtendedParams &params, std::optional<CurlProxy> proxy) {
+    // create curl instance
+    auto m_pLinkedCURL = _setupCURL(proxy, _getSecretValueStandard());
+
+    // add parameters
+    m_pLinkedCURL->addData(_setupGJLevelsArgs((int)params.type, params.str, params.page));
+    if (params.len != SearchLength::SLNone) {
+        m_pLinkedCURL->addData({new CURLParameter("len", (int)params.len)});
+    }
+    m_pLinkedCURL->addData({new CURLParameter("diff", (int)params.diff)});
+    if (params.demon != SearchDemonDiff::SDDNone) {
+        m_pLinkedCURL->addData({new CURLParameter("demonFilter", (int)params.demon)});
+    }
+    m_pLinkedCURL->addData(
+        {
+            new CURLParameter("featured", (int)params.filter.featured),
+            new CURLParameter("original", (int)params.filter.original),
+            new CURLParameter("twoPlayer", (int)params.filter.two_player),
+            new CURLParameter("coins", (int)params.filter.coins),
+            new CURLParameter("epic", (int)params.filter.epic),
+            new CURLParameter("legendary", (int)params.filter.legendary),
+            new CURLParameter("mythic", (int)params.filter.mythic),
+            new CURLParameter("noStar", (int)params.filter.no_star),
+            new CURLParameter("star", (int)params.filter.star)
+        }
+    );
+
+    // printf("str=%s\n", str.c_str());
+
+    // create url
+    std::string url = m_sEndpointURL + "/" + _getLevelListEndpointName();
+    // send request to the server
+    CURLResult *res = m_pLinkedCURL->access_page(url.c_str(), "POST");
+
+    if (!processCURLAnswer(res)) {
+        free((char *)res->data);
+        delete res; res = nullptr;
+
+        delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
+
+        return {};
+    }
+
+    if(res->data[0] == '-') {
+        free((char *)res->data);
+        delete res; res = nullptr;
+
+        delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
+
+        return {};
+    }
+
+    // create level array
+    std::vector<LevelAPI::DatabaseController::Level *> vec1;
+
+    // split array into level array and player array
+    std::vector<std::string> vec2 = splitString(res->data, '#');
+
+    // get player list
+    std::string plList = vec2[1];
+
+    // get level list
+    std::string lvlList = vec2[0];
+
+    // create player map
+    std::map<int, Account19 *> playerMap;
+
+    // split player list into individual players
+    std::vector<std::string> vec4array = splitString(plList.c_str(), '|');
+
+    // split level list into individual levels
+    std::vector<std::string> vec5levels = splitString(lvlList.c_str(), '|');
+
+    int i = 0;
+
+    std::vector<Account19 *> accounts;
+
+    for (auto player_string : vec4array) {
+        // split robtop array
+        std::vector<std::string> player_data = splitString(player_string.c_str(), ':');
+
+        if (player_data.size() >= 3) {
+            // get strings for each array element;
+            std::string userID_string = player_data[0];
+            std::string accountID_string = player_data[2];
+            std::string username = player_data[1];
+
+            // parse userID
+            int userID = atoi(userID_string.c_str());
+            // parse accountID
+            int accountID = atoi(accountID_string.c_str());
+
+            Account19 *account = new Account19();
+
+            account->accountID = accountID;
+            account->userID = userID;
+            account->username = username;
+
+            playerMap.insert(std::pair<int, Account19 *>(userID, account));
+            accounts.push_back(account);
+        }
+    }
+
+    for (auto level_string : vec5levels) {
+        // parse level
+        LevelAPI::DatabaseController::Level *lvl = LevelParser::parseFromResponse(level_string);
+
+        // get account by user id
+        Account19 *account = playerMap[lvl->m_nPlayerID];
+
+        // set account values if it was found
+        if (account != nullptr) {
+            lvl->m_nAccountID = account->accountID;
+            lvl->m_sUsername = account->username;
+        }
+
+        // set level release values
+        lvl->m_uRelease->m_nGameVersion = lvl->m_nGameVersion;
+        lvl->m_uRelease->m_fActualVersion = determineGVFromID(lvl->m_nLevelID);
+
+        vec1.push_back(lvl);
+    }
+
+    // delete accounts
+    for (auto account : accounts) delete account;
+
+    free((char *)res->data);
+    delete res; res = nullptr;
+
+    delete m_pLinkedCURL; m_pLinkedCURL = nullptr;
+
+    // reserse array to make first level to be the latest one
+    std::reverse(vec1.begin(), vec1.end());
+
+    return vec1;
 }

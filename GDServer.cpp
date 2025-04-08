@@ -30,15 +30,9 @@ using namespace LevelAPI::Backend;
 
 std::vector<LevelAPI::LevelRange> _stub11 = {};
 
-GDServer::GDServer() : _ranges(_stub11) {
-    m_eStatus = GSS_ONLINE;
-}
-GDServer::GDServer(std::vector<LevelRange> list) : _ranges(list) {
-    m_eStatus = GSS_ONLINE;
-}
-GDServer::GDServer(LevelRangeList list) : _ranges(list) {
-    m_eStatus = GSS_ONLINE;
-}
+GDServer::GDServer() : _ranges(_stub11) {}
+GDServer::GDServer(std::vector<LevelRange> list) : _ranges(list) {}
+GDServer::GDServer(LevelRangeList list) : _ranges(list) {}
 GDServer::~GDServer() {
     m_eStatus = GSS_OFFLINE;
 }
@@ -143,7 +137,7 @@ std::vector<std::string> GDServer::_getCloudflareBans() {
 bool GDServer::processCURLAnswer(CURLResult *res) {
     _rateLimitLength = res->retry_after;
 
-    printf("res: %d/%d\n", res->http_status, res->result);
+    printf("res: %d/%d/%d\n", res->http_status, res->result, _rateLimitLength);
 
     if (res->http_status != 200 || res->result != 0) {
         std::string data = res->data;
@@ -163,8 +157,8 @@ bool GDServer::processCURLAnswer(CURLResult *res) {
 
 CURLConnection *GDServer::_setupCURL(std::optional<CurlProxy> proxy, std::string secret) {
     auto m_pLinkedCURL = new CURLConnection();
-    
-    m_pLinkedCURL->setDebug(false);
+
+    m_pLinkedCURL->setDebug(getDebug());
 
     if (proxy.has_value()) {
         m_pLinkedCURL->setProxy(proxy.value());
@@ -185,4 +179,16 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevelsFromRespon
 
 LevelAPI::DatabaseController::Level *GDServer::downloadLevel(int id, std::optional<CurlProxy> proxy) {
     return nullptr;
+}
+
+#include <cstring>
+
+GDServer::ExtendedParams GDServer::createEmptyParams() {
+    ExtendedParams p{};
+    memset(&p.filter, 0, sizeof(p.filter));
+    return p;
+}
+
+std::vector<LevelAPI::DatabaseController::Level *> GDServer::getLevels(ExtendedParams &params, std::optional<CurlProxy> proxy) {
+    return {};
 }

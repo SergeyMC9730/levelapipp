@@ -4,6 +4,8 @@ project(levelapi_server VERSION 1.0.0)
 set(CXX_STANDARD_REQUIRED 17)
 set(CXX_STANDARD 17)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS On)
+
 option(LAPI_COMPILE_LAUNCHER "compile levelapi launcher" ON)
 option(LAPI_COMPILE_TEST "compile test executables" ON)
 option(LAPI_COMPILE_ADDITIONAL "compile additional executables" ON)
@@ -95,6 +97,7 @@ set(levelapi_baselibrary
     ServerModule.h
     SmallLevel.cpp SmallLevel.h
     tests.h test_curl_connection.cpp test_gd_parsers.cpp test_basement_features.cpp
+    tasks.h task_find_list_levels.cpp
     TestingBoomlings22.cpp TestingBoomlings22.h
     ThreadSafeLevelParser.cpp ThreadSafeLevelParser.h
     Time.cpp Time.h
@@ -246,15 +249,15 @@ add_library(levelapi-generic-tools ${COMPILE_MODE}
 )
 
 target_link_libraries(levelapi
-    ${HTTP_LINKAGE} 
-    PUBLIC gmd2 
-    ${DPP_LINKAGE} 
-    PUBLIC fmt 
-    PUBLIC GDCrypto 
-    PUBLIC sqlitemanager 
-    PUBLIC robtopstrings 
-    PUBLIC iandy 
-    PUBLIC raylib 
+    ${HTTP_LINKAGE}
+    PUBLIC gmd2
+    ${DPP_LINKAGE}
+    PUBLIC fmt
+    PUBLIC GDCrypto
+    PUBLIC sqlitemanager
+    PUBLIC robtopstrings
+    PUBLIC iandy
+    PUBLIC raylib
     PUBLIC levelapi-generic-tools
 )
 
@@ -273,7 +276,7 @@ endif()
 file(COPY resources DESTINATION .)
 
 if (LAPI_COMPILE_LAUNCHER)
-    add_executable(levelapi_server 
+    add_executable(levelapi_server
         main.cpp
     )
     target_link_libraries(levelapi_server PUBLIC levelapi)
