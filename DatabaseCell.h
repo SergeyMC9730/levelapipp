@@ -44,6 +44,9 @@ namespace LevelAPI {
             // create sqlite instance
             virtual void setupSQLite();
 
+            // generate json data
+            virtual void generateJSON();
+
             operator nlohmann::json () const {
                 return _jsonObject;
             }

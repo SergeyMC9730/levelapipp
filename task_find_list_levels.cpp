@@ -62,7 +62,8 @@ void LevelAPI::Tasks::findListLevels() {
         }
 
         for (auto level : lvls) {
-            j[kn].push_back({{"name", level->m_sLevelName}, {"id", level->m_nLevelID}});
+            level->generateJSON();
+            j[kn].push_back(level->_jsonObject);
         }
 
         printf("[TASK] %ld LEVELS\n", lvls.size());
@@ -109,6 +110,7 @@ void LevelAPI::Tasks::findListLevels() {
 
     std::ofstream o("list.json");
     o << std::setw(4) << j << std::endl;
+    o.close();
 
     delete boom;
     boom = nullptr;

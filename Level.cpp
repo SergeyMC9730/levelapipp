@@ -49,7 +49,7 @@ Level::Level(std::string linkedNode) {
     Frontend::Time *t = Frontend::Time::create();
     m_sCreatedTimestamp = t->getAsString();
     m_nAppereanceTimestamp = t->unixTime;
-    
+
     m_sLinkedNode = linkedNode;
 
     delete t;
@@ -59,7 +59,7 @@ Level::Level(std::string linkedNode) {
 }
 
 void Level::setupJSON() {
-    _jsonObject = nlohmann::json();
+    _jsonObject = nlohmann::json::object();
 }
 
 Time *Level::getTimeLegacy() {
@@ -90,7 +90,7 @@ void Level::save(bool onlyLevelString) {
 
     if (onlyLevelString) {
         lambda_save();
-        
+
         return;
     }
 
@@ -393,7 +393,7 @@ std::string Level::generateDifficultyImage(std::string folder_prefix) {
     int max_moons = 10;
 
     if(parameters[0]) {
-        // mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));  
+        // mats.push_back(cv::imread(folder_prefix + "/feature.png", cv::IMREAD_UNCHANGED));
         std::string p = folder_prefix + "/feature.png";
         layers.push_back(LoadImage(p.c_str()));
     };
@@ -475,11 +475,11 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
 
     std::string msg = Translation::getByKey(eventtable[e], gv, m_sCreatedTimestamp);
 
-    std::string thumbnail = url + "/api/v1/res/request/" + img_path;    
+    std::string thumbnail = url + "/api/v1/res/request/" + img_path;
 
     std::random_device rd;
     std::uniform_int_distribution<int> uid(0, m_nLevelID);
-    
+
     dpp::embed embed = dpp::embed().
         set_color(uid(rd)).
         set_title(Translation::getByKey(titletable[e])).
@@ -535,3 +535,60 @@ dpp::embed Level::getAsEmbed(LevelAppearanceEvent e) {
     return embed;
 }
 #endif
+
+void Level::generateJSON() {
+#undef RS
+#define RS(t, str, val) _jsonObject[str] = (t)val;
+
+    setupJSON();
+
+    RS(int, "levelID", m_nLevelID)
+    RS(int, "version", m_nVersion)
+    RS(int, "playerID", m_nPlayerID)
+    RS(int, "downloads", m_nDownloads)
+    RS(int, "musicID", m_nMusicID)
+    RS(int, "likes", m_nLikes)
+    RS(int, "length", m_nLength)
+    RS(int, "difficulty_denominator", m_nDifficultyDenominator)
+    RS(int, "difficulty_numerator", m_nDifficultyNumerator)
+    RS(int, "fakeGameVersion", m_nGameVersion)
+    RS(int, "dislikes", m_nDislikes)
+    RS(int, "stars", m_nStars)
+    RS(int, "featureScore", m_nFeatureScore)
+    RS(int, "copiedFrom", m_nCopiedID)
+    RS(int, "dailyNumber", m_nDailyNumber)
+    RS(int, "coins", m_nCoins)
+    RS(int, "starsRequested", m_nStarsRequested)
+    RS(int, "isEpic", m_nEpic)
+    RS(int, "demonDifficulty", m_nDemonDifficulty)
+    RS(int, "editorTime", m_nEditorTime)
+    RS(int, "editorTimeTotal", m_nEditorTimeTotal)
+    RS(int, "accountID", m_nAccountID)
+    RS(int, "songID", m_nSongID)
+    RS(int, "objects", m_nObjects)
+    RS(int, "moons", m_nMoons);
+    RS(int, "verifTime", m_nVerifTime);
+    RS(int, "unknown54", m_nUnknown54);
+
+    RS(uint64_t, "appereanceTimestamp", m_nAppereanceTimestamp);
+
+    RS(bool, "isAuto", m_bAuto)
+    RS(bool, "isDemon", m_bDemon)
+    RS(bool, "areCoinsVerified", m_bVerifiedCoins)
+    RS(bool, "ldmAvailable", m_bLDM)
+    RS(bool, "is2P", m_b2P)
+    RS(int, "legendary", m_bLegendary);
+    RS(int, "mythic", m_bMythic);
+    RS(int, "gauntlet", m_bGauntlet);
+
+    RS(std::string, "levelName", m_sLevelName)
+    RS(std::string, "levelDescription", m_sDescription)
+    RS(std::string, "uploadDate", m_sUploadDate)
+    RS(std::string, "updateDate", m_sUpdateDate)
+    RS(std::string, "username", m_sUsername)
+    RS(std::string, "actualGameVersion", m_uRelease->m_fActualVersion)
+    RS(std::string, "publicationDate", m_sCreatedTimestamp);
+    RS(std::string, "settingsString", m_sSettings);
+    RS(std::string, "extraString", m_sExtraString);
+    RS(std::string, "recordString", m_sRecordString);
+}

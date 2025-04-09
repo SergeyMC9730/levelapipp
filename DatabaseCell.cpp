@@ -16,7 +16,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "Translation.h"
 #include "lapi_database.h"
+#include <iostream>
 
 using namespace LevelAPI::DatabaseController;
 
@@ -26,10 +28,16 @@ void DatabaseCell::recover() {}
 void DatabaseCell::setupJSON() {}
 void DatabaseCell::setupSQLite() {}
 
+void DatabaseCell::generateJSON() {
+    setupJSON();
+
+    std::cout << Frontend::Translation::getByKey("lapi.cell.json.gen.unimplemented") << std::endl;
+}
+
 DatabaseCell::~DatabaseCell() {
     if (_sqliteObject) {
         delete _sqliteObject;
-        
+
         _sqliteObject = nullptr;
     }
 }

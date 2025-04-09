@@ -74,6 +74,7 @@ namespace LevelAPI {
             Level(std::string linkedNode);
             void recover() override;
             void save(bool onlyLevelString = false);
+            void generateJSON() override;
 
             // get legacy timestamp for this level
             Frontend::Time *getTimeLegacy();
