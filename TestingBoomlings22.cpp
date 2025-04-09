@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
+    Copyright (C) 2025  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,19 +29,21 @@ void Tests::test_boomlings_ver22() {
     std::cout << "Testing official GD server in 2.2 mode" << std::endl;
 
     auto boom = new LevelAPI::Backend::GDServer_Boomlings22("https://www.boomlings.com/database");
+    LevelAPI::Backend::CurlProxy proxy = "socks5://127.0.0.1:9999";
 
     boom->setDebug(false);
 
-    std::cout << "New feature: download levels in batch. (4 levels)" << std::endl;
+    std::cout << "New feature: download level metadata in batch. (4 levels)" << std::endl;
 
-    auto levels = boom->fetchListOfLevels({128, 91682434, 91698864, 91707733}, 0);
+    auto levels = boom->fetchListOfLevels({128, 91682434, 91698864, 116776010}, 0, proxy);
 
     int i = 0;
     while(i < levels.size()) {
         auto level = levels[i];
 
         std::cout << " - Level \"" << level->m_sLevelName << "\" (" << std::to_string(level->m_nLevelID) << ")" << std::endl;
-        
+        printf("%ld %ld\n", level->m_vSFXList.size(), level->m_vMusicList.size());
+
         delete level;
         levels[i] = nullptr;
         level = nullptr;
@@ -54,6 +56,6 @@ void Tests::test_boomlings_ver22() {
     boom = nullptr;
 
     std::cout << "2.2 test has been completed" << std::endl;
-    
+
     return;
 }

@@ -167,7 +167,7 @@ void RobTopStringContainer::parse() {
             }
         } else {
             std::cout << "WARN : key " << currentKey << " is not implemented!" << std::endl;
-           
+
             m_mContainer[currentKey] = splittedString[i];
         }
 

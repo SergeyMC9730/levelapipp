@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
+    Copyright (C) 2025  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #include "GDServer_Boomlings22.h"
 #include "Translation.h"
 
-LevelAPI::Backend::GDServer_Boomlings22::GDServer_Boomlings22(std::string endpoint) : GDServer_BoomlingsBase(), GDServer_BoomlingsLike22(endpoint, getRanges()) {}
+LevelAPI::Backend::GDServer_Boomlings22::GDServer_Boomlings22(std::string endpoint) : GDServer_BoomlingsLike22(endpoint, getRanges()) {}
 
 std::string LevelAPI::Backend::GDServer_Boomlings22::getServerName() {
     return Frontend::Translation::getByKey("lapi.gdserver_boomlings22.name");

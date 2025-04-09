@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
+    Copyright (C) 2025  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@
 namespace LevelAPI {
     namespace DatabaseController {
         enum NodeCommands {
-            NC_ID = 0, 
+            NC_ID = 0,
             NC_USER, NC_RECENT, NC_EXPERIMENT1,
             NC_NONE, NC_IDLE,
             NC_EXPERIMENT2, NC_22REGION_META
@@ -76,7 +76,7 @@ namespace LevelAPI {
 
             std::list<NodeCommandQueue> m_vCommandQueue = {};
             std::vector<int> m_vResolverQueuedLevels = {};
-    
+
             bool m_bExecuteQueue;
             int m_nRuntimeState;
 
@@ -97,7 +97,7 @@ namespace LevelAPI {
 
             void save() override;
             void recover() override;
-            
+
             void setupJSON() override;
         };
         class NodeDatabase : public DatabaseCell {
@@ -186,10 +186,10 @@ namespace LevelAPI {
 
             std::vector<struct NodeGraphGen> m_vLastGraphs;
 
-            static nlohmann::json jsonFromSQLLevel(SQLiteServerRow &row); 
+            static nlohmann::json jsonFromSQLLevel(SQLiteServerRow &row);
 
             void initLevel(Level *level);
-            
+
             void save() override;
             void recover() override;
 

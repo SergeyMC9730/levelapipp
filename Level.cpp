@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
+    Copyright (C) 2025  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -569,6 +569,9 @@ void Level::generateJSON() {
     RS(int, "moons", m_nMoons);
     RS(int, "verifTime", m_nVerifTime);
     RS(int, "unknown54", m_nUnknown54);
+
+    RS(std::vector<int>, "songIDs", m_vMusicList);
+    RS(std::vector<int>, "sfxIDs", m_vSFXList);
 
     RS(uint64_t, "appereanceTimestamp", m_nAppereanceTimestamp);
 

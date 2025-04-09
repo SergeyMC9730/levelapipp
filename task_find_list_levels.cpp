@@ -1,3 +1,21 @@
+/**
+ *  LevelAPI - Geometry Dash level cacher with search functionality and more.
+    Copyright (C) 2025  Sergei Baigerov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "GDServer.h"
 #include "curl_backend.h"
 #include "tasks.h"
@@ -7,6 +25,11 @@
 #include "Level.h"
 #include <ostream>
 #include <fstream>
+
+struct task_ext_map {
+    int levels;
+    std::string naming;
+};
 
 void LevelAPI::Tasks::findListLevels() {
     std::cout << "TASK: Using GD server in 2.2 mode to obtain levels" << std::endl;
@@ -21,25 +44,25 @@ void LevelAPI::Tasks::findListLevels() {
     srand(time(0));
     nlohmann::json j;
 
-    std::map<Backend::GDServer::SearchDifficulty, int> diffs = {
-        {Backend::GDServer::SDEasy, 79},
-        {Backend::GDServer::SDNormal, 206},
-        {Backend::GDServer::SDHard, 1245},
-        {Backend::GDServer::SDHarder, 1613},
-        {Backend::GDServer::SDInsane, 700}
+    std::map<Backend::GDServer::SearchDifficulty, task_ext_map> diffs = {
+        {Backend::GDServer::SDEasy, {79, "easy"}},
+        {Backend::GDServer::SDNormal, {206, "normal"}},
+        {Backend::GDServer::SDHard, {1245, "hard"}},
+        {Backend::GDServer::SDHarder, {1613, "harder"}},
+        {Backend::GDServer::SDInsane, {700, "insane"}}
     };
-    std::map<Backend::GDServer::SearchDemonDiff, int> ddiffs = {
-        {Backend::GDServer::SDDEasy, 234},
-        {Backend::GDServer::SDDMedium, 245},
-        {Backend::GDServer::SDDHard, 163},
-        {Backend::GDServer::SDDInsane, 124},
-        {Backend::GDServer::SDDExtreme, 124}
+    std::map<Backend::GDServer::SearchDemonDiff, task_ext_map> ddiffs = {
+        {Backend::GDServer::SDDEasy, {234, "easy"}},
+        {Backend::GDServer::SDDMedium, {245, "medium"}},
+        {Backend::GDServer::SDDHard, {163, "hard"}},
+        {Backend::GDServer::SDDInsane, {124, "insane"}},
+        {Backend::GDServer::SDDExtreme, {124, "extreme"}}
     };
 
     for (auto [k, v] : diffs) {
         printf("[TASK] searching with difficulty %d\n", (int)k);
 
-        std::string kn = "levels_" + std::to_string((int)k);
+        std::string kn = "levels_" + v.naming;
         j[kn] = nlohmann::json::array();
 
         for (int i = 0; i < 20; i++) {
@@ -50,7 +73,7 @@ void LevelAPI::Tasks::findListLevels() {
             auto f = boom->createEmptyParams();
             f.filter.star = 1;
             f.diff = k;
-            f.page = rand() % v;
+            f.page = rand() % v.levels;
             f.len = Backend::GDServer::SLNone;
             f.type = Backend::GDServer::STMostDownloaded;
             f.str.clear();
@@ -75,7 +98,7 @@ void LevelAPI::Tasks::findListLevels() {
     for (auto [k, v] : ddiffs) {
         printf("[TASK] searching with demon difficulty %d\n", (int)k);
 
-        std::string kn = "levels_d_" + std::to_string((int)k);
+        std::string kn = "levels_d_" + v.naming;
         j[kn] = nlohmann::json::array();
 
         for (int i = 0; i < 20; i++) {
@@ -87,7 +110,7 @@ void LevelAPI::Tasks::findListLevels() {
             f.filter.star = 1;
             f.diff = Backend::GDServer::SDDemons;
             f.demon = k;
-            f.page = rand() % v;
+            f.page = rand() % v.levels;
             f.len = Backend::GDServer::SLNone;
             f.type = Backend::GDServer::STMostDownloaded;
             f.str.clear();
