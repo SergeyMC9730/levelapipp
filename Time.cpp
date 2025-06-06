@@ -54,7 +54,7 @@ Time::Time(uint64_t unixTimestamp) {
     auto timeorder = Translation::getByKey("lapi.time.dateorder");
     auto dayformat = Translation::getByKey("lapi.time.dayformat");
     auto timepointer = Translation::getByKey("lapi.time.timepointer");
-    
+
     auto jan = Translation::getByKey("lapi.time.jan");
     auto feb = Translation::getByKey("lapi.time.feb");
     auto mar = Translation::getByKey("lapi.time.mar");
@@ -71,7 +71,7 @@ Time::Time(uint64_t unixTimestamp) {
     std::vector<std::string> months = {
         jan, feb, mar, apr,
         may, jun, jul, aug,
-        sep, oct, nov, dec 
+        sep, oct, nov, dec
     };
 
     bool nine11 = (bt.tm_mday == 11 && bt.tm_mon == 8);
@@ -88,10 +88,10 @@ Time::Time(uint64_t unixTimestamp) {
                 break;
             }
             case 'y': {
-		if (nine11) {
-			time_hms += "2001 ";
-			break;
-		}
+          		if (nine11) {
+         			time_hms += "2001 ";
+         			break;
+          		}
                 time_hms += std::to_string(bt.tm_year + 1900) + " ";
                 break;
             }
@@ -112,13 +112,10 @@ Time::Time(uint64_t unixTimestamp) {
     this->unixTime = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 }
 
-Time *Time::create() {
-    return new Time();
-}
-std::string Time::getAsString() {
+Time::operator std::string const() {
     return this->time_hms;
 }
-uint64_t Time::getAsInt64() {
+Time::operator uint64_t const() {
     uint64_t h = time_h * 60 * 60;
     uint64_t m = time_m * 60;
     uint64_t s = time_s * 1;
@@ -129,7 +126,7 @@ void Time::fromTimeString(std::string s) {
     auto timeorder = Translation::getByKey("lapi.time.dateorder");
     auto str = s; // Jul 15th 2023 at 23:04:18.173
     auto stuff = splitString(str.c_str(), ' ');
-    
+
     std::string month;
     int day;
     int year = 0;
@@ -182,7 +179,7 @@ void Time::fromTimeString(std::string s) {
     };
 
     int month_val = monthMap[month];
-    
+
     std::string s2 = std::to_string(year) + "-" + ((month_val < 10) ? "0" : "") + std::to_string(month_val) + "-" + ((day < 10) ? "0" : "") + std::to_string(day) + "T" + ((hour < 10) ? "0" : "") + std::to_string(hour) + ":" + ((minute < 10) ? "0" : "") + std::to_string(minute) + ":" + ((second < 10) ? "0" : "") + std::to_string(second) + ".000Z";
     std::tm t{};
     std::istringstream ss(s2);
@@ -190,11 +187,11 @@ void Time::fromTimeString(std::string s) {
     ss >> std::get_time(&t, "%Y-%m-%dT%H:%M:%S");
     if (ss.fail()) {
         throw std::runtime_error{"failed to parse time string"};
-    }   
+    }
     std::time_t time_stamp = mktime(&t);
 
     unixTime = time_stamp;
-    
+
     time_h = hour;
     time_m = minute;
     time_s = second;
@@ -202,4 +199,12 @@ void Time::fromTimeString(std::string s) {
     time_hms = s;
 
     return;
+}
+
+Time::Time(const Time& t) {
+    this->time_h = t.time_h;
+    this->time_m = t.time_m;
+    this->time_s = t.time_s;
+    this->time_hms = t.time_hms;
+    this->unixTime = t.unixTime;
 }

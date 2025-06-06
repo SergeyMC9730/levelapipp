@@ -46,7 +46,8 @@ std::vector<std::string> get_tests() {
     return {
         "boomlings2.2",
         "basement",
-        "robtop-parser"
+        "robtop-parser",
+        "vector-draw"
     };
 }
 std::vector<std::string> get_tasks() {
@@ -125,6 +126,8 @@ void route_test(std::string test) {
         LevelAPI::Tests::testBasementFeatures();
     } else if (test == "robtop-parser") {
         LevelAPI::Tests::testRobtopParser();
+    } else if (test == "vector-draw") {
+        LevelAPI::Tests::testVectorDrawing();
     }
 }
 void route_task(std::string task) {

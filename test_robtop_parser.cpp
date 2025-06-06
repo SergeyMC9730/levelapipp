@@ -33,12 +33,12 @@ void Tests::testRobtopParser() {
         {
             52, 53
         },
-        [&](std::string input, int id) {
+        [&](const std::string &input, int id, RobTopStringContainer* container) {
             std::vector<int> vec;
 
             if (input.empty()) return vec;
 
-            std::vector<std::string> vals = splitString(input.c_str(), ',');
+            std::vector<std::string> vals = splitString(input.c_str(), container->getArrayEntrySeparator());
 
             for (std::string _val : vals) {
                 try {

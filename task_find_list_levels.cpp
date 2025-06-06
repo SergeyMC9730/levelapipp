@@ -122,7 +122,8 @@ void LevelAPI::Tasks::findListLevels() {
         }
 
         for (auto level : lvls) {
-            j[kn].push_back({{"name", level->m_sLevelName}, {"id", level->m_nLevelID}});
+            level->generateJSON();
+            j[kn].push_back(level->_jsonObject);
         }
 
         printf("[TASK] %ld DEMON LEVELS\n", lvls.size());

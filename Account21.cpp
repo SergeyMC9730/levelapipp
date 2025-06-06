@@ -29,8 +29,8 @@ void Account21::addParsers() {
 
     // moderator level
     m_pContainer->setParserForVariable(
-        49, 
-        [&](std::string input, int id) {
+        49,
+        [&](std::string input, int id, RobTopStringContainer*) {
             try {
                 return std::stoi(input);
             } catch (std::invalid_argument &e) {

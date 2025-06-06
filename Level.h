@@ -20,6 +20,7 @@
 
 #include "gmd2pp/GJGameLevel.h"
 #include "DatabaseCell.h"
+#include "Time.h"
 
 #include "json/single_include/nlohmann/json.hpp"
 
@@ -28,10 +29,6 @@
 #endif
 
 namespace LevelAPI {
-    namespace Frontend {
-        class Time;
-    }
-
     namespace DatabaseController {
       	// how level card should be appeared
         enum LevelAppearanceEvent {
@@ -77,7 +74,7 @@ namespace LevelAPI {
             void generateJSON() override;
 
             // get legacy timestamp for this level
-            Frontend::Time *getTimeLegacy();
+            Frontend::Time getTimeLegacy();
 
 #ifdef _DPP_ENABLED_
             // render this level as an discord embed

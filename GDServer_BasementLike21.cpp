@@ -76,7 +76,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getR
 
     RobTopStringContainer *container = new RobTopStringContainer("");
 
-    container->setParserForVariable({1, 6, 18, 49, 19, 25, 42}, [&](std::string inputString, int inputID) {
+    container->setParserForVariable({1, 6, 18, 49, 19, 25, 42}, [&](std::string inputString, int inputID, RobTopStringContainer*) {
         try {
             return std::stoi(inputString);
         } catch (std::invalid_argument &e) {
@@ -84,7 +84,7 @@ std::vector<LevelAPI::DatabaseController::Level *> GDServer_BasementLike21::getR
         }
     });
 
-    container->setParserForVariable({2, 7}, [&](std::string inputString, int inputID) {
+    container->setParserForVariable({2, 7}, [&](std::string inputString, int inputID, RobTopStringContainer*) {
         return inputString;
     });
 

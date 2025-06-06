@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <cstdint>
 #include <stdexcept>
 #include <iostream>
 #include <variant>
@@ -31,84 +30,26 @@ RobTopStringContainer::RobTopStringContainer(std::string str) {
     m_sOriginalString = str;
 }
 
-void RobTopStringContainer::setParserForVariable(int index, std::function<ParsableTypes (std::string, int)> func) {
+void RobTopStringContainer::setParserForVariable(int index, ParseFunc func) {
     m_mFunctionContainer[index] = func;
 }
-void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<ParsableTypes (std::string, int)> func) {
+void RobTopStringContainer::setParserForVariable(const std::vector<int> &indexes, ParseFunc func) {
     int i = 0;
     while(i < indexes.size()) {
         setParserForVariable(indexes[i], func);
         i++;
     }
 }
-void RobTopStringContainer::setParserForVariable(int index, std::function<ParsableTypes(std::string inputString, int inputID, int customArgumentValue)> func, int carg) {
+void RobTopStringContainer::setParserForVariable(int index, ParseFuncCustom func, int carg) {
     m_mFunctionContainer[index] = func;
     m_mFuncCustomArgList[index] = carg;
 }
-void RobTopStringContainer::setParserForVariable(std::vector<int> indexes, std::function<ParsableTypes(std::string inputString, int inputID, int customArgumentValue)> func, int carg) {
+void RobTopStringContainer::setParserForVariable(const std::vector<int> &indexes, ParseFuncCustom func, int carg) {
     int i = 0;
     while(i < indexes.size()) {
         setParserForVariable(indexes[i], func, carg);
         i++;
     }
-}
-
-// template implementations for basic robtop values
-template<> int RobTopStringContainer::getVariable<int>(int id) {
-    return std::get<int>(m_mContainer[id]);
-}
-
-template<> std::string RobTopStringContainer::getVariable<std::string>(int id) {
-    return std::get<std::string>(m_mContainer[id]);
-}
-
-template<> float RobTopStringContainer::getVariable<float>(int id) {
-    return std::get<float>(m_mContainer[id]);
-}
-
-template<> bool RobTopStringContainer::getVariable<bool>(int id) {
-    return std::get<bool>(m_mContainer[id]);
-}
-
-template<> std::vector<int> RobTopStringContainer::getVariable<std::vector<int>>(int id) {
-    return std::get<std::vector<int>>(m_mContainer[id]);
-}
-
-// template implementations for all unsigned integers
-template<> uint8_t RobTopStringContainer::getVariable<uint8_t>(int id) {
-    return static_cast<uint8_t>(getVariable<int>(id));
-}
-
-template<> uint16_t RobTopStringContainer::getVariable<uint16_t>(int id) {
-    return static_cast<uint16_t>(getVariable<int>(id));
-}
-
-template<> uint32_t RobTopStringContainer::getVariable<uint32_t>(int id) {
-    return static_cast<uint32_t>(getVariable<int>(id));
-}
-
-template <> uint64_t RobTopStringContainer::getVariable<uint64_t>(int id) {
-    return static_cast<uint64_t>(getVariable<int>(id));
-}
-
-// template implementations for all signed integers
-
-template<> int8_t RobTopStringContainer::getVariable<int8_t>(int id) {
-    return static_cast<int8_t>(getVariable<uint8_t>(id));
-}
-
-template<> int16_t RobTopStringContainer::getVariable<int16_t>(int id) {
-    return static_cast<int16_t>(getVariable<uint16_t>(id));
-}
-
-template<> int64_t RobTopStringContainer::getVariable<int64_t>(int id) {
-    return static_cast<int64_t>(getVariable<uint64_t>(id));
-}
-
-// additonal template implementations
-
-template<> double RobTopStringContainer::getVariable<double>(int id) {
-    return (double)(getVariable<float>(id));
 }
 
 void RobTopStringContainer::resetValues() {
@@ -132,7 +73,7 @@ std::string RobTopStringContainer::variantToString(ParsableTypes var) {
     return "";
 }
 
-bool RobTopStringContainer::variableExists(int id) {
+bool RobTopStringContainer::variableExists(int id) const {
     return m_mContainer.count(id);
 }
 
@@ -143,7 +84,7 @@ void RobTopStringContainer::setString(std::string str) {
 void RobTopStringContainer::parse() {
     int currentKey = 0;
     int i = 0;
-    auto splittedString = splitString(m_sOriginalString.c_str(), ':');
+    auto splittedString = splitString(m_sOriginalString.c_str(), m_sObjectSeparator);
 
     while(i < splittedString.size()) {
         try {
@@ -153,15 +94,15 @@ void RobTopStringContainer::parse() {
         i++;
 
         if(m_mFunctionContainer.count(currentKey)) {
-            if(std::holds_alternative<std::function<ParsableTypes(std::string inputString, int inputID)>>(m_mFunctionContainer[currentKey])) {
-                auto func = std::get<std::function<ParsableTypes(std::string inputString, int inputID)>>(m_mFunctionContainer[currentKey]);
-                auto res = func(splittedString[i], currentKey);
+            if(std::holds_alternative<ParseFunc>(m_mFunctionContainer[currentKey])) {
+                auto func = std::get<ParseFunc>(m_mFunctionContainer[currentKey]);
+                auto res = func(splittedString[i], currentKey, this);
                 m_mContainer[currentKey] = res;
             }
-            if(std::holds_alternative<std::function<ParsableTypes(std::string inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey])) {
-                auto func = std::get<std::function<ParsableTypes(std::string inputString, int inputID, int carg)>>(m_mFunctionContainer[currentKey]);
+            if(std::holds_alternative<ParseFuncCustom>(m_mFunctionContainer[currentKey])) {
+                auto func = std::get<ParseFuncCustom>(m_mFunctionContainer[currentKey]);
                 if(m_mFuncCustomArgList.count(currentKey)) {
-                    auto res = func(splittedString[i], currentKey, m_mFuncCustomArgList[currentKey]);
+                    auto res = func(splittedString[i], currentKey, m_mFuncCustomArgList[currentKey], this);
                     m_mContainer[currentKey] = res;
                 }
             }
@@ -173,4 +114,18 @@ void RobTopStringContainer::parse() {
 
         i++;
     }
+}
+
+void RobTopStringContainer::setObjectSeparator(char sep) {
+    m_sObjectSeparator = sep;
+}
+void RobTopStringContainer::setArrayEntrySeparator(char sep) {
+    m_sArrayEntrySeparator = sep;
+}
+
+char RobTopStringContainer::getObjectSeparator() const {
+    return m_sObjectSeparator;
+}
+char RobTopStringContainer::getArrayEntrySeparator() const {
+    return m_sArrayEntrySeparator;
 }

@@ -50,31 +50,52 @@ protected:
 
     using ParsableTypes = std::variant<std::string, int, float, bool, std::vector<int>>;
 
+    using ParseFunc = std::function<ParsableTypes(const std::string &inputString, int inputID, RobTopStringContainer* container)>;
+    using ParseFuncCustom = std::function<ParsableTypes(const std::string &inputString, int inputID, int custom_variable, RobTopStringContainer* container)>;
+
     std::unordered_map<
         int, ParsableTypes
     > m_mContainer;
     std::unordered_map<int, std::variant<
-        std::function<ParsableTypes(std::string inputString, int inputID)>,
-        std::function<ParsableTypes(std::string inputString, int inputID, int custom_variable)>
+        ParseFunc,
+        ParseFuncCustom
     >> m_mFunctionContainer;
     std::unordered_map<int, int> m_mFuncCustomArgList;
 
     virtual std::string variantToString(ParsableTypes var);
+
+    char m_sObjectSeparator = ':';
+    char m_sArrayEntrySeparator = ',';
 public:
     // virtual std::variant<std::string, int, float, bool> getVariable(int id);
     template<typename T = int>
-    T getVariable(int id);
+    // if variable does not exist then empty
+    // constuctor   for  T  would  be   used
+    inline T getVariable(int id) const {
+        if (!variableExists(id) || !std::holds_alternative<T>(m_mContainer.at(id))) return T{};
+        try {
+            return std::get<T>(m_mContainer.at(id));
+        } catch (const std::bad_variant_access &ex) {
+            printf("%s:%s (id=%d): %s\n", __FILE__, __LINE__, id, ex.what());
+            return T{};
+        }
+    }
 
-    virtual void setParserForVariable(int index, std::function<ParsableTypes(std::string inputString, int inputID)> func);
-    virtual void setParserForVariable(std::vector<int> indexes, std::function<ParsableTypes(std::string inputString, int inputID)> func);
-    virtual void setParserForVariable(int index, std::function<ParsableTypes(std::string inputString, int inputID, int customArgumentValue)> func, int carg);
-    virtual void setParserForVariable(std::vector<int> indexes, std::function<ParsableTypes(std::string inputString, int inputID, int customArgumentValue)> func, int carg);
+    virtual void setParserForVariable(int index, ParseFunc func);
+    virtual void setParserForVariable(const std::vector<int> &indexes, ParseFunc func);
+    virtual void setParserForVariable(int index, ParseFuncCustom func, int carg);
+    virtual void setParserForVariable(const std::vector<int> &indexes, ParseFuncCustom func, int carg);
 
     virtual void parse();
 
-    virtual bool variableExists(int id);
+    virtual bool variableExists(int id) const;
 
     virtual void setString(std::string str);
+    virtual void setObjectSeparator(char sep);
+    virtual void setArrayEntrySeparator(char sep);
+
+    virtual char getObjectSeparator() const;
+    virtual char getArrayEntrySeparator() const;
 
     virtual void resetValues();
 

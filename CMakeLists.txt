@@ -12,6 +12,9 @@ option(LAPI_COMPILE_ADDITIONAL "compile additional executables" ON)
 option(LAPI_STATIC "compile everything as static libraries" OFF)
 option(LAPI_ENABLE_HTTP "enable internal http server" ON)
 option(LAPI_ENABLE_DISCORD "enable discord support" ON)
+option(LAPI_ENABLE_TG "enable telegram support" OFF)
+
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
 if (LAPI_STATIC)
     set(COMPILE_MODE STATIC)
@@ -96,7 +99,7 @@ set(levelapi_baselibrary
     ServerModule.cpp
     ServerModule.h
     SmallLevel.cpp SmallLevel.h
-    tests.h test_curl_connection.cpp test_gd_parsers.cpp test_basement_features.cpp
+    tests.h test_curl_connection.cpp test_gd_parsers.cpp test_basement_features.cpp test_vector_drawing.cpp
     tasks.h task_find_list_levels.cpp
     TestingBoomlings22.cpp TestingBoomlings22.h
     ThreadSafeLevelParser.cpp ThreadSafeLevelParser.h
@@ -160,6 +163,7 @@ add_subdirectory(GDCrypto-patched)
 if (LAPI_ENABLE_DISCORD)
     set(DPP_BUILD_TEST OFF)
     option(DPP_BUILD_TEST OFF)
+    option(BUILD_VOICE_SUPPORT OFF)
     add_subdirectory(DPP)
     set(DPP_LINKAGE PUBLIC dpp)
     add_compile_definitions(_DPP_ENABLED_)
@@ -173,6 +177,11 @@ if (LAPI_ENABLE_DISCORD)
 else()
     set(DPP_LINKAGE "")
     set(levelapi_dpp_support "")
+endif()
+if (LAPI_ENABLE_TG)
+    add_compile_definitions(_TG_ENABLED_)
+    # else()
+
 endif()
 
 option(CUSTOMIZE_BUILD ON)
@@ -197,6 +206,11 @@ else()
 endif()
 
 add_subdirectory(raylib)
+
+set(BLEND2D_STATIC ON)
+# set(ASMJIT_DIR ${CMAKE_SOURCE_DIR}/blend2d)
+set(BLEND2D_NO_JIT 1)
+add_subdirectory(blend2d)
 
 #set(BUILD_SQLITE3_CONNECTOR ON)
 #add_subdirectory(sqlpp11)
@@ -235,6 +249,7 @@ target_include_directories(levelapi PRIVATE
     GDCrypto-patched/Include
     fmt/include
     raylib/src
+    blend2d/src
 )
 if (LAPI_ENABLE_DISCORD)
     target_include_directories(levelapi PRIVATE
@@ -259,6 +274,7 @@ target_link_libraries(levelapi
     PUBLIC iandy
     PUBLIC raylib
     PUBLIC levelapi-generic-tools
+    PUBLIC blend2d
 )
 
 if (LAPI_COMPILE_TEST)
@@ -291,5 +307,6 @@ message(STATUS "Compiling additional targets: ${LAPI_COMPILE_ADDITIONAL}")
 message(STATUS "Compiling in static mode: ${LAPI_STATIC}")
 message(STATUS "Compiling with Discord support: ${LAPI_ENABLE_DISCORD}")
 message(STATUS "Compiling with HTTP (webserver) support: ${LAPI_ENABLE_HTTP}")
+message(STATUS "Compiling with Telegram support: ${LAPI_ENABLE_TG}")
 message(STATUS "")
 message(STATUS "")

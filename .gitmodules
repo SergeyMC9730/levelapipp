@@ -34,3 +34,12 @@
 [submodule "raylib"]
 	path = raylib
 	url = https://github.com/raysan5/raylib
+[submodule "tgbot-cpp"]
+	path = tgbot-cpp
+	url = https://github.com/reo7sp/tgbot-cpp.git
+[submodule "blend2d"]
+	path = blend2d
+	url = https://github.com/blend2d/blend2d
+[submodule "asmjit"]
+	path = asmjit
+	url = https://github.com/asmjit/asmjit.git

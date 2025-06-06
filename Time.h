@@ -26,20 +26,21 @@ namespace LevelAPI {
     namespace Frontend {
         class Time {
         protected:
-            std::string time_hms;
-            int time_h;
-            int time_m;
-            int time_s;
+            std::string time_hms = "00:00:00";
+            int time_h = 0;
+            int time_m = 0;
+            int time_s = 0;
         public:
             Time(uint64_t unixTimestamp = 0);
+            Time(const Time& t);
+            Time() {Time(0);}
         public:
             uint64_t unixTime;
 
-            static Time *create();
             void fromTimeString(std::string str);
 
-            std::string getAsString();
-            uint64_t getAsInt64();
+            operator std::string const();
+            operator uint64_t const();
         };
     }
 }

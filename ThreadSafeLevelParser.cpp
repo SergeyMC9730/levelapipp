@@ -45,7 +45,7 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
             43, 45, 46,  47,
             54, 57
         },
-        [&](std::string input, int id) {
+        [&](std::string input, int id, RobTopStringContainer*) {
             try {
                 return std::stoi(input);
             } catch (std::invalid_argument &e) {
@@ -59,7 +59,7 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
             31, 38,
             40,  44
         },
-        [&](std::string input, int id) {
+        [&](std::string input, int id, RobTopStringContainer*) {
             int v = 0;
             try {
                 v = std::stoi(std::string(input));
@@ -75,13 +75,13 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
             2,  4,  26, 27,
             28, 29, 36, 48
         },
-        [&](std::string input, int id) {
+        [&](std::string input, int id, RobTopStringContainer*) {
             return input;
         }
     );
     container->setParserForVariable(
         3,
-        [&](std::string input, int id, int carg) {
+        [&](std::string input, int id, int carg, RobTopStringContainer*) {
             auto input2 = std::string(input);
 
             try {
@@ -94,7 +94,7 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
                         } catch (std::runtime_error err) {
                             std::cout << err.what() << std::endl;
                         }
-                        
+
                         return decoded;
                     }
                 } else {
@@ -115,7 +115,7 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
         {
             52, 53
         },
-        [&](std::string input, int id) {
+        [&](std::string input, int id, RobTopStringContainer* container) {
             std::vector<int> vec;
 
             fmt::print("KEY {}: reading {}\n", id, input);
@@ -123,7 +123,7 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
             if (input.empty()) return vec;
             if (input[0] == '#') return vec;
 
-            std::vector<std::string> vals = splitString(input.c_str(), ',');
+            std::vector<std::string> vals = splitString(input.c_str(), container->getArrayEntrySeparator());
 
             for (std::string _val : vals) {
                 try {
@@ -135,19 +135,6 @@ LevelAPI::DatabaseController::Level *LevelParser::parseFromResponse(std::string 
             }
 
             return vec;
-        }
-    );
-
-    container->setParserForVariable(
-        54,
-        [&](std::string input, int id) {
-            return input == "1";
-        }
-    );
-    container->setParserForVariable(
-        57,
-        [&](std::string input, int id) {
-            return input == "1";
         }
     );
 

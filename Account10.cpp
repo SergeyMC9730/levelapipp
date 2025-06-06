@@ -37,16 +37,16 @@ Account10::~Account10() {
 void Account10::addParsers() {
     // user id
     m_pContainer->setParserForVariable(
-        1, 
-        [&](std::string input, int id) {
+        1,
+        [&](std::string input, int id, RobTopStringContainer*) {
             return input;
         }
     );
 
     // username
     m_pContainer->setParserForVariable(
-        2, 
-        [&](std::string input, int id) {
+        2,
+        [&](std::string input, int id, RobTopStringContainer*) {
             try {
                 return std::stoi(input);
             } catch (std::invalid_argument &e) {

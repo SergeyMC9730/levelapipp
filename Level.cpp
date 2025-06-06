@@ -46,14 +46,11 @@ Level::Level(std::string linkedNode) {
     m_bHasLevelString = false;
     m_uRelease->m_nGameVersion = 0;
 
-    Frontend::Time *t = Frontend::Time::create();
-    m_sCreatedTimestamp = t->getAsString();
-    m_nAppereanceTimestamp = t->unixTime;
+    Frontend::Time t = Time(0);
+    m_sCreatedTimestamp = (std::string)t;
+    m_nAppereanceTimestamp = t.unixTime;
 
     m_sLinkedNode = linkedNode;
-
-    delete t;
-    t = nullptr;
 
     setupJSON();
 }
@@ -62,12 +59,11 @@ void Level::setupJSON() {
     _jsonObject = nlohmann::json::object();
 }
 
-Time *Level::getTimeLegacy() {
-    if (m_sCreatedTimestamp.empty()) return nullptr;
+Time Level::getTimeLegacy() {
+    if (m_sCreatedTimestamp.empty()) return Time(0);
 
-    Time *t = Time::create();
-
-    t->fromTimeString(m_sCreatedTimestamp);
+    Time t = Time(0);
+    t.fromTimeString(m_sCreatedTimestamp);
 
     return t;
 }
@@ -244,20 +240,14 @@ void Level::recover() {
     RS(std::string, "recordString", m_sRecordString);
 
     if (m_nAppereanceTimestamp != 0) {
-        Time *t = new Time(m_nAppereanceTimestamp);
+        Time t(m_nAppereanceTimestamp);
 
-        m_sCreatedTimestamp = t->getAsString();
-
-        delete t;
-        t = nullptr;
+        m_sCreatedTimestamp = (std::string)t;
     } else {
         auto time_legacy = getTimeLegacy();
 
         if (time_legacy) {
-            m_nAppereanceTimestamp = time_legacy->unixTime;
-
-            delete time_legacy;
-            time_legacy = nullptr;
+            m_nAppereanceTimestamp = time_legacy.unixTime;
         }
     }
 
