@@ -18,7 +18,7 @@
 
 # Level API
 
-**Level API** — simple to use **level and account cacher.** This project is being rewritten since December 2022 from JS to C++ with big improvements over old one in performance and code readability.
+**Level API** — simple to use **level and account cacher.** This project has been rewritten since December 2022, from JS to C++ with big improvements over the old one in terms of performance and code readability.
 <br>
 
 # Features
@@ -27,7 +27,7 @@
   - Official Basement GDPS (Подвал ГДшеров) support
   - Official GD server in 2.1 and 2.2 modes
   - 1.9 GDPS
-  - Other server using default GD server implementatons
+  - Other servers using default GD server implementatons
 - Discord support
   - Notifications
   - Slash Commands
