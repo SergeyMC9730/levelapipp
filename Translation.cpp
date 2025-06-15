@@ -1483,7 +1483,7 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
     {
         "lapi.cell.json.gen.unimplemented", {
             "JSON representation cannot be created from this object",
-            "Репрезентация объекта в формате JSON не может быть создана"
+            "Представление объекта в формате JSON не может быть создано"
         }
     }
 };

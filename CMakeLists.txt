@@ -180,8 +180,13 @@ else()
 endif()
 if (LAPI_ENABLE_TG)
     add_compile_definitions(_TG_ENABLED_)
-    # else()
-
+    add_subdirectory(tgbot-cpp)
+    set(TG_LINKAGE TgBot)
+    set(TG_INCLUDE tgbot-cpp/include)
+    set(levelapi_tg_support
+        TelegramInstance.cpp TelegramInstance.hpp
+        TCommand.cpp TCommand.hpp
+    )
 endif()
 
 option(CUSTOMIZE_BUILD ON)
@@ -244,12 +249,14 @@ add_library(levelapi ${COMPILE_MODE}
     ${levelapi_server_requests}
     ${levelapi_http_support}
     ${levelapi_dpp_support}
+    ${levelapi_tg_support}
 )
 target_include_directories(levelapi PRIVATE
     GDCrypto-patched/Include
     fmt/include
     raylib/src
     blend2d/src
+    ${TG_INCLUDE}
 )
 if (LAPI_ENABLE_DISCORD)
     target_include_directories(levelapi PRIVATE
@@ -275,6 +282,7 @@ target_link_libraries(levelapi
     PUBLIC raylib
     PUBLIC levelapi-generic-tools
     PUBLIC blend2d
+    PUBLIC ${TG_LINKAGE}
 )
 
 if (LAPI_COMPILE_TEST)

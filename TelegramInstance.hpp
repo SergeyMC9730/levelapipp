@@ -1,6 +1,6 @@
 /**
  *  LevelAPI - Geometry Dash level cacher with search functionality and more.
-    Copyright (C) 2023  Sergei Baigerov
+    Copyright (C) 2025  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,34 +18,32 @@
 
 #pragma once
 
-#include "cluster.h"
-#include <dpp/dpp.h>
-
-#include <thread>
+#include "tgbot/Bot.h"
+#include <tgbot/tgbot.h>
 
 namespace LevelAPI {
     namespace DatabaseController {
         class Database;
     }
     namespace Frontend {
-        class DiscordInstance {
+        class TelegramInstance {
+        private:
+            std::thread m_tTgThread;
+            bool m_bThreadStarted = false;
         public:
-            // linked cluster
-            dpp::cluster *m_pBot;
+            // linked bot
+            TgBot::Bot *m_pBot;
 
             // levelapi instance
-            DatabaseController::Database *m_pDB;
+            DatabaseController::Database *m_pDB = nullptr;
 
-            DiscordInstance(DatabaseController::Database *db);
+            TelegramInstance(DatabaseController::Database *db);
 
-	        // thread for this DiscordInstance
-            static void dthread(DiscordInstance *instance);
+            void start();
+            void close();
 
-	        // set bot status (offline, dnd, afk, online)
-            void setStatus(std::string status);
-
-	        // run thread and return it
-            std::thread *start();
+            // thread for this TelegramInstance
+            void thread();
         };
     }
 }

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "DatabaseCell.h"
+#include "TelegramInstance.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -31,6 +32,9 @@
 #ifdef _DPP_ENABLED_
 #include <dpp/dpp.h>
 #include "DiscordInstance.h"
+#endif
+#ifdef _TG_ENABLED_
+#include <tgbot/tgbot.h>
 #endif
 
 #include "SearchFilter.h"
@@ -224,12 +228,22 @@ namespace LevelAPI {
         public:
             std::string databasePath;
 #ifdef _DPP_ENABLED_
-            LevelAPI::Frontend::DiscordInstance *m_pLinkedBot;
-            bool m_bEnableBot;
-            std::string m_sBotToken;
-            bool m_bBotReady;
-            std::string m_sRegisteredCID;
-            std::string m_sRegisteredCID2;
+            struct DiscordFrontend {
+                LevelAPI::Frontend::DiscordInstance *m_pLinkedBot;
+                bool m_bEnableBot;
+                std::string m_sBotToken;
+                bool m_bBotReady;
+                std::string m_sRegisteredCID;
+                std::string m_sRegisteredCID2;
+            } discord;
+#endif
+#ifdef _TG_ENABLED_
+            struct TelegramFrontend {
+                LevelAPI::Frontend::TelegramInstance *m_pLinkedBot;
+                std::string m_sBotToken;
+                bool m_bBotReady;
+                bool m_bEnableBot;
+            } telegram;
 #endif
             std::vector<std::thread *> m_vThreads;
 

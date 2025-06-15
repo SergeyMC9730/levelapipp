@@ -18,10 +18,6 @@
 
 #pragma once
 
-#include "DiscordInstance.h"
-#include "appcommand.h"
-#include "cluster.h"
-#include "snowflake.h"
 #include <dpp.h>
 
 #include <functional>

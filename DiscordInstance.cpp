@@ -28,15 +28,13 @@
 
 #include "DCommandStats.h"
 #include "DCommandSearch.h"
-#include "restresults.h"
 
 using namespace std::chrono_literals;
 using namespace LevelAPI::Frontend;
 
-DiscordInstance::DiscordInstance(void *db) {
+DiscordInstance::DiscordInstance(LevelAPI::DatabaseController::Database *db) {
     this->m_pDB = db;
-    auto dbA = reinterpret_cast<LevelAPI::DatabaseController::Database *>(db);
-    m_pBot = new dpp::cluster(dbA->m_sBotToken, dpp::i_default_intents | dpp::i_message_content);
+    m_pBot = new dpp::cluster(db->discord.m_sBotToken, dpp::i_default_intents | dpp::i_message_content);
     m_pBot->on_log(dpp::utility::cout_logger());
 
 }
@@ -51,7 +49,7 @@ void DiscordInstance::setStatus(std::string status) {
     dpp::presence_status st = dpp::ps_dnd;
     auto pr = dpp::presence(st, dpp::activity_type::at_listening, status);
     auto bot = m_pBot;
-    
+
     bot->set_presence(pr);
 }
 
@@ -78,19 +76,19 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
             i++;
         }
 
-        dbA->m_bBotReady = true;
+        dbA->discord.m_bBotReady = true;
         std::cout << Translation::getByKey("lapi.bot.ready") << std::endl;
 	});
 
     instance->m_pBot->on_message_create([&](const dpp::message_create_t& event) {
         if(!event.msg.author.is_bot() && !event.msg.is_dm()) {
             if(event.msg.content == "lapi:registerchannel") {
-                if(dbA->m_sRegisteredCID.empty()) {
+                if(dbA->discord.m_sRegisteredCID.empty()) {
                     event.reply(Translation::getByKey("lapi.bot.command.registerchannel.success"));
                     uint64_t val = event.msg.channel_id;
-                    dbA->m_sRegisteredCID = std::to_string(val);
-                    dbA->save();  
-                } 
+                    dbA->discord.m_sRegisteredCID = std::to_string(val);
+                    dbA->save();
+                }
             }
         }
 	});
@@ -146,7 +144,7 @@ void DiscordInstance::dthread(DiscordInstance *instance) {
 	});
 
     instance->m_pBot->start(dpp::st_return);
-    
+
     while(true) {
         int ll = dbA->getTotalLevels();
         float scaleMult = 1.f;

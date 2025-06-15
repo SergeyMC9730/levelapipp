@@ -17,7 +17,8 @@
 */
 
 #include "Translation.h"
-#include "lapi_database.h"
+#include "DatabaseCell.h"
+#include "SQLiteManager.h"
 #include <iostream>
 
 using namespace LevelAPI::DatabaseController;

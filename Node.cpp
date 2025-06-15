@@ -99,7 +99,7 @@ void Node::setupSQLite() {
 
     _sqliteObject = SQLiteManager::create(path);
     assert(_sqliteObject != nullptr);
-    
+
     {
         addColumn("accounts", {"accountID", "INTEGER"});
         addColumn("accounts", {"username", "TEXT"});
@@ -165,6 +165,9 @@ void Node::setupSQLite() {
         addColumn("levels", {"songIDs", "TEXT"});
         addColumn("levels", {"sfxIDs", "TEXT"});
     }
+
+    m_nTableLevels = _sqliteObject->countTable("levels");
+    printf("TABLE LEVELS for %s -> %d\n", m_sInternalName.c_str(), m_nTableLevels);
 }
 
 bool Node::levelExists(int id) {
@@ -202,7 +205,7 @@ void Node::save() {
     _jsonObject["internalName"] = m_sInternalName;
     _jsonObject["levelDataPath"] = m_sLevelDataPath;
     // if (_jsonObject["queue"].size() != 0) {
-	//     //_jsonObject["queue"].erase(_jsonObject["queue"].begin(), _jsonObject["queue"].end()); 
+	//     //_jsonObject["queue"].erase(_jsonObject["queue"].begin(), _jsonObject["queue"].end());
     // }
     // if (_jsonObject["queue"] != nullptr) {
         try {
@@ -284,7 +287,7 @@ nlohmann::json Node::jsonFromSQLLevel(SQLiteServerRow &row) {
     SAFE_STOI(row["unknown54"], obj["unknown54"]);
 
     obj["appereanceTimestamp"] = std::stoi(row["databaseAppereanceDate"]);
-   
+
     obj["isAuto"] = (bool)std::stoi(row["isAuto"]);
     obj["isDemon"] = (bool)std::stoi(row["isDemon"]);
     obj["areCoinsVerified"] = (bool)std::stoi(row["areCoinsVerified"]);
@@ -353,7 +356,7 @@ Level *Node::getLevel(int id) {
 
         initLevel(level);
         level->save();
-        
+
         delete ref;
         ref = nullptr;
         return level;
@@ -504,7 +507,7 @@ std::vector<Level *> Node::getLevels(LevelAPI::Backend::SearchFilter filter) {
     };
 
     ordering = ordering_map[filter.m_eSort];
-    
+
     printf("sending table request with filters\n");
 
     auto request = _sqliteObject->getTableWithCondition("levels", ordering, filter.m_nLevelsPerPage, filter.m_nPage, rw_condition, rw_between, useBetween);
@@ -610,7 +613,7 @@ void Node::importLevelMetaFromLAPIold(std::string p) {
 
         int levels = 0;
         int levels_from_f = 0;
-        
+
         int q = 0;
         while(q < j2.size()) {
             auto obj = j2.at(q);
@@ -638,9 +641,9 @@ void Node::importLevelMetaFromLAPIold(std::string p) {
                 bool isDemon = std::stoi(obj["isDemon"].get<std::string>());
                 bool commentSectionAvailable = std::stoi(obj["commentSectionAvailable"].get<std::string>());
                 auto level = new Level(m_sInternalName);
-                
+
                 if(accountID == -1) accountID = 0;
-                
+
                 level->m_bHasLevelString = false;
                 level->m_nAccountID = accountID;
                 level->m_sLinkedNode = nd;
@@ -701,9 +704,9 @@ void Node::createGraph(std::vector<int> l__, std::string filename) {
     int ii_ = 0;
     for (int val : l__) {
         // printf("[%d] -- %d\n", ii_, val);
-           
+
         ii_++;
-    }  
+    }
 
     std::vector<float> levels_per_hour;
 
@@ -747,10 +750,10 @@ void Node::createGraph(std::vector<int> l__, std::string filename) {
         // int ii = 0;
         // for (float val : levels_per_hour) {
         //     printf("[%d] -- %f\n", ii, val);
-           
+
         //     ii++;
-        // }  
-        
+        // }
+
         ImageDrawLine(&img, 5, orig_y - (max / scale), width - thickness, orig_y - (max / scale), GRAY);
         ImageDrawLine(&img, 5, orig_y - cap, width - thickness, orig_y - cap, GREEN);
 
@@ -775,9 +778,9 @@ void Node::createGraph(std::vector<int> l__, std::string filename) {
 
                 y = result_y;
                 x += line_width;
-            }  
+            }
 
-            orig_x++;     
+            orig_x++;
         }
 
         drawOnImage("max:" + std::to_string((int)max), &img, 20, 20);
@@ -813,7 +816,7 @@ std::vector<int> Node::getIDs(LevelAPI::Backend::SearchFilter filter) {
 
         delete level;
     }
-    
+
     return ids;
 }
 

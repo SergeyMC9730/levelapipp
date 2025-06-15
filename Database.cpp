@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "TelegramInstance.hpp"
 #ifdef _DPP_ENABLED_
 #include "DiscordInstance.h"
 #include <dpp/dpp.h>
@@ -124,17 +125,28 @@ Database::Database(std::string path) {
 
 #ifdef _DPP_ENABLED_
     if (_jsonObject.contains("botToken")) {
-        m_bEnableBot = true;
-        GET_JSON_VALUE(_jsonObject, "botToken", m_sBotToken, std::string);
+        discord.m_bEnableBot = true;
+        GET_JSON_VALUE(_jsonObject, "botToken", discord.m_sBotToken, std::string);
     }
-    GET_JSON_VALUE(_jsonObject, "registeredCID", m_sRegisteredCID, std::string);
-    GET_JSON_VALUE(_jsonObject, "registeredCID2", m_sRegisteredCID2, std::string);
+    GET_JSON_VALUE(_jsonObject, "registeredCID", discord.m_sRegisteredCID, std::string);
+    GET_JSON_VALUE(_jsonObject, "registeredCID2", discord.m_sRegisteredCID2, std::string);
 
     GET_JSON_VALUE(_jsonObject, "language", translation_language, std::string);
 
-    if(m_bEnableBot && !m_sBotToken.empty()) {
-        m_pLinkedBot = new LevelAPI::Frontend::DiscordInstance(this);
-        m_vThreads.push_back(m_pLinkedBot->start());
+    if(discord.m_bEnableBot && !discord.m_sBotToken.empty()) {
+        discord.m_pLinkedBot = new LevelAPI::Frontend::DiscordInstance(this);
+        m_vThreads.push_back(discord.m_pLinkedBot->start());
+    }
+#endif
+#ifdef _TG_ENABLED_
+    if (_jsonObject.contains("tgBotToken")) {
+        telegram.m_bEnableBot = true;
+        GET_JSON_VALUE(_jsonObject, "tgBotToken", telegram.m_sBotToken, std::string);
+    }
+
+    if(telegram.m_bEnableBot && !telegram.m_sBotToken.empty()) {
+        telegram.m_pLinkedBot = new LevelAPI::Frontend::TelegramInstance(this);
+        telegram.m_pLinkedBot->start();
     }
 #endif
 
@@ -174,9 +186,11 @@ void Database::save() {
     _jsonObject["nodes"] = nlohmann::json::array();
     _jsonObject["nodeSize"] = m_nNodeSize;
 #ifdef _DPP_ENABLED_
-    if(m_bEnableBot) _jsonObject["botToken"] = m_sBotToken;
-    _jsonObject["registeredCID"] = m_sRegisteredCID;
-    _jsonObject["registeredCID2"] = m_sRegisteredCID2;
+    if(discord.m_bEnableBot) {
+        _jsonObject["tgBotToken"] = telegram.m_sBotToken;
+    }
+    // _jsonObject["tgRegisteredCID"] = discord.m_sRegisteredCID;
+    // _jsonObject["tgRegisteredCID2"] = discord.m_sRegisteredCID2;
 #endif
 
     int i = 0;
@@ -211,6 +225,11 @@ Node *Database::getNode(std::string internalName) {
 
 Database::~Database() {
     int i = 0;
+
+    if (telegram.m_pLinkedBot) {
+        telegram.m_pLinkedBot->close();
+        delete telegram.m_pLinkedBot;
+    }
 
     while(i < m_vThreads.size()) {
         delete m_vThreads[i];

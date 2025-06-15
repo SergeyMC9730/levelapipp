@@ -137,7 +137,7 @@ std::vector<std::string> GDServer::_getCloudflareBans() {
 bool GDServer::processCURLAnswer(CURLResult *res) {
     _rateLimitLength = res->retry_after;
 
-    printf("res: %d/%d/%d\n", res->http_status, res->result, _rateLimitLength);
+    // printf("res: %d/%d/%d\n", res->http_status, res->result, _rateLimitLength);
 
     if (res->http_status != 200 || res->result != 0) {
         std::string data = res->data;

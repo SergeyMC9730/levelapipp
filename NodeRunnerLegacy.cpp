@@ -63,7 +63,7 @@ void DatabaseController::node_runner_recount_task(Node *nd) {
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
- 
+
     std::cout << Translation::getByKey("lapi.noderunner.recount.time", nd->m_sInternalName, duration.count()) << std::endl;
 
     std::this_thread::sleep_for(5s);
@@ -83,9 +83,9 @@ start:
 
 void DatabaseController::node_runner_waitResolverRL(Node *nd, int rate_limit_length) {
     if(nd->m_bRateLimitApplied) return;
-    
+
     nd->m_bRateLimitApplied = true;
-    
+
     if(!nd->m_pPolicy->m_bNoOutput) {
         //std::cout << "[LevelAPI resolver " << nd->m_sInternalName << "] Waiting " << rate_limit_length << "s" << std::endl;
         std::cout << Translation::getByKey("lapi.noderunner.resolver.wait.start", nd->m_sInternalName, rate_limit_length) << std::endl;
@@ -140,7 +140,7 @@ void DatabaseController::node_runner(Node *nd) {
         while (true) {
             if (this_node->m_uQueue->m_vResolverQueuedLevels.size() != 0) {
                 printf("qsize %lu\n", this_node->m_uQueue->m_vResolverQueuedLevels.size());
-                int i = 0;  
+                int i = 0;
                 bool dont_stop = false;
                 while (i < proxy_list.size() && (i < this_node->m_uQueue->m_vResolverQueuedLevels.size() || dont_stop)) {
                     int id = this_node->m_uQueue->m_vResolverQueuedLevels[0];
@@ -186,11 +186,11 @@ void DatabaseController::node_runner(Node *nd) {
 
                             delete level;
                             level = nullptr;
-                            
+
                             this_node->m_uQueue->m_vResolverQueuedLevels.erase(this_node->m_uQueue->m_vResolverQueuedLevels.begin());
 
                             dont_stop = false;
-                        }   
+                        }
                     } else {
                         this_node->m_uQueue->m_vResolverQueuedLevels.erase(this_node->m_uQueue->m_vResolverQueuedLevels.begin());
                     }
@@ -230,7 +230,7 @@ void DatabaseController::node_runner(Node *nd) {
 
                             delete level;
                             level = nullptr;
-                            
+
                             this_node->m_uQueue->m_vResolverQueuedLevels.erase(this_node->m_uQueue->m_vResolverQueuedLevels.begin());
                         }
                     } else {
@@ -275,12 +275,12 @@ void DatabaseController::node_runner(Node *nd) {
                         levels[q]->m_bHasLevelString = false;
                         levels[q]->save();
                         if (nd->m_pPolicy->m_bEnableResolver) {
-                            nd->m_uQueue->m_vResolverQueuedLevels.push_back(levels[q]->m_nLevelID);   
+                            nd->m_uQueue->m_vResolverQueuedLevels.push_back(levels[q]->m_nLevelID);
                         }
 #ifdef _DPP_ENABLED_
-                        if (!DatabaseController::database->m_sRegisteredCID2.empty() && DatabaseController::database->m_bBotReady && DatabaseController::database->m_pLinkedBot->m_pBot != nullptr) {
-                            DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
-                                dpp::snowflake(DatabaseController::database->m_sRegisteredCID2), levels[q]->getAsEmbed(E_REGISTERED)
+                        if (!database->discord.m_sRegisteredCID2.empty() && database->discord.m_bBotReady && database->discord.m_pLinkedBot->m_pBot != nullptr) {
+                            database->discord.m_pLinkedBot->m_pBot->message_create(dpp::message(
+                                dpp::snowflake(database->discord.m_sRegisteredCID2), levels[q]->getAsEmbed(E_REGISTERED)
                             ));
                         }
 #endif
@@ -400,7 +400,7 @@ start:
                 if(!nd->levelExists(levelid)) {
                     bool userIDExists = nd->userIDExists(levels[i]->m_nPlayerID);
                     auto identifier = server->getServerIdentifier();
-                    
+
                     if(!userIDExists) {
                         nd->m_uQueue->m_vCommandQueue.push_back({NC_USER, std::to_string(levels[i]->m_nPlayerID)});
                     }
@@ -414,9 +414,9 @@ start:
                     //     nd->m_uQueue->m_vCommandQueue.push_back(new NodeCommandQueue(NC_ID, std::to_string(levels[i]->m_nLevelID)));
                     // }
 #ifdef _DPP_ENABLED_
-                    if (!DatabaseController::database->m_sRegisteredCID.empty() && DatabaseController::database->m_bBotReady && DatabaseController::database->m_pLinkedBot != nullptr && DatabaseController::database->m_pLinkedBot->m_pBot != nullptr) {
-                        DatabaseController::database->m_pLinkedBot->m_pBot->message_create(dpp::message(
-                            dpp::snowflake(DatabaseController::database->m_sRegisteredCID), levels[i]->getAsEmbed(E_RECENT)
+                    if (!database->discord.m_sRegisteredCID.empty() && database->discord.m_bBotReady && database->discord.m_pLinkedBot != nullptr && database->discord.m_pLinkedBot->m_pBot != nullptr) {
+                        database->discord.m_pLinkedBot->m_pBot->message_create(dpp::message(
+                            dpp::snowflake(database->discord.m_sRegisteredCID), levels[i]->getAsEmbed(E_RECENT)
                         ));
                     }
 #endif
@@ -479,22 +479,22 @@ start:
             for (int i = 0; i < pages; i++) {
                 nd->m_uQueue->m_vCommandQueue.push_back({NC_22REGION_META, std::to_string(i + offset)});
             }
-            
+
             std::cout << "performed experiment 2: " << pages << " NC_22REGION_META commands with offset " << offset << " were added\n";
-            
+
             break;
         }
         case NC_22REGION_META: {
             if (server->getGameVersion() < 22) {
                 std::cout << "NC_22REGION_META command is not supported on " << server->getGameVersion() << " server\n";
-                
+
                 break;
             }
 
             auto srv22 = dynamic_cast<Backend::GDServer_BoomlingsLike22 *>(server);
             if (!srv22) {
                 std::cout << "NC_22REGION_META command is not supported on " << server->getServerIdentifier() << " server\n";
-                
+
                 break;
             }
 
@@ -530,7 +530,7 @@ start:
                     std::this_thread::sleep_for(5s);
                 }
             }
-            
+
             for (Level *lvl : list) {
                 if (nd->levelExists(lvl->m_nLevelID)) {
                     continue;
@@ -550,7 +550,7 @@ start:
             break;
         }
     }
-    
+
     nd->m_uQueue->m_vCommandQueue.pop_front();
     // nd->m_uQueue->save();
 
