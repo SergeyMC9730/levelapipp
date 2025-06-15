@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "GDServer.h"
 #include "tests.h"
 #include "GDServer_BasementGDPS.h"
 #include "Level.h"
@@ -27,7 +28,7 @@
 using namespace LevelAPI;
 // using namespace LevelAPI::Frontend;
 
-void Tests::testBasementFeatures() {
+bool Tests::testBasementFeatures() {
     std::cout << "-- Testing Basement GDPS Features --" << std::endl;
     std::cout << "-1 Testing Recent Rates 1-" << std::endl;
 
@@ -36,7 +37,16 @@ void Tests::testBasementFeatures() {
     auto server = new LevelAPI::Backend::GDServer_BasementGDPS("https://podvalgdsherov.fun/pgcore");
 
     auto levels = server->getRecentRatedLevels(list_length, std::nullopt);
-    
+
+    if (levels.size() == 0) {
+        printf("-1 No levels were found 1-\n");
+        if (server->m_eStatus == Backend::GDServerStatus::GSS_OFFLINE) {
+            printf("! Server is not available !\n");
+        }
+
+        return false;
+    }
+
     printf("-1 Found %zu levels 1-\n", levels.size());
 
     for (auto level : levels) {
@@ -52,5 +62,5 @@ void Tests::testBasementFeatures() {
 
     delete server;
 
-    return;
+    return true;
 }

@@ -24,7 +24,7 @@
 
 using namespace LevelAPI;
 
-void Tests::testRobtopParser() {
+bool Tests::testRobtopParser() {
     std::cout << "testing robtop parser\n";
 
     RobTopStringContainer container;
@@ -57,4 +57,6 @@ void Tests::testRobtopParser() {
     container.parse();
 
     std::cout << "testing complete\n";
+
+    return true;
 }

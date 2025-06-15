@@ -20,6 +20,6 @@
 
 namespace LevelAPI {
     namespace Tasks {
-        void findListLevels();
+        bool findListLevels();
     }
 }

@@ -29,7 +29,7 @@ namespace LevelAPI {
             GDServer_BoomlingsLike22(std::string endpoint, std::vector<LevelRange> list);
             GDServer_BoomlingsLike22(std::string endpoint, LevelRangeList list);
 
-	        // get metadata for a list of levels
+	        // get metadata for a list of levels. unlisted levels work if they were not uploaded for friends only
             virtual std::vector<LevelAPI::DatabaseController::Level *> fetchListOfLevels(std::vector<int> levels, int page, std::optional<CurlProxy> proxy = std::nullopt);
 
             // get list of latest reported levels.

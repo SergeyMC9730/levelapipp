@@ -31,7 +31,7 @@ struct task_ext_map {
     std::string naming;
 };
 
-void LevelAPI::Tasks::findListLevels() {
+bool LevelAPI::Tasks::findListLevels() {
     std::cout << "TASK: Using GD server in 2.2 mode to obtain levels" << std::endl;
 
     auto boom = new LevelAPI::Backend::GDServer_Boomlings22("https://www.boomlings.com/database");
@@ -81,6 +81,13 @@ void LevelAPI::Tasks::findListLevels() {
             auto levels = boom->getLevels(f, proxy);
             if (!levels.empty()) {
                 lvls.insert(lvls.end(), levels.begin(), levels.end());
+            } else {
+                if (boom->m_eStatus != Backend::GDServerStatus::GSS_ONLINE) {
+                    printf("[TASK] cound not reach the server. server status is %d\n", (int)boom->m_eStatus);
+                    return false;
+                } else {
+                    printf("[TASK] got empty page %d\n", f.page);
+                }
             }
         }
 
@@ -118,6 +125,13 @@ void LevelAPI::Tasks::findListLevels() {
             auto levels = boom->getLevels(f, proxy);
             if (!levels.empty()) {
                 lvls.insert(lvls.end(), levels.begin(), levels.end());
+            } else {
+                if (boom->m_eStatus != Backend::GDServerStatus::GSS_ONLINE) {
+                    printf("[TASK] cound not reach the server. server status is %d\n", (int)boom->m_eStatus);
+                    return false;
+                } else {
+                    printf("[TASK] got empty page %d\n", f.page);
+                }
             }
         }
 
@@ -141,5 +155,5 @@ void LevelAPI::Tasks::findListLevels() {
 
     std::cout << "2.2 fetch has been completed" << std::endl;
 
-    return;
+    return true;
 }

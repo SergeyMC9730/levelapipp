@@ -20,6 +20,6 @@
 
 namespace LevelAPI {
     namespace Tests {
-        void test_boomlings_ver22();
+        bool test_boomlings_ver22();
     }
 }

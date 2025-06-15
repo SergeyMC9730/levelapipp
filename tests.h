@@ -21,15 +21,15 @@
 namespace LevelAPI {
     namespace Tests {
         void testCurlThread();
-        void testCurl();
+        bool testCurl();
 
-        void testGDParsers();
+        bool testGDParsers();
         void testGDParsersThread();
 
-        void testBasementFeatures();
+        bool testBasementFeatures();
 
-        void testRobtopParser();
+        bool testRobtopParser();
 
-        void testVectorDrawing();
+        bool testVectorDrawing();
     }
 }

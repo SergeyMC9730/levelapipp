@@ -24,7 +24,7 @@
 
 #include <iostream>
 
-void LevelAPI::Tests::testVectorDrawing() {
+bool LevelAPI::Tests::testVectorDrawing() {
     std::cout << "testing vector drawing\n";
 
     BLImage img(781, 317, BL_FORMAT_PRGB32);
@@ -73,4 +73,6 @@ void LevelAPI::Tests::testVectorDrawing() {
     img.writeToFile("vtest.png");
 
     std::cout << "testing complete\n";
+
+    return true;
 }

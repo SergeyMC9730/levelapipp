@@ -42,17 +42,17 @@
 using namespace LevelAPI;
 using namespace LevelAPI::Frontend::Translation;
 
-std::vector<std::string> get_tests() {
+std::map<std::string, std::function<bool()>> get_tests() {
     return {
-        "boomlings2.2",
-        "basement",
-        "robtop-parser",
-        "vector-draw"
+        {"boomlings2.2", Tests::test_boomlings_ver22},
+        {"basement", Tests::testBasementFeatures},
+        {"robtop-parser", Tests::testRobtopParser},
+        {"vector-draw", Tests::testVectorDrawing}
     };
 }
-std::vector<std::string> get_tasks() {
+std::map<std::string, std::function<bool()>> get_tasks() {
     return {
-        "get-list-levels"
+        {"get-list-levels", Tasks::findListLevels}
     };
 }
 
@@ -63,15 +63,9 @@ void print_tests() {
 
     std::cout << "Available tests:" << std::endl;
 
-    while(i < tests.size()) {
-        auto test = tests[i];
-
-        std::cout << " - " << test << std::endl;
-
-        i++;
+    for (const auto &[k, v] : tests) {
+        std::cout << " - " << k << std::endl;
     }
-
-    return;
 }
 void print_tasks() {
     auto tasks = get_tasks();
@@ -80,65 +74,57 @@ void print_tasks() {
 
     std::cout << "Available tasks:" << std::endl;
 
-    while(i < tasks.size()) {
-        auto task = tasks[i];
-
-        std::cout << " - " << task << std::endl;
-
-        i++;
+    for (const auto &[k, v] : tasks) {
+        std::cout << " - " << k << std::endl;
     }
 
     return;
 }
 
 bool is_test_valid(std::string test) {
-    auto tests = get_tests();
-
-    int i = 0;
-    while(i < tests.size()) {
-        if (tests[i] == test) return true;
-        i++;
-    }
-
-    return false;
+    return get_tests().count(test) > 0;
 }
 bool is_task_valid(std::string task) {
-    auto tasks = get_tasks();
-
-    int i = 0;
-    while(i < tasks.size()) {
-        if (tasks[i] == task) return true;
-        i++;
-    }
-
-    return false;
+    return get_tasks().count(task) > 0;
 }
 
-void route_test(std::string test) {
+bool route_test(std::string test) {
     if (!is_test_valid(test)) {
         std::cout << "Test not found\n";
-        return;
+        return false;
     }
 
-    if (test == "boomlings2.2") {
-        LevelAPI::Tests::test_boomlings_ver22();
-    } else if (test == "basement") {
-        LevelAPI::Tests::testBasementFeatures();
-    } else if (test == "robtop-parser") {
-        LevelAPI::Tests::testRobtopParser();
-    } else if (test == "vector-draw") {
-        LevelAPI::Tests::testVectorDrawing();
+    auto fn = get_tests()[test];
+    if (fn == nullptr) {
+        std::cout << "Test is not implemented\n";
+        return false;
     }
+
+    if (!fn()) {
+        std::cout << "Test failed\n";
+        return false;
+    }
+
+    return true;
 }
-void route_task(std::string task) {
+bool route_task(std::string task) {
     if (!is_task_valid(task)) {
         std::cout << "Task not found\n";
-        return;
+        return false;
     }
 
-    if (task == "get-list-levels") {
-        LevelAPI::Tasks::findListLevels();
+    auto fn = get_tests()[task];
+    if (fn == nullptr) {
+        std::cout << "Task is not implemented\n";
+        return false;
     }
+
+    if (!fn()) {
+        std::cout << "Task failed\n";
+        return false;
+    }
+
+    return true;
 }
 
 #include "GenericTools.hpp"
@@ -529,7 +515,9 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
 
-            route_test(subtest);
+            if (!route_test(subtest)) {
+                return 1;
+            }
 
             return 0;
         } else if (command == "task") {
@@ -547,7 +535,9 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
 
-            route_task(subtest);
+            if (!route_task(subtest)) {
+                return 1;
+            }
 
             return 0;
         } else if (command == "setup") {

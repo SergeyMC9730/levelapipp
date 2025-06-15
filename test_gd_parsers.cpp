@@ -32,25 +32,25 @@ using namespace LevelAPI;
 using namespace std::chrono_literals;
 using namespace LevelAPI::Frontend;
 
-void Tests::testGDParsers() {
+bool Tests::testGDParsers() {
     std::cout << Translation::getByKey("lapi.gdpastertests.start");
 
     std::thread tr(Tests::testGDParsersThread);
-    tr.detach();
+    tr.join();
 
-    return;
+    return true;
 }
 void Tests::testGDParsersThread() {
     auto gd = new Backend::GDServer_BoomlingsLike21("https://www.boomlings.com/database");
     auto levels = gd->getLevelsBySearchType(4, "", 0);
-    
+
     std::cout << Translation::getByKey("lapi.gdpastertests.test1result", levels.size());
 
     std::this_thread::sleep_for(600ms);
 
     auto somelevel = gd->resolveLevelData(levels[0]);
     somelevel->save();
-    
+
     levels.clear();
     delete gd;
     gd = nullptr;

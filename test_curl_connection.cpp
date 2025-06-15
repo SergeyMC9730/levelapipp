@@ -28,13 +28,13 @@
 using namespace LevelAPI;
 using namespace LevelAPI::Frontend;
 
-void Tests::testCurl() {
+bool Tests::testCurl() {
     std::cout << Translation::getByKey("lapi.curltest.start");
 
     std::thread tr(Tests::testCurlThread);
-    tr.detach();
+    tr.join();
 
-    return;
+    return true;
 }
 void Tests::testCurlThread() {
     Backend::CURLConnection con = Backend::CURLConnection();
