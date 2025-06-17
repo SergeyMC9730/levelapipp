@@ -18,6 +18,7 @@
 
 #include "TelegramInstance.hpp"
 #include "TCommand.hpp"
+#include "TCommandStats.hpp"
 #include "lapi_database.h"
 #include "tgbot/Bot.h"
 #include "tgbot/TgException.h"
@@ -52,7 +53,7 @@ void Frontend::TelegramInstance::thread() {
     printf("Bot username: %s\n", bot.getApi().getMe()->username.c_str());
 
     std::vector<TCommand *> commands = {
-        new TCommand("lstat", "get levelapi stats")
+        new TCommandStats()
     };
 
     std::vector<TgBot::BotCommand::Ptr> builtCommands;
@@ -76,7 +77,13 @@ void Frontend::TelegramInstance::thread() {
         }
     });
 
-    TgBot::TgLongPoll poll(bot, 100, 100);
+    bot.getEvents().onCallbackQuery([&bot, this, commands](TgBot::CallbackQuery::Ptr query) {
+        for (TCommand *cmd : commands) {
+            cmd->run(this, query);
+        }
+    });
+
+    TgBot::TgLongPoll poll(bot, 100, 1);
     bot.getApi().deleteWebhook();
 
     while (m_bThreadStarted) {

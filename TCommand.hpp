@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "tgbot/types/CallbackQuery.h"
+#include "tgbot/types/Message.h"
 #include <tgbot/tgbot.h>
 #include <map>
 #include <optional>
@@ -26,17 +28,39 @@ namespace LevelAPI {
     namespace Frontend {
         class TelegramInstance;
 
+        class UserContextExt {
+        public:
+            int filler;
+        };
+
         class TCommand {
+        protected:
+            class StrPair {
+            public:
+                std::string first = "";
+                std::string second = "";
+
+                StrPair() {}
+                StrPair(const std::string &_first, const std::string &_second) {first = _first; second = _second;}
+            };
+        private:
+            StrPair _pressedButton;
+            std::map<std::string, std::string> _tempFilter;
+
+            bool _deleteContext = false;
         protected:
             enum CommandType {
                 CTCommandCall,
-                CTReply
+                CTReply,
+                CTButton
             };
             struct UserContext {
                 TgBot::User::Ptr user;
                 TgBot::Message::Ptr user_message;
                 TgBot::Message::Ptr bot_response;
+                void *data = nullptr;
             };
+
             std::map<int64_t, UserContext> _userContext;
 
             std::string _name;
@@ -45,6 +69,18 @@ namespace LevelAPI {
             TelegramInstance *_instance;
 
             virtual void run(enum CommandType type, UserContext *ctx);
+
+            virtual void createCustomData(UserContext *ctx);
+            virtual void deleteCustomData(UserContext *ctx);
+
+            void requestContextDeletion();
+
+            virtual TgBot::Message::Ptr sendMessage(UserContext *ctx, const std::string &msg, const std::vector<StrPair> &buttons);
+            TgBot::Message::Ptr sendMessage(UserContext *ctx, const std::string &msg, const std::vector<std::string> &buttons);
+            TgBot::Message::Ptr sendMessage(UserContext *ctx, const std::string &msg, const std::string &button);
+            TgBot::Message::Ptr sendMessage(UserContext *ctx, const std::string &msg);
+
+            StrPair getPressedButton();
         public:
             TCommand(const std::string &name, const std::string &description);
 
@@ -52,6 +88,7 @@ namespace LevelAPI {
             TgBot::BotCommand::Ptr build() const;
 
             void run(TelegramInstance *instance, TgBot::Message::Ptr message);
+            void run(TelegramInstance *instance, TgBot::CallbackQuery::Ptr query);
 
             std::optional<struct UserContext> getContext(TgBot::User::Ptr user) const;
             void clearContext(TgBot::User::Ptr user);

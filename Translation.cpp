@@ -1485,6 +1485,110 @@ std::map<std::string, Translation::translation_unit_t> Translation::translation_
             "JSON representation cannot be created from this object",
             "Представление объекта в формате JSON не может быть создано"
         }
+    },
+
+    // telegram stuff
+    {
+        "lapi.tg.stat.no-nodes", {
+            "🚫 This LevelAPI instance <b>does not contain</b> working nodes.",
+            "🚫 Данная инстанция LevelAPI <b>не содержит узлов</b>, с которыми можно работать."
+        }
+    },
+    {
+        "lapi.tg.stat.ask-node", {
+            "<b>This instance have {} nodes:</b> {}\nPlease select <u>one of them</u> to continue.",
+            "<b>Данная инстация содержит {} узлов:</b> {}\nПожалуйста, выберите <u>одну из них</u>, чтобы продолжить."
+        }
+    },
+    {
+        "lapi.tg.stat.node-not-found", {
+            "🚫 <b>Node not found.</b> Make sure you typed it correctly and try again.",
+            "🚫 <b>Узел не найден.</b> Убедитесь, что вы ввели его правильно и попробуйте ещё раз."
+        }
+    },
+    {
+        "lapi.tg.stat.info", {
+            "ℹ️ <u>Node Statistics for {}</u>\n\n<b>Levels</b>: {}\n<b>Queued Jobs</b>: {}\n<b>Queued Download Jobs</b>: {}\n <b>Server Name</b>: {}\n<b>Last Downloaded Levels</b>:\n\n{}",
+            "ℹ️ <u>Статистика узла {}</u>\n\n <b>Уровней</b>: {}\n <b>Запланированных задач</b>: {}\n <b>Запланированных задач загрузчика</b>: {}\n <b>Название сервера</b>: {}\n <b>Последние загруженные уровни</b>:\n\n{}"
+        }
+    },
+    {
+        "lapi.tg.stat.level", {
+            "  • <b>{}</b> (<code>{}</code>) by {}\n      — {} ⏬{}, {} {}{}",
+            "  • <b>{}</b> (<code>{}</code>) от {}\n      — {} ⏬{}, {} {}{}"
+        }
+    },
+    {
+        "lapi.tg.stat.no-levels", {
+            "  • ⚠️ <b>Levels were not downloaded yet.</b>",
+            "  • ⚠️ <b>Уровни ещё не были скачаны.</b>"
+        }
+    },
+    {
+        "lapi.tg.stat.download", {
+            "download",
+            "скачивание"
+        }
+    },
+    {
+        "lapi.tg.stat.downloads", {
+            "downloads",
+            "скачиваний"
+        }
+    },
+    {
+        "lapi.tg.stat.downloadsA", {
+            "downloads",
+            "скачивания"
+        }
+    },
+    {
+        "lapi.tg.stat.like", {
+            "like",
+            "лайк"
+        }
+    },
+    {
+        "lapi.tg.stat.likes", {
+            "likes",
+            "лайков"
+        }
+    },
+    {
+        "lapi.tg.stat.likesA", {
+            "likes",
+            "лайка"
+        }
+    },
+    {
+        "lapi.tg.stat.dislike", {
+            "dislike",
+            "дизлайк"
+        }
+    },
+    {
+        "lapi.tg.stat.dislikes", {
+            "dislikes",
+            "дизлайков"
+        }
+    },
+    {
+        "lapi.tg.stat.dislikesA", {
+            "dislikes",
+            "дизлайка"
+        }
+    },
+    {
+        "lapi.tg.stat.like-emoji", {
+            "👍",
+            "👍"
+        }
+    },
+    {
+        "lapi.tg.stat.dislike-emoji", {
+            "👎",
+            "👎"
+        }
     }
 };
 

@@ -186,6 +186,7 @@ if (LAPI_ENABLE_TG)
     set(levelapi_tg_support
         TelegramInstance.cpp TelegramInstance.hpp
         TCommand.cpp TCommand.hpp
+        TCommandStats.cpp TCommandStats.hpp
     )
 endif()
 
