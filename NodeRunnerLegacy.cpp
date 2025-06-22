@@ -379,7 +379,19 @@ start:
             if(!nd->m_pPolicy->m_bNoOutput) {
                 std::cout << Translation::getByKey("lapi.noderunner.downloader.recenttab.fetch", nd->m_sInternalName) << std::endl;
             }
-            auto levels = server->getLevelsBySearchType(4, "", page);
+
+            std::vector<Level*> levels;
+
+            if (proxies.size() > 0) {
+                for (Backend::CurlProxy p : proxies) {
+                    std::string proxy_name = p.getURL();
+                    printf("!! Trying to use proxy %s to fetch levels\n", proxy_name.c_str());
+                    levels = server->getLevelsBySearchType(4, "", page, p);
+                    if (server->m_eStatus == LevelAPI::Backend::GSS_ONLINE) break;
+                }
+            } else {
+                levels = server->getLevelsBySearchType(4, "", page);
+            }
             int i = 0;
             if(server->m_eStatus == LevelAPI::Backend::GSS_PERMANENT_BAN) {
                 while(i < 32) {
@@ -402,7 +414,7 @@ start:
                     auto identifier = server->getServerIdentifier();
 
                     if(!userIDExists) {
-                        nd->m_uQueue->m_vCommandQueue.push_back({NC_USER, std::to_string(levels[i]->m_nPlayerID)});
+                        // nd->m_uQueue->m_vCommandQueue.push_back({NC_USER, std::to_string(levels[i]->m_nPlayerID)});
                     }
 
                     nd->initLevel(levels[i]);
