@@ -43,8 +43,9 @@
 **Documentation for Level API available here:** [click!](https://sergeymc9730.github.io/levelapi/#/)
 -->
 
-# Demo server
+<!---# Demo server
 
 Main server have **over `190k` levels** in total **size of `775` megabytes of storage.**
 <br>
 Main server is [placed here](https://lapi.vse-serii-naruto.ru/api/v1/stats)!
+-->
